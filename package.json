@@ -1,18 +1,88 @@
 {
-  "name": "fresh-catch",
-  "version": "1.0.0",
-  "description": "```\r fishshop/\r │\r ├── index.html                  ← Storefront (customer-facing)\r ├── styles.css                  ← Storefront styles\r ├── app.js                      ← Storefront logic\r ├── data.js                     ← Product data + WhatsApp number (edit here!)\r │\r └── admin/\r     ├── index.html              ← Admin panel entry point\r     │\r     ├── css/\r     │   └── admin.css           ← Admin panel styles\r     │\r     └── js/\r         ├── store.js            ← Data layer (localStorage CRUD + analytics)\r         └── admin.js            ← Admin panel logic (auth, dashboard, products, orders)\r ```",
-  "main": "app.js",
+  "name": "oceanfresh",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Enterprise-grade premium seafood e-commerce platform",
+  "keywords": [
+    "seafood",
+    "ecommerce",
+    "firebase",
+    "react"
+  ],
+  "homepage": "https://oceanfresh.in",
+  "license": "MIT",
+  "author": "OceanFresh Engineering",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "turbo run dev --parallel",
+    "dev:storefront": "pnpm --filter @oceanfresh/storefront dev",
+    "dev:admin": "pnpm --filter @oceanfresh/admin dev",
+    "build": "turbo run build",
+    "build:analyze": "turbo run build:analyze",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "typecheck": "turbo run typecheck",
+    "typecheck:strict": "tsc --strict --noEmit",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch",
+    "test:coverage": "turbo run test:coverage",
+    "test:e2e": "pnpm --filter @oceanfresh/storefront exec playwright test",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "reset": "pnpm run clean && pnpm install",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "preview": "turbo run preview",
+    "prepare": "husky",
+    "commit": "cz",
+    "seed": "node scripts/seed.mjs",
+    "migrate": "node scripts/migrate-rtdb-to-firestore.mjs",
+    "migrate:dry-run": "node scripts/migrate-rtdb-to-firestore.mjs --dry-run",
+    "analyze": "vite-bundle-visualizer",
+    "lighthouse": "lhci autorun",
+    "outdated": "pnpm outdated -r",
+    "audit": "pnpm audit --audit-level=high",
+    "circular": "madge --circular apps/storefront/src/",
+    "changelog": "standard-version --dry-run",
+    "release": "standard-version",
+    "release:dry-run": "standard-version --dry-run",
+    "update": "pnpm up --latest -r",
+    "deploy:staging": "turbo run build && firebase deploy --project staging",
+    "deploy:production": "turbo run build && firebase deploy --project production",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:rules": "firebase deploy --only firestore:rules,storage:rules"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "cors": "^2.8.6",
-    "express": "^5.2.1",
-    "multer": "^2.1.1",
-    "sqlite3": "^5.1.7"
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "devDependencies": {
+    "@commitlint/cli": "^19.3.0",
+    "@commitlint/config-conventional": "^19.2.2",
+    "commitizen": "^4.3.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^9.6.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.7",
+    "prettier": "^3.3.2",
+    "prettier-plugin-tailwindcss": "^0.6.5",
+    "standard-version": "^9.5.0",
+    "tailwindcss": "^3.4.6",
+    "turbo": "^2.0.6",
+    "typescript": "^5.5.3"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "prettier --write"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   }
 }

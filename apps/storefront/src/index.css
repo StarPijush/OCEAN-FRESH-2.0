@@ -1,0 +1,7 @@
+@import './styles/legacy-tokens.css';
+@import './styles/legacy-animations.css';
+@import './styles/legacy-components.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

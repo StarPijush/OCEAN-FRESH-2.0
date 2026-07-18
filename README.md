@@ -1,131 +1,56 @@
-# OceanFresh — Complete File Structure
+# OceanFresh — Premium Seafood Platform
+
+[![CI](https://github.com/oceanfresh/oceanfresh/actions/workflows/ci.yml/badge.svg)](https://github.com/oceanfresh/oceanfresh/actions/workflows/ci.yml)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue)](https://www.typescriptlang.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-11-FFCA28)](https://firebase.google.com/)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
+Enterprise-grade premium seafood e-commerce platform serving Jhargram, West Bengal. Fresh catch delivered within 3 hours.
+
+## Architecture
 
 ```
-fishshop/
-│
-├── index.html                  ← Storefront (customer-facing)
-├── styles.css                  ← Storefront styles
-├── app.js                      ← Storefront logic
-├── data.js                     ← Product data + WhatsApp number (edit here!)
-│
-└── admin/
-    ├── index.html              ← Admin panel entry point
-    │
-    ├── css/
-    │   └── admin.css           ← Admin panel styles
-    │
-    └── js/
-        ├── store.js            ← Data layer (localStorage CRUD + analytics)
-        └── admin.js            ← Admin panel logic (auth, dashboard, products, orders)
+oceanfresh/
+├── apps/
+│   ├── storefront/     # Customer-facing React 19 SPA
+│   └── admin/          # Admin panel React 19 SPA
+├── packages/
+│   ├── shared/         # Types, validators, utilities
+│   ├── ui/             # Design system (shadcn/ui)
+│   ├── firebase/       # Firebase modular SDK config
+│   └── config/         # Shared ESLint, TypeScript configs
+└── functions/          # Firebase Cloud Functions
 ```
 
-# OceanFresh Backend
+## Quick Start
 
-This is the Node.js/Express backend for OceanFresh, using SQLite for data storage.
+```bash
+pnpm install
+pnpm dev
+```
 
-> [!IMPORTANT]
-> This project is built using **Node.js + Express + SQLite**. It does **NOT** use Firebase.
+## Documentation
 
-## Getting Started
+| Document | Description |
+|---|---|
+| [ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md) | System architecture and design decisions |
+| [ROADMAP.md](docs/ROADMAP.md) | Development roadmap |
+| [CONTRIBUTING.md](docs/CONTRIBUTING.md) | Contribution guidelines |
+| [SECURITY.md](docs/SECURITY.md) | Security policies and procedures |
+| [CHANGELOG.md](docs/CHANGELOG.md) | Release history |
+| [CODE_OF_CONDUCT.md](docs/CODE_OF_CONDUCT.md) | Community standards |
+| [ADR/](docs/architecture/adr/) | Architecture Decision Records |
 
-1.  **Install Dependencies:**
-    ```bash
-    npm install
-    ```
+## Tech Stack
 
-2.  **Run Diagnostics (Optional):**
-    ```bash
-    node check_setup.js
-    ```
-    This will verify your database and show you the current admin credentials.
+- **Frontend:** React 19, TypeScript 5.5, TailwindCSS, shadcn/ui, Framer Motion
+- **State:** TanStack Query, Zustand (cart only)
+- **Forms:** React Hook Form, Zod
+- **Backend:** Firebase Auth, Firestore, Cloud Functions, Storage
+- **Security:** Firebase App Check, CSP, RBAC
+- **CI/CD:** GitHub Actions, Vercel, Firebase Hosting
+- **Quality:** Vitest, Playwright, ESLint, Prettier, Husky
 
-3.  **Start the Server:**
-    ```bash
-    node server.js
-    ```
-    The backend will run on [http://localhost:3000](http://localhost:3000).
+## License
 
-4.  **Access the Admin Panel:**
-    Navigate to [http://localhost:3000/admin](http://localhost:3000/admin) in your browser.
-
-## Default Admin Credentials
--   **Mobile:** `9083093198`
--   **Password:** `admin123`
-
----
-
-## 🔐 Admin Login
-
-URL: `admin/index.html`
-
-| Field    | Default Value  |
-|----------|----------------|
-| Mobile   | `9876543210`   |
-| Password | `admin123`     |
-
----
-
-## 📋 Feature Overview
-
-### Auth
-- Login with mobile number + password
-- Forgot password → OTP verification → reset password
-- Change password from Settings panel
-- Change mobile number from Settings panel
-- Session persists in localStorage
-
-### Dashboard
-- Today's sales count + income
-- This week's income
-- Pending orders count
-- Total orders + total revenue (all time)
-- 7-day bar chart (toggle: Income / Sales)
-- Top 5 selling products this month
-- Recent 5 orders table
-
-### Products
-- View all products with emoji, name, category, price
-- Toggle Available / Unavailable (live toggle switch)
-- Toggle Featured / Not Featured
-- Add new product (name, subtitle, price, emoji, category)
-- Edit any product
-- Delete product (with confirmation)
-- Filter by category
-- Search by name / subtitle
-
-### Orders
-- View all orders (from demo data + real WhatsApp orders)
-- Filter by status: All / Pending / Preparing / Delivered
-- Search by customer name, order ID, phone
-- Click any order → full detail modal
-- Update order status (Pending → Preparing → Delivered)
-
-### Settings
-- Change your name
-- Change mobile number (used as login ID)
-- Change password (requires current password)
-- WhatsApp number instructions
-- Sign out
-
----
-
-## ⚙️ How to Update Products in Storefront
-
-The storefront (`index.html`) reads from `data.js`.  
-The admin panel reads/writes to **localStorage**.
-
-> ⚠️ Currently these are two separate stores. To sync them:
-> In production, replace `localStorage` in `store.js` with API calls
-> that write to a database, and have `data.js` fetch from the same database.
-
-For a simple no-backend setup, after editing products in the admin panel,
-export the updated product list and paste it into `data.js` manually.
-
----
-
-## 🚀 To Go Live
-
-1. Replace `WHATSAPP_NUMBER` in `data.js` with real shop number
-2. For OTP: integrate an SMS API (e.g. MSG91, Fast2SMS) in `store.js → generateOTP()`
-3. For real persistence: replace `localStorage` with a backend API (Node.js / Firebase / Supabase)
-4. Host on any static server (Netlify, Vercel, GitHub Pages)
+MIT &copy; OceanFresh

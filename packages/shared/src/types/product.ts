@@ -1,0 +1,160 @@
+import type { Timestamp } from './common.js';
+
+export enum ProductUnit {
+  KG = 'kg',
+  PIECE = 'piece',
+  DOZEN = 'dozen',
+}
+
+export enum ProductStatus {
+  ACTIVE = 'active',
+  OUT_OF_STOCK = 'out_of_stock',
+  COMING_SOON = 'coming_soon',
+  DISCONTINUED = 'discontinued',
+  ARCHIVED = 'archived',
+  HIDDEN = 'hidden',
+  PREORDER = 'preorder',
+  DRAFT = 'draft',
+}
+
+export enum ProductSortField {
+  NAME = 'name',
+  PRICE = 'price',
+  CREATED_AT = 'createdAt',
+  UPDATED_AT = 'updatedAt',
+  STOCK = 'stock',
+  DISPLAY_ORDER = 'displayOrder',
+}
+
+export enum ProductEventType {
+  CREATED = 'product.created',
+  UPDATED = 'product.updated',
+  DELETED = 'product.deleted',
+  RESTORED = 'product.restored',
+  ARCHIVED = 'product.archived',
+  PRICE_CHANGED = 'product.price_changed',
+  STOCK_CHANGED = 'product.stock_changed',
+  STATUS_CHANGED = 'product.status_changed',
+  IMAGE_UPLOADED = 'product.image_uploaded',
+  CATEGORY_CHANGED = 'product.category_changed',
+}
+
+export interface ProductDimensions {
+  length: number;
+  width: number;
+  height: number;
+  unit: 'cm' | 'in';
+}
+
+export interface ProductSeo {
+  title: string;
+  description: string;
+  canonicalUrl: string;
+}
+
+export interface ProductVariant {
+  id: string;
+  name: string;
+  sku: string;
+  price: number;
+  stock: number;
+  unit: ProductUnit;
+  weight: number | null;
+  weightUnit: 'g' | 'kg' | 'lb';
+  images: string[];
+  isDefault: boolean;
+}
+
+export interface ProductEvent {
+  type: ProductEventType;
+  productId: string;
+  previousState: Partial<Product> | null;
+  currentState: Partial<Product> | null;
+  timestamp: number;
+  correlationId: string;
+  triggeredBy: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  sku: string | null;
+  barcode: string | null;
+  description: string;
+  price: number;
+  compareAtPrice: number | null;
+  categoryId: string;
+  images: string[];
+  thumbnail: string;
+  gallery: string[];
+  status: ProductStatus;
+  featured: boolean;
+  stock: number;
+  weight: number | null;
+  weightUnit: 'g' | 'kg' | 'lb';
+  dimensions: ProductDimensions | null;
+  unit: ProductUnit;
+  tags: string[];
+  searchKeywords: string[];
+  seo: ProductSeo | null;
+  metadata: Record<string, unknown>;
+  version: number;
+  sortOrder: number;
+  warehouseId: string | null;
+  variants: ProductVariant[] | null;
+  minOrderQuantity: number;
+  createdBy: string;
+  updatedBy: string | null;
+  isDeleted: boolean;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  deletedAt: Timestamp | null;
+}
+
+export interface CreateProductInput {
+  name: string;
+  description: string;
+  price: number;
+  categoryId: string;
+  status?: ProductStatus;
+  featured?: boolean;
+  stock?: number;
+  unit?: ProductUnit;
+  tags?: string[];
+  searchKeywords?: string[];
+  weight?: number;
+  weightUnit?: 'g' | 'kg' | 'lb';
+  dimensions?: ProductDimensions;
+  sku?: string;
+  barcode?: string;
+  seo?: ProductSeo;
+  metadata?: Record<string, unknown>;
+  sortOrder?: number;
+  warehouseId?: string;
+  variants?: ProductVariant[];
+  minOrderQuantity?: number;
+}
+
+export interface UpdateProductInput extends Partial<CreateProductInput> {
+  id: string;
+}
+
+export interface ProductQuery {
+  categoryId?: string;
+  status?: ProductStatus | ProductStatus[];
+  featured?: boolean;
+  availability?: 'in_stock' | 'out_of_stock' | 'all';
+  search?: string;
+  tags?: string[];
+  priceMin?: number;
+  priceMax?: number;
+  createdBy?: string;
+  warehouseId?: string;
+  sort?: ProductSortField;
+  sortDirection?: 'asc' | 'desc';
+  cursor?: string;
+  limit?: number;
+  includeDeleted?: boolean;
+}

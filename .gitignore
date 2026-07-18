@@ -1,14 +1,63 @@
+# Dependencies
 node_modules/
-*.db
-.gemini/
-.agents/
-.vscode/
-.DS_Store
+.pnpm-store/
+
+# Build output
 dist/
 build/
-.env
+.next/
+.turbo/
+.vite/
+
+# Environment
+.env*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Firebase
 firebase-debug.log
-storage.rules
-firestore.rules
-firestore.indexes.json
+.database.rules.json
 .firebase/
+.firebaserc
+
+# Logs
+*.log
+logs/
+*.tmp
+*.bak
+
+# Coverage & Testing
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+
+# Sentry
+.sentryclirc
+
+# Temp
+tmp/
+temp/
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Package manager
+# (Lockfiles SHOULD be committed for reproducible builds)
+# pnpm-lock.yaml
+# package-lock.json
+# yarn.lock
+
+# Databases & Reports
+*.sqlite
+*.sqlite3
+generated-reports/

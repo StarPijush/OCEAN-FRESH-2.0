@@ -1,0 +1,35 @@
+import { useEffect } from 'react';
+import { useReveal } from '../hooks/useReveal.js';
+import { Hero } from '../components/home/Hero.js';
+import { Ticker } from '../components/home/Ticker.js';
+import { FeaturedCards } from '../components/home/FeaturedCards.js';
+import { FreshCatch } from '../components/home/FreshCatch.js';
+import { WhyUs } from '../components/home/WhyUs.js';
+import { DeliveryChecker } from '../components/home/DeliveryChecker.js';
+import { CTASection } from '../components/home/CTASection.js';
+import { AboutSection } from '../components/home/AboutSection.js';
+import { ReviewsSection } from '../components/home/ReviewsSection.js';
+import { Footer } from '../components/layout/Footer.js';
+
+export function HomePage() {
+  useReveal();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <div id="page-home" className="page active">
+      <Hero />
+      <Ticker />
+      <FeaturedCards />
+      <FreshCatch />
+      <WhyUs />
+      <DeliveryChecker />
+      <CTASection />
+      <AboutSection />
+      <ReviewsSection />
+      <Footer />
+    </div>
+  );
+}

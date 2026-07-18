@@ -1,0 +1,49 @@
+{
+  "name": "@oceanfresh/cart",
+  "version": "0.0.0",
+  "private": true,
+  "description": "OceanFresh Cart Domain — Clean Architecture repository, service, hooks, queries, mutations, and components",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./repository": "./src/repository/index.ts",
+    "./service": "./src/service/index.ts",
+    "./events": "./src/events/index.ts",
+    "./queries": "./src/queries/index.ts",
+    "./hooks": "./src/hooks/index.ts",
+    "./components": "./src/components/index.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint src/",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@oceanfresh/shared": "workspace:*",
+    "@oceanfresh/supabase": "workspace:*",
+    "@oceanfresh/product": "workspace:*",
+    "@tanstack/react-query": "^5.51.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.5.3",
+    "vitest": "^2.0.3",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/jest-dom": "^6.4.6",
+    "jsdom": "^24.1.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

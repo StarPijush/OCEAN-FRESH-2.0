@@ -1,0 +1,9 @@
+export { Protected } from './protected.js';
+export { RoleGate } from './role-gate.js';
+export { PermissionGate } from './permission-gate.js';
+export { AuthStatus } from './auth-status.js';
+export { UserAvatar } from './user-avatar.js';
+export { LoginForm } from './login-form.js';
+export { RegisterForm } from './register-form.js';
+export { PasswordStrength } from './password-strength.js';
+export { SessionExpiredDialog } from './session-expired-dialog.js';

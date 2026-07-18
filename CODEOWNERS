@@ -1,0 +1,67 @@
+# OceanFresh Code Owners
+# Each line specifies owners for files/directories
+
+# Default owners (everyone)
+* @oceanfresh/engineering
+
+# --- Apps ---
+
+# Storefront (customer-facing)
+/apps/storefront/ @oceanfresh/frontend
+
+# Admin panel
+/apps/admin/ @oceanfresh/frontend
+
+# --- Packages ---
+
+# Shared types and utilities
+/packages/shared/ @oceanfresh/engineering
+
+# Design system
+/packages/ui/ @oceanfresh/frontend @oceanfresh/design
+
+# Firebase configuration
+/packages/firebase/ @oceanfresh/backend
+
+# Shared configs (ESLint, TypeScript)
+/packages/config/ @oceanfresh/engineering
+
+# --- Backend ---
+
+# Cloud Functions
+/functions/ @oceanfresh/backend
+
+# --- Infrastructure ---
+
+# Firebase rules and configuration
+/infrastructure/ @oceanfresh/devops
+
+# Vercel configuration
+/infrastructure/vercel.json @oceanfresh/devops
+
+# --- CI/CD ---
+
+/.github/ @oceanfresh/devops
+
+# --- Documentation ---
+
+# Architecture documentation
+/docs/architecture/ @oceanfresh/engineering
+
+# Security documentation
+/docs/security/ @oceanfresh/security
+
+# API documentation
+/docs/api/ @oceanfresh/backend
+
+# User guides
+/docs/guides/ @oceanfresh/tech-writer
+
+# --- Root Files ---
+
+# Root configuration
+/turbo.json @oceanfresh/engineering
+/package.json @oceanfresh/engineering
+/pnpm-workspace.yaml @oceanfresh/engineering
+/tsconfig.json @oceanfresh/engineering
+/vitest.workspace.ts @oceanfresh/engineering
