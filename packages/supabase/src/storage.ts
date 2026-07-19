@@ -1,9 +1,11 @@
-import { initSupabase, getClient } from './client.js';
+import { getClient, initSupabase } from './client.js';
 
 function getStorageBucket(): string {
   try {
     const urlKey = 'VITE_SUPABASE_STORAGE_BUCKET';
-    const bucket = (import.meta as unknown as Record<string, Record<string, string>>).env?.[urlKey] ?? 'products';
+    const bucket =
+      (import.meta as unknown as Record<string, Record<string, string>>).env?.[urlKey] ??
+      'products';
     return bucket;
   } catch {
     return 'products';

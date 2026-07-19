@@ -1,11 +1,12 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { LoginPage } from './pages/login.js';
-import { DashboardPage } from './pages/dashboard.js';
-import { ProductsPage } from './pages/products.js';
-import { OrdersPage } from './pages/orders.js';
-import { SettingsPage } from './pages/settings.js';
-import { NotFoundPage } from './pages/not-found.js';
+import { Navigate, Route, Routes } from 'react-router-dom';
+
 import { AdminLayout } from './components/layout/AdminLayout.js';
+import { DashboardPage } from './pages/dashboard.js';
+import { LoginPage } from './pages/login.js';
+import { NotFoundPage } from './pages/not-found.js';
+import { OrdersPage } from './pages/orders.js';
+import { ProductsPage } from './pages/products.js';
+import { SettingsPage } from './pages/settings.js';
 
 export default function AdminApp() {
   return (

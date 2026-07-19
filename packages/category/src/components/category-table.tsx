@@ -1,4 +1,5 @@
 import type { Category } from '@oceanfresh/shared';
+
 import { CategoryStatusBadge } from './category-status-badge.js';
 
 interface CategoryTableProps {
@@ -9,7 +10,13 @@ interface CategoryTableProps {
   className?: string;
 }
 
-export function CategoryTable({ categories, onSelect, selectedIds, onToggleSelect, className = '' }: CategoryTableProps) {
+export function CategoryTable({
+  categories,
+  onSelect,
+  selectedIds,
+  onToggleSelect,
+  className = '',
+}: CategoryTableProps) {
   if (categories.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-gray-400">
@@ -24,19 +31,47 @@ export function CategoryTable({ categories, onSelect, selectedIds, onToggleSelec
         <thead className="bg-gray-50">
           <tr>
             {onToggleSelect && (
-              <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">
+              <th
+                scope="col"
+                className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10"
+              >
                 <input
                   type="checkbox"
-                  onChange={(e) => categories.forEach((c) => onToggleSelect(c.id))}
+                  onChange={() => categories.forEach((c) => onToggleSelect(c.id))}
                   className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
                 />
               </th>
             )}
-            <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-            <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
-            <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Level</th>
-            <th scope="col" className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
+            <th
+              scope="col"
+              className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Name
+            </th>
+            <th
+              scope="col"
+              className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Status
+            </th>
+            <th
+              scope="col"
+              className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Products
+            </th>
+            <th
+              scope="col"
+              className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Level
+            </th>
+            <th
+              scope="col"
+              className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Slug
+            </th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
@@ -64,8 +99,18 @@ export function CategoryTable({ categories, onSelect, selectedIds, onToggleSelec
                       <img src={category.thumbnail} alt="" className="h-full w-full object-cover" />
                     ) : (
                       <div className="flex h-full items-center justify-center text-gray-300">
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 6h16M4 12h16M4 18h16" />
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1}
+                            d="M4 6h16M4 12h16M4 18h16"
+                          />
                         </svg>
                       </div>
                     )}
@@ -73,7 +118,9 @@ export function CategoryTable({ categories, onSelect, selectedIds, onToggleSelec
                   <div>
                     <p className="text-sm font-medium text-gray-900">{category.name}</p>
                     {category.description && (
-                      <p className="text-xs text-gray-500 truncate max-w-[200px]">{category.description}</p>
+                      <p className="text-xs text-gray-500 truncate max-w-[200px]">
+                        {category.description}
+                      </p>
                     )}
                   </div>
                 </div>

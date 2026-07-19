@@ -1,4 +1,10 @@
-import type { Product, CreateProductInput, UpdateProductInput, ProductQuery, PaginatedResult } from '@oceanfresh/shared';
+import type {
+  CreateProductInput,
+  PaginatedResult,
+  Product,
+  ProductQuery,
+  UpdateProductInput,
+} from '@oceanfresh/shared';
 
 export interface IProductRepository {
   findById(id: string): Promise<Product | null>;
@@ -6,7 +12,10 @@ export interface IProductRepository {
   findByIds(ids: string[]): Promise<Product[]>;
   findAll(query: ProductQuery): Promise<PaginatedResult<Product>>;
   findFeatured(limit?: number): Promise<Product[]>;
-  findByCategory(categoryId: string, query?: Partial<ProductQuery>): Promise<PaginatedResult<Product>>;
+  findByCategory(
+    categoryId: string,
+    query?: Partial<ProductQuery>,
+  ): Promise<PaginatedResult<Product>>;
   findByStatus(status: string, query?: Partial<ProductQuery>): Promise<PaginatedResult<Product>>;
   search(term: string, query?: Partial<ProductQuery>): Promise<PaginatedResult<Product>>;
   exists(id: string): Promise<boolean>;

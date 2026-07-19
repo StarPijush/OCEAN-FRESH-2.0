@@ -1,5 +1,5 @@
-import { AppError } from './base.error.js';
 import type { OrderStatus } from '../types/order.js';
+import { AppError } from './base.error.js';
 
 export class IllegalOrderStateTransitionError extends AppError {
   readonly code = 'ILLEGAL_ORDER_STATE_TRANSITION';
@@ -25,10 +25,6 @@ export class OrderValidationException extends AppError {
   readonly code = 'ORDER_VALIDATION_ERROR';
   readonly statusCode = 400;
   readonly severity = 'error' as const;
-
-  constructor(message: string, context?: Record<string, unknown>) {
-    super(message, context);
-  }
 }
 
 export class OrderNotFoundError extends AppError {

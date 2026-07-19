@@ -1,6 +1,16 @@
-import { useCurrentUser, useAuthState, useSession, usePermissions, useRole, useIsAuthenticated, useLogin, useRegister, useLogout } from '../queries/index.js';
+import {
+  useAuthState,
+  useCurrentUser,
+  useIsAuthenticated,
+  useLogin,
+  useLogout,
+  usePermissions,
+  useRegister,
+  useRole,
+  useSession,
+} from '../queries/index.js';
 
-export { useCurrentUser, useAuthState, useSession, usePermissions, useRole, useIsAuthenticated };
+export { useAuthState, useCurrentUser, useIsAuthenticated, usePermissions, useRole, useSession };
 
 export function useLoginAction() {
   return useLogin();

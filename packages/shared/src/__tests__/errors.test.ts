@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { AppError, ValidationError, NotFoundError } from '../errors/index.js';
+import { describe, expect, it } from 'vitest';
+
+import { AppError, NotFoundError, ValidationError } from '../errors/index.js';
 
 class TestError extends AppError {
   readonly code = 'TEST_ERROR';

@@ -1,4 +1,4 @@
-import { OrderStatus, IllegalOrderStateTransitionError } from '@oceanfresh/shared';
+import { IllegalOrderStateTransitionError, OrderStatus } from '@oceanfresh/shared';
 
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   [OrderStatus.DRAFT]: [OrderStatus.VALIDATING],
@@ -18,26 +18,26 @@ const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   [OrderStatus.ARCHIVED]: [],
 };
 
-export class OrderStateMachine {
-  static canTransition(from: OrderStatus, to: OrderStatus): boolean {
+export const OrderStateMachine = {
+  canTransition(from: OrderStatus, to: OrderStatus): boolean {
     return VALID_TRANSITIONS[from]?.includes(to) ?? false;
-  }
+  },
 
-  static transition(from: OrderStatus, to: OrderStatus): void {
-    if (!this.canTransition(from, to)) {
+  transition(from: OrderStatus, to: OrderStatus): void {
+    if (!OrderStateMachine.canTransition(from, to)) {
       throw new IllegalOrderStateTransitionError(from, to);
     }
-  }
+  },
 
-  static isTerminal(status: OrderStatus): boolean {
+  isTerminal(status: OrderStatus): boolean {
     return [OrderStatus.REFUNDED, OrderStatus.ARCHIVED].includes(status);
-  }
+  },
 
-  static isActive(status: OrderStatus): boolean {
-    return !this.isTerminal(status);
-  }
+  isActive(status: OrderStatus): boolean {
+    return !OrderStateMachine.isTerminal(status);
+  },
 
-  static isPaid(status: OrderStatus): boolean {
+  isPaid(status: OrderStatus): boolean {
     return [
       OrderStatus.PAID,
       OrderStatus.CONFIRMED,
@@ -47,9 +47,9 @@ export class OrderStateMachine {
       OrderStatus.OUT_FOR_DELIVERY,
       OrderStatus.DELIVERED,
     ].includes(status);
-  }
+  },
 
-  static isCancellable(status: OrderStatus): boolean {
+  isCancellable(status: OrderStatus): boolean {
     return [
       OrderStatus.VALIDATING,
       OrderStatus.PENDING_PAYMENT,
@@ -57,17 +57,13 @@ export class OrderStateMachine {
       OrderStatus.CONFIRMED,
       OrderStatus.PROCESSING,
     ].includes(status);
-  }
+  },
 
-  static isRefundable(status: OrderStatus): boolean {
-    return [
-      OrderStatus.PAID,
-      OrderStatus.DELIVERED,
-      OrderStatus.CANCELLED,
-    ].includes(status);
-  }
+  isRefundable(status: OrderStatus): boolean {
+    return [OrderStatus.PAID, OrderStatus.DELIVERED, OrderStatus.CANCELLED].includes(status);
+  },
 
-  static getValidTransitions(from: OrderStatus): OrderStatus[] {
+  getValidTransitions(from: OrderStatus): OrderStatus[] {
     return [...(VALID_TRANSITIONS[from] ?? [])];
-  }
-}
+  },
+};

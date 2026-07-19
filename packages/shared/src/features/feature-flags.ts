@@ -27,7 +27,9 @@ export class FeatureFlagManager {
     this.flags.set(FeatureFlag.PAYMENTS, { enabled: envFlags[FeatureFlag.PAYMENTS] ?? false });
     this.flags.set(FeatureFlag.INVENTORY, { enabled: envFlags[FeatureFlag.INVENTORY] ?? true });
     this.flags.set(FeatureFlag.ANALYTICS, { enabled: envFlags[FeatureFlag.ANALYTICS] ?? true });
-    this.flags.set(FeatureFlag.MAINTENANCE_MODE, { enabled: envFlags[FeatureFlag.MAINTENANCE_MODE] ?? false });
+    this.flags.set(FeatureFlag.MAINTENANCE_MODE, {
+      enabled: envFlags[FeatureFlag.MAINTENANCE_MODE] ?? false,
+    });
     this.flags.set(FeatureFlag.DARK_MODE, { enabled: false });
     this.flags.set(FeatureFlag.MULTI_VENDOR, { enabled: false });
     this.flags.set(FeatureFlag.EXPERIMENTAL_SEARCH, { enabled: false });
@@ -36,7 +38,7 @@ export class FeatureFlagManager {
 
   isEnabled(flag: FeatureFlag): boolean {
     if (this.overrides.has(flag)) {
-      return this.overrides.get(flag)!;
+      return this.overrides.get(flag) as boolean;
     }
 
     const config = this.flags.get(flag);

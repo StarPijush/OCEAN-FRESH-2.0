@@ -1,8 +1,21 @@
-import { initSupabase, getClient } from './client.js';
+import { getClient, initSupabase } from './client.js';
 
 export interface SupabaseQuery {
   field: string;
-  operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'in' | 'notIn' | 'contains' | 'containedBy' | 'overlaps' | 'ilike' | 'like';
+  operator:
+    | 'eq'
+    | 'neq'
+    | 'gt'
+    | 'gte'
+    | 'lt'
+    | 'lte'
+    | 'in'
+    | 'notIn'
+    | 'contains'
+    | 'containedBy'
+    | 'overlaps'
+    | 'ilike'
+    | 'like';
   value: unknown;
 }
 
@@ -46,12 +59,15 @@ export const supabaseService = {
       else if (q.operator === 'lte') query = query.lte(q.field, q.value);
       else if (q.operator === 'in') query = query.in(q.field, q.value as unknown[]);
       else if (q.operator === 'notIn') query = query.not(q.field, 'in', q.value as unknown[]);
-      else if (q.operator === 'contains') query = query.contains(q.field, q.value as Record<string, unknown>);
+      else if (q.operator === 'contains')
+        query = query.contains(q.field, q.value as Record<string, unknown>);
       else if (q.operator === 'ilike') query = query.ilike(q.field, q.value as string);
     }
 
     if (options?.orderByField) {
-      query = query.order(options.orderByField, { ascending: (options.orderDirection ?? 'asc') === 'asc' });
+      query = query.order(options.orderByField, {
+        ascending: (options.orderDirection ?? 'asc') === 'asc',
+      });
     }
     if (options?.limitCount) {
       query = query.limit(options.limitCount);
@@ -69,16 +85,15 @@ export const supabaseService = {
       created_at: now,
       updated_at: now,
     };
-    const { data: inserted, error } = await getTable(tableName).insert(payload).select().maybeSingle();
+    const { data: inserted, error } = await getTable(tableName)
+      .insert(payload)
+      .select()
+      .maybeSingle();
     if (error) throw error;
     return inserted as T;
   },
 
-  async update(
-    tableName: string,
-    id: string,
-    data: Record<string, unknown>,
-  ): Promise<void> {
+  async update(tableName: string, id: string, data: Record<string, unknown>): Promise<void> {
     const payload = {
       ...data,
       updated_at: new Date().toISOString(),
@@ -99,7 +114,10 @@ export const supabaseService = {
       ...data,
       updated_at: now,
     };
-    const { data: result, error } = await getTable(tableName).upsert(payload).select().maybeSingle();
+    const { data: result, error } = await getTable(tableName)
+      .upsert(payload)
+      .select()
+      .maybeSingle();
     if (error) throw error;
     return result as T;
   },

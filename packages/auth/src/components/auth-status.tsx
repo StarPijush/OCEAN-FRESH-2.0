@@ -1,4 +1,4 @@
-import { useCurrentUser, useAuthState } from '../queries/index.js';
+import { useAuthState, useCurrentUser } from '../queries/index.js';
 import { UserAvatar } from './user-avatar.js';
 
 interface AuthStatusProps {

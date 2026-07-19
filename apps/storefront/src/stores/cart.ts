@@ -18,16 +18,14 @@ export const useCartStore = create<CartState>((set, get) => ({
     })),
   removeItem: (id: string) => {
     const state = get();
-    if (state.items[id] && state.items[id]! > 1) {
+    if (state.items[id] && state.items[id] > 1) {
       set((s) => ({
-        items: { ...s.items, [id]: s.items[id]! - 1 },
+        items: { ...s.items, [id]: (s.items[id] ?? 0) - 1 },
       }));
     } else {
-      set((s) => {
-        const next = { ...s.items };
-        delete next[id];
-        return { items: next };
-      });
+      set((s) => ({
+        items: Object.fromEntries(Object.entries(s.items).filter(([key]) => key !== id)),
+      }));
     }
   },
   updateQty: (id: string, delta: number) => {
@@ -35,11 +33,9 @@ export const useCartStore = create<CartState>((set, get) => ({
     const current = state.items[id] ?? 0;
     const next = current + delta;
     if (next <= 0) {
-      set((s) => {
-        const copy = { ...s.items };
-        delete copy[id];
-        return { items: copy };
-      });
+      set((s) => ({
+        items: Object.fromEntries(Object.entries(s.items).filter(([key]) => key !== id)),
+      }));
     } else {
       set((s) => ({
         items: { ...s.items, [id]: next },
@@ -47,11 +43,9 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
   },
   removeAll: (id: string) =>
-    set((s) => {
-      const next = { ...s.items };
-      delete next[id];
-      return { items: next };
-    }),
+    set((s) => ({
+      items: Object.fromEntries(Object.entries(s.items).filter(([key]) => key !== id)),
+    })),
   clear: () => set({ items: {} }),
   getCount: () => Object.values(get().items).reduce((a, b) => a + b, 0),
 }));

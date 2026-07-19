@@ -1,6 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { InMemoryEventBus } from '../events/in-memory-event-bus.js';
 import { CartEventType } from '@oceanfresh/shared';
+import { describe, expect, it, vi } from 'vitest';
+
+import { InMemoryEventBus } from '../events/in-memory-event-bus.js';
 
 describe('InMemoryEventBus', () => {
   it('publishes event to subscribed handlers', async () => {

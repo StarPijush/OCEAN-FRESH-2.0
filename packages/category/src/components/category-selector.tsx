@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
 import type { Category } from '@oceanfresh/shared';
+import { useMemo } from 'react';
 
 interface CategorySelectorProps {
   categories: Category[];
@@ -30,7 +30,15 @@ function buildOptions(
   return result;
 }
 
-export function CategorySelector({ categories, value, onChange, includeRoot = true, excludeId, className = '', placeholder = 'Select a category' }: CategorySelectorProps) {
+export function CategorySelector({
+  categories,
+  value,
+  onChange,
+  includeRoot = true,
+  excludeId,
+  className = '',
+  placeholder = 'Select a category',
+}: CategorySelectorProps) {
   const options = useMemo(
     () => buildOptions(categories, null, 0, excludeId),
     [categories, excludeId],
@@ -46,7 +54,9 @@ export function CategorySelector({ categories, value, onChange, includeRoot = tr
       {includeRoot && <option value="">{placeholder}</option>}
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>
-          {'\u00A0'.repeat(opt.depth * 3)}{opt.depth > 0 ? '\u2514\u00A0' : ''}{opt.label}
+          {'\u00A0'.repeat(opt.depth * 3)}
+          {opt.depth > 0 ? '\u2514\u00A0' : ''}
+          {opt.label}
         </option>
       ))}
     </select>

@@ -1,5 +1,6 @@
-import { AuthShell } from '../components/auth/AuthShell';
 import { useNavigate } from 'react-router-dom';
+
+import { AuthShell } from '../components/auth/AuthShell';
 
 export function LoginPage() {
   const navigate = useNavigate();

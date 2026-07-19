@@ -1,5 +1,4 @@
-import type { ProductEventType } from '@oceanfresh/shared';
-import type { Product } from '@oceanfresh/shared';
+import type { Product, ProductEventType } from '@oceanfresh/shared';
 
 export interface ProductEvent {
   type: ProductEventType;

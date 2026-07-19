@@ -1,6 +1,6 @@
-import { onCall } from 'firebase-functions/v2/https';
-import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { logger } from 'firebase-functions/v2';
+import { onDocumentCreated } from 'firebase-functions/v2/firestore';
+import { onCall } from 'firebase-functions/v2/https';
 
 export const health = onCall(async () => {
   return { status: 'healthy', timestamp: Date.now() };

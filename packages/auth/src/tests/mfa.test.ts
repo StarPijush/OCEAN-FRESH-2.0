@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
 import { MfaFactorType } from '@oceanfresh/shared';
+import { describe, expect, it } from 'vitest';
 
 describe('MFA Architecture (stubs)', () => {
   it('defines MFA factor types', () => {

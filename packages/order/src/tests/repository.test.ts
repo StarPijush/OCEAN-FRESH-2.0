@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@oceanfresh/firebase', () => {
   const mockDoc = vi.fn();
@@ -13,7 +13,11 @@ vi.mock('@oceanfresh/firebase', () => {
       update: vi.fn(),
       delete: vi.fn(),
     },
-    Timestamp: null as any,
+    Timestamp: null as unknown as {
+      new (): unknown;
+      now(): unknown;
+      fromMillis(ms: number): unknown;
+    },
   };
 });
 
@@ -25,8 +29,12 @@ vi.mock('firebase/firestore', () => {
       this.seconds = seconds;
       this.nanoseconds = nanoseconds;
     }
-    static now() { return new MockTimestamp(1000, 0); }
-    static fromMillis(ms: number) { return new MockTimestamp(Math.floor(ms / 1000), 0); }
+    static now() {
+      return new MockTimestamp(1000, 0);
+    }
+    static fromMillis(ms: number) {
+      return new MockTimestamp(Math.floor(ms / 1000), 0);
+    }
   }
   return {
     Timestamp: MockTimestamp,
@@ -36,8 +44,9 @@ vi.mock('firebase/firestore', () => {
 });
 
 import { firestoreService } from '@oceanfresh/firebase';
+import { type Order, OrderSource, OrderStatus } from '@oceanfresh/shared';
+
 import { FirestoreOrderRepository } from '../repository/firestore-order.repository.js';
-import { OrderStatus, OrderSource } from '@oceanfresh/shared';
 
 describe('FirestoreOrderRepository', () => {
   let repo: FirestoreOrderRepository;
@@ -48,40 +57,48 @@ describe('FirestoreOrderRepository', () => {
   });
 
   it('findById returns null when document not found', async () => {
-    (firestoreService.get as any).mockResolvedValue(null);
+    vi.mocked(firestoreService.get).mockResolvedValue(null);
     const result = await repo.findById('missing');
     expect(result).toBeNull();
   });
 
   it('findById returns order when document exists', async () => {
-    (firestoreService.get as any).mockResolvedValue({ id: 'order-1', orderNumber: 'OF-2026-000001', status: OrderStatus.DRAFT });
+    vi.mocked(firestoreService.get).mockResolvedValue({
+      id: 'order-1',
+      orderNumber: 'OF-2026-000001',
+      status: OrderStatus.DRAFT,
+    });
     const result = await repo.findById('order-1');
     expect(result).not.toBeNull();
-    expect(result!.id).toBe('order-1');
+    expect((result as Order).id).toBe('order-1');
   });
 
   it('findByOrderNumber returns order', async () => {
-    (firestoreService.query as any).mockResolvedValue([{ id: 'order-1', orderNumber: 'OF-2026-000001', status: OrderStatus.DRAFT }]);
+    vi.mocked(firestoreService.query).mockResolvedValue([
+      { id: 'order-1', orderNumber: 'OF-2026-000001', status: OrderStatus.DRAFT },
+    ]);
     const result = await repo.findByOrderNumber('OF-2026-000001');
     expect(result).not.toBeNull();
-    expect(result!.id).toBe('order-1');
+    expect((result as Order).id).toBe('order-1');
   });
 
   it('findByIdempotencyKey returns order', async () => {
-    (firestoreService.query as any).mockResolvedValue([{ id: 'order-1', idempotencyKey: 'ik-1', status: OrderStatus.DRAFT }]);
+    vi.mocked(firestoreService.query).mockResolvedValue([
+      { id: 'order-1', idempotencyKey: 'ik-1', status: OrderStatus.DRAFT },
+    ]);
     const result = await repo.findByIdempotencyKey('ik-1');
     expect(result).not.toBeNull();
-    expect(result!.id).toBe('order-1');
+    expect((result as Order).id).toBe('order-1');
   });
 
   it('findByIdempotencyKey returns null when no match', async () => {
-    (firestoreService.query as any).mockResolvedValue([]);
+    vi.mocked(firestoreService.query).mockResolvedValue([]);
     const result = await repo.findByIdempotencyKey('ik-missing');
     expect(result).toBeNull();
   });
 
   it('create persists a new order', async () => {
-    (firestoreService.add as any).mockResolvedValue({ id: 'new-order' });
+    vi.mocked(firestoreService.add).mockResolvedValue({ id: 'new-order' });
     const orderData = {
       id: '',
       orderNumber: 'OF-2026-000001',
@@ -89,25 +106,58 @@ describe('FirestoreOrderRepository', () => {
       source: OrderSource.CHECKOUT,
       status: OrderStatus.DRAFT,
       items: [],
-      totals: { subtotal: { amount: 0, currency: 'INR' }, discount: { amount: 0, currency: 'INR' }, shipping: { amount: 0, currency: 'INR' }, tax: { amount: 0, currency: 'INR' }, grandTotal: { amount: 0, currency: 'INR' } },
-      customerSnapshot: { name: 'Test', email: null, phone: '9876543210', address: 'Addr', city: 'City', state: 'State', pincode: '123456' },
-      shippingSnapshot: { address: 'Addr', city: 'City', state: 'State', pincode: '123456', method: 'standard', amount: { amount: 0, currency: 'INR' } },
-      billingSnapshot: { address: 'Addr', city: 'City', state: 'State', pincode: '123456', gstin: null },
-      payment: { method: null, transactionId: null, paidAmount: null, paidAt: null, gatewayResponse: null },
+      totals: {
+        subtotal: { amount: 0, currency: 'INR' },
+        discount: { amount: 0, currency: 'INR' },
+        shipping: { amount: 0, currency: 'INR' },
+        tax: { amount: 0, currency: 'INR' },
+        grandTotal: { amount: 0, currency: 'INR' },
+      },
+      customerSnapshot: {
+        name: 'Test',
+        email: null,
+        phone: '9876543210',
+        address: 'Addr',
+        city: 'City',
+        state: 'State',
+        pincode: '123456',
+      },
+      shippingSnapshot: {
+        address: 'Addr',
+        city: 'City',
+        state: 'State',
+        pincode: '123456',
+        method: 'standard',
+        amount: { amount: 0, currency: 'INR' },
+      },
+      billingSnapshot: {
+        address: 'Addr',
+        city: 'City',
+        state: 'State',
+        pincode: '123456',
+        gstin: null,
+      },
+      payment: {
+        method: null,
+        transactionId: null,
+        paidAmount: null,
+        paidAt: null,
+        gatewayResponse: null,
+      },
       timeline: [],
       notes: '',
       cartId: 'cart-1',
       userId: 'user-1',
       createdAt: new Date(),
       updatedAt: new Date(),
-    } as any;
+    };
     const result = await repo.create(orderData);
     expect(result.id).toBe('new-order');
     expect(result.orderNumber).toBe('OF-2026-000001');
   });
 
   it('delete throws for missing order', async () => {
-    (firestoreService.get as any).mockResolvedValue(null);
+    vi.mocked(firestoreService.get).mockResolvedValue(null);
     await expect(repo.delete('missing')).rejects.toThrow();
   });
 });

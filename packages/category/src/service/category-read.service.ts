@@ -1,6 +1,11 @@
-import type { Category, CategoryQuery, PaginatedResult } from '@oceanfresh/shared';
+import {
+  type Category,
+  type CategoryQuery,
+  createLogger,
+  type PaginatedResult,
+} from '@oceanfresh/shared';
+
 import type { ICategoryRepository } from '../repository/index.js';
-import { createLogger } from '@oceanfresh/shared';
 
 const logger = createLogger('category:service:read');
 

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 let showToastFn: ((msg: string) => void) | null = null;
 
@@ -11,17 +11,22 @@ export function Toast() {
   const [visible, setVisible] = useState(false);
   const [timer, setTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
 
-  const show = useCallback((msg: string) => {
-    setMessage(msg);
-    setVisible(true);
-    if (timer) clearTimeout(timer);
-    const t = setTimeout(() => setVisible(false), 2200);
-    setTimer(t);
-  }, [timer]);
+  const show = useCallback(
+    (msg: string) => {
+      setMessage(msg);
+      setVisible(true);
+      if (timer) clearTimeout(timer);
+      const t = setTimeout(() => setVisible(false), 2200);
+      setTimer(t);
+    },
+    [timer],
+  );
 
   useEffect(() => {
     showToastFn = show;
-    return () => { showToastFn = null; };
+    return () => {
+      showToastFn = null;
+    };
   }, [show]);
 
   return (

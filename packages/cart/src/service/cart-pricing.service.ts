@@ -1,4 +1,4 @@
-import type { Money, CartTotals, CartItem } from '@oceanfresh/shared';
+import type { CartItem, CartTotals, Money } from '@oceanfresh/shared';
 
 export interface TaxRate {
   rate: number;
@@ -24,7 +24,10 @@ export class CartPricingService {
   }
 
   calculateTax(subtotal: Money): Money {
-    return { amount: Math.round(subtotal.amount * this.taxRate.rate * 100) / 100, currency: subtotal.currency };
+    return {
+      amount: Math.round(subtotal.amount * this.taxRate.rate * 100) / 100,
+      currency: subtotal.currency,
+    };
   }
 
   async calculateShipping(items: CartItem[], subtotal: Money): Promise<Money> {
@@ -47,7 +50,8 @@ export class CartPricingService {
     const shipping = await this.calculateShipping(items, subtotal);
     const discount = this.calculateDiscount(items);
     const grandTotal = {
-      amount: Math.round((subtotal.amount + tax.amount + shipping.amount - discount.amount) * 100) / 100,
+      amount:
+        Math.round((subtotal.amount + tax.amount + shipping.amount - discount.amount) * 100) / 100,
       currency: subtotal.currency,
     };
 

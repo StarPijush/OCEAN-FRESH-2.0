@@ -1,20 +1,25 @@
-import { supabaseService, type SupabaseQuery, type SupabaseOptions, rowToCamelCase, objToSnakeCase, rowsToCamelCase, stripId } from '@oceanfresh/supabase';
 import {
-  slugify,
-  NotFoundError,
-  RepositoryError,
-  type Product,
   type CreateProductInput,
-  type UpdateProductInput,
-  type ProductQuery,
+  NotFoundError,
   type PaginatedResult,
-  ProductStatus,
+  type Product,
+  type ProductQuery,
   ProductSortField,
+  ProductStatus,
+  RepositoryError,
+  slugify,
+  type UpdateProductInput,
 } from '@oceanfresh/shared';
-import type { IProductRepository } from './product.repository.js';
-import { createLogger } from '@oceanfresh/shared';
+import {
+  objToSnakeCase,
+  rowToCamelCase,
+  stripId,
+  type SupabaseOptions,
+  type SupabaseQuery,
+  supabaseService,
+} from '@oceanfresh/supabase';
 
-const logger = createLogger('product:repository:supabase');
+import type { IProductRepository } from './product.repository.js';
 
 const TABLE = 'products';
 
@@ -31,20 +36,30 @@ export class SupabaseProductRepository implements IProductRepository {
       if (product.isDeleted) return null;
       return product;
     } catch (err) {
-      throw new RepositoryError('Failed to find product by ID', 'findById', TABLE, { id, error: err });
+      throw new RepositoryError('Failed to find product by ID', 'findById', TABLE, {
+        id,
+        error: err,
+      });
     }
   }
 
   async findBySlug(slug: string): Promise<Product | null> {
     try {
-      const results = await supabaseService.query<Record<string, unknown>>(TABLE, [
-        { field: 'slug', operator: 'eq', value: slug },
-        { field: 'is_deleted', operator: 'eq', value: false },
-      ], { limitCount: 1 });
+      const results = await supabaseService.query<Record<string, unknown>>(
+        TABLE,
+        [
+          { field: 'slug', operator: 'eq', value: slug },
+          { field: 'is_deleted', operator: 'eq', value: false },
+        ],
+        { limitCount: 1 },
+      );
       const row = results[0];
       return row ? toProduct(row) : null;
     } catch (err) {
-      throw new RepositoryError('Failed to find product by slug', 'findBySlug', TABLE, { slug, error: err });
+      throw new RepositoryError('Failed to find product by slug', 'findBySlug', TABLE, {
+        slug,
+        error: err,
+      });
     }
   }
 
@@ -58,14 +73,20 @@ export class SupabaseProductRepository implements IProductRepository {
       }
       return results;
     } catch (err) {
-      throw new RepositoryError('Failed to find products by IDs', 'findByIds', TABLE, { ids, error: err });
+      throw new RepositoryError('Failed to find products by IDs', 'findByIds', TABLE, {
+        ids,
+        error: err,
+      });
     }
   }
 
   async findAll(query: ProductQuery): Promise<PaginatedResult<Product>> {
     try {
-      const constraints: SupabaseQuery[] = [{ field: 'is_deleted', operator: 'eq', value: query.includeDeleted ?? false }];
-      if (query.categoryId) constraints.push({ field: 'category_id', operator: 'eq', value: query.categoryId });
+      const constraints: SupabaseQuery[] = [
+        { field: 'is_deleted', operator: 'eq', value: query.includeDeleted ?? false },
+      ];
+      if (query.categoryId)
+        constraints.push({ field: 'category_id', operator: 'eq', value: query.categoryId });
       if (query.status) {
         if (Array.isArray(query.status)) {
           constraints.push({ field: 'status', operator: 'in', value: query.status });
@@ -73,65 +94,94 @@ export class SupabaseProductRepository implements IProductRepository {
           constraints.push({ field: 'status', operator: 'eq', value: query.status });
         }
       }
-      if (query.featured !== undefined) constraints.push({ field: 'featured', operator: 'eq', value: query.featured });
-      if (query.warehouseId) constraints.push({ field: 'warehouse_id', operator: 'eq', value: query.warehouseId });
-      if (query.createdBy) constraints.push({ field: 'created_by', operator: 'eq', value: query.createdBy });
-      if (query.priceMin !== undefined) constraints.push({ field: 'price', operator: 'gte', value: query.priceMin });
-      if (query.priceMax !== undefined) constraints.push({ field: 'price', operator: 'lte', value: query.priceMax });
+      if (query.featured !== undefined)
+        constraints.push({ field: 'featured', operator: 'eq', value: query.featured });
+      if (query.warehouseId)
+        constraints.push({ field: 'warehouse_id', operator: 'eq', value: query.warehouseId });
+      if (query.createdBy)
+        constraints.push({ field: 'created_by', operator: 'eq', value: query.createdBy });
+      if (query.priceMin !== undefined)
+        constraints.push({ field: 'price', operator: 'gte', value: query.priceMin });
+      if (query.priceMax !== undefined)
+        constraints.push({ field: 'price', operator: 'lte', value: query.priceMax });
 
-      const sortField = query.sort === ProductSortField.CREATED_AT ? 'created_at'
-        : query.sort === ProductSortField.UPDATED_AT ? 'updated_at'
-        : query.sort === ProductSortField.DISPLAY_ORDER ? 'sort_order'
-        : query.sort ?? 'name';
+      const sortField =
+        query.sort === ProductSortField.CREATED_AT
+          ? 'created_at'
+          : query.sort === ProductSortField.UPDATED_AT
+            ? 'updated_at'
+            : query.sort === ProductSortField.DISPLAY_ORDER
+              ? 'sort_order'
+              : (query.sort ?? 'name');
       const options: SupabaseOptions = {
         orderByField: sortField,
         orderDirection: query.sortDirection ?? 'asc',
         limitCount: query.limit ?? 20,
       };
 
-      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, constraints, options);
+      const rows = await supabaseService.query<Record<string, unknown>>(
+        TABLE,
+        constraints,
+        options,
+      );
       const items = rows.map(toProduct);
 
       return {
         items,
         total: items.length,
         hasMore: items.length === (query.limit ?? 20),
-        lastDoc: items.length > 0 && items[items.length - 1] ? items[items.length - 1]!.id : null,
+        lastDoc: items.length > 0 ? (items[items.length - 1]?.id ?? null) : null,
       };
     } catch (err) {
-      throw new RepositoryError('Failed to query products', 'findAll', TABLE, { query, error: err });
+      throw new RepositoryError('Failed to query products', 'findAll', TABLE, {
+        query,
+        error: err,
+      });
     }
   }
 
   async findFeatured(limit = 10): Promise<Product[]> {
     try {
-      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, [
-        { field: 'featured', operator: 'eq', value: true },
-        { field: 'is_deleted', operator: 'eq', value: false },
-      ], { orderByField: 'sort_order', orderDirection: 'asc', limitCount: limit });
+      const rows = await supabaseService.query<Record<string, unknown>>(
+        TABLE,
+        [
+          { field: 'featured', operator: 'eq', value: true },
+          { field: 'is_deleted', operator: 'eq', value: false },
+        ],
+        { orderByField: 'sort_order', orderDirection: 'asc', limitCount: limit },
+      );
       return rows.map(toProduct);
     } catch (err) {
-      throw new RepositoryError('Failed to find featured products', 'findFeatured', TABLE, { limit, error: err });
+      throw new RepositoryError('Failed to find featured products', 'findFeatured', TABLE, {
+        limit,
+        error: err,
+      });
     }
   }
 
-  async findByCategory(categoryId: string, query?: Partial<ProductQuery>): Promise<PaginatedResult<Product>> {
+  async findByCategory(
+    categoryId: string,
+    query?: Partial<ProductQuery>,
+  ): Promise<PaginatedResult<Product>> {
     return this.findAll({ ...query, categoryId } as ProductQuery);
   }
 
-  async findByStatus(status: string, query?: Partial<ProductQuery>): Promise<PaginatedResult<Product>> {
+  async findByStatus(
+    status: string,
+    query?: Partial<ProductQuery>,
+  ): Promise<PaginatedResult<Product>> {
     return this.findAll({ ...query, status: status as ProductStatus } as ProductQuery);
   }
 
   async search(term: string, query?: Partial<ProductQuery>): Promise<PaginatedResult<Product>> {
     try {
       const lower = term.toLowerCase();
-      const constraints: SupabaseQuery[] = [
-        { field: 'is_deleted', operator: 'eq', value: false },
-      ];
-      if (query?.categoryId) constraints.push({ field: 'category_id', operator: 'eq', value: query.categoryId });
+      const constraints: SupabaseQuery[] = [{ field: 'is_deleted', operator: 'eq', value: false }];
+      if (query?.categoryId)
+        constraints.push({ field: 'category_id', operator: 'eq', value: query.categoryId });
       if (query?.status) constraints.push({ field: 'status', operator: 'eq', value: query.status });
-      if (query?.featured !== undefined) constraints.push({ field: 'featured', operator: 'eq', value: query.featured });
+      if (query?.featured !== undefined)
+        constraints.push({ field: 'featured', operator: 'eq', value: query.featured });
 
       const options: SupabaseOptions = {
         orderByField: query?.sort ?? 'name',
@@ -139,19 +189,21 @@ export class SupabaseProductRepository implements IProductRepository {
         limitCount: query?.limit ?? 20,
       };
 
-      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, constraints, options);
-      const items = rows
-        .map(toProduct)
-        .filter((p) => {
-          const kw = p.searchKeywords ?? [];
-          return Array.isArray(kw) && kw.some((k: string) => k.toLowerCase().includes(lower));
-        });
+      const rows = await supabaseService.query<Record<string, unknown>>(
+        TABLE,
+        constraints,
+        options,
+      );
+      const items = rows.map(toProduct).filter((p) => {
+        const kw = p.searchKeywords ?? [];
+        return Array.isArray(kw) && kw.some((k: string) => k.toLowerCase().includes(lower));
+      });
 
       return {
         items,
         total: items.length,
         hasMore: items.length === (query?.limit ?? 20),
-        lastDoc: items.length > 0 && items[items.length - 1] ? items[items.length - 1]!.id : null,
+        lastDoc: items.length > 0 ? (items[items.length - 1]?.id ?? null) : null,
       };
     } catch (err) {
       throw new RepositoryError('Failed to search products', 'search', TABLE, { term, error: err });
@@ -171,7 +223,8 @@ export class SupabaseProductRepository implements IProductRepository {
   async count(query?: Partial<ProductQuery>): Promise<number> {
     try {
       const constraints: SupabaseQuery[] = [{ field: 'is_deleted', operator: 'eq', value: false }];
-      if (query?.categoryId) constraints.push({ field: 'category_id', operator: 'eq', value: query.categoryId });
+      if (query?.categoryId)
+        constraints.push({ field: 'category_id', operator: 'eq', value: query.categoryId });
       if (query?.status) {
         if (Array.isArray(query.status)) {
           constraints.push({ field: 'status', operator: 'in', value: query.status });
@@ -205,11 +258,17 @@ export class SupabaseProductRepository implements IProductRepository {
       const result = await supabaseService.add<Record<string, unknown>>(TABLE, snakeData);
       return toProduct({ ...snakeData, id: result.id });
     } catch (err) {
-      throw new RepositoryError('Failed to create product', 'create', TABLE, { name: data.name, error: err });
+      throw new RepositoryError('Failed to create product', 'create', TABLE, {
+        name: data.name,
+        error: err,
+      });
     }
   }
 
-  async update(id: string, data: Partial<UpdateProductInput> & { updatedBy: string }): Promise<Product> {
+  async update(
+    id: string,
+    data: Partial<UpdateProductInput> & { updatedBy: string },
+  ): Promise<Product> {
     try {
       const existing = await this.findById(id);
       if (!existing) throw new NotFoundError('Product not found');
@@ -237,7 +296,10 @@ export class SupabaseProductRepository implements IProductRepository {
       });
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to soft-delete product', 'softDelete', TABLE, { id, error: err });
+      throw new RepositoryError('Failed to soft-delete product', 'softDelete', TABLE, {
+        id,
+        error: err,
+      });
     }
   }
 
@@ -272,8 +334,13 @@ export class SupabaseProductRepository implements IProductRepository {
       const existing = await this.findById(id);
       if (!existing) throw new NotFoundError('Product not found');
 
-      const { id: _id, createdAt: _ca, updatedAt: _ua, deletedAt: _da, version: _v, ...rest } = existing;
-      const newSlug = await this.generateUniqueSlug(rest.name);
+      const rest = { ...existing } as Record<string, unknown>;
+      delete rest.id;
+      delete rest.createdAt;
+      delete rest.updatedAt;
+      delete rest.deletedAt;
+      delete rest.version;
+      const newSlug = await this.generateUniqueSlug(rest.name as string);
       const now = new Date().toISOString();
       const docData = {
         ...rest,
@@ -290,7 +357,10 @@ export class SupabaseProductRepository implements IProductRepository {
       return toProduct({ ...snakeData, id: result.id });
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to duplicate product', 'duplicate', TABLE, { id, error: err });
+      throw new RepositoryError('Failed to duplicate product', 'duplicate', TABLE, {
+        id,
+        error: err,
+      });
     }
   }
 
@@ -301,7 +371,10 @@ export class SupabaseProductRepository implements IProductRepository {
         await supabaseService.update(TABLE, id, snakeData);
       }
     } catch (err) {
-      throw new RepositoryError('Failed to bulk update products', 'bulkUpdate', TABLE, { ids, error: err });
+      throw new RepositoryError('Failed to bulk update products', 'bulkUpdate', TABLE, {
+        ids,
+        error: err,
+      });
     }
   }
 
@@ -315,7 +388,10 @@ export class SupabaseProductRepository implements IProductRepository {
         });
       }
     } catch (err) {
-      throw new RepositoryError('Failed to bulk delete products', 'bulkDelete', TABLE, { ids, error: err });
+      throw new RepositoryError('Failed to bulk delete products', 'bulkDelete', TABLE, {
+        ids,
+        error: err,
+      });
     }
   }
 
@@ -325,19 +401,29 @@ export class SupabaseProductRepository implements IProductRepository {
         await supabaseService.update(TABLE, id, { status: ProductStatus.ARCHIVED });
       }
     } catch (err) {
-      throw new RepositoryError('Failed to bulk archive products', 'bulkArchive', TABLE, { ids, error: err });
+      throw new RepositoryError('Failed to bulk archive products', 'bulkArchive', TABLE, {
+        ids,
+        error: err,
+      });
     }
   }
 
   async getLowStock(threshold: number): Promise<Product[]> {
     try {
-      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, [
-        { field: 'is_deleted', operator: 'eq', value: false },
-        { field: 'stock', operator: 'lte', value: threshold },
-      ], { orderByField: 'stock', orderDirection: 'asc' });
+      const rows = await supabaseService.query<Record<string, unknown>>(
+        TABLE,
+        [
+          { field: 'is_deleted', operator: 'eq', value: false },
+          { field: 'stock', operator: 'lte', value: threshold },
+        ],
+        { orderByField: 'stock', orderDirection: 'asc' },
+      );
       return rows.map(toProduct);
     } catch (err) {
-      throw new RepositoryError('Failed to get low stock products', 'getLowStock', TABLE, { threshold, error: err });
+      throw new RepositoryError('Failed to get low stock products', 'getLowStock', TABLE, {
+        threshold,
+        error: err,
+      });
     }
   }
 

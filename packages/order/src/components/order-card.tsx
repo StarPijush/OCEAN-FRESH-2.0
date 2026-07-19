@@ -1,4 +1,5 @@
 import type { Order } from '@oceanfresh/shared';
+
 import { OrderStatusBadge } from './order-status-badge.js';
 
 interface OrderCardProps {
@@ -12,7 +13,11 @@ function formatMoney(amount: number): string {
 }
 
 function formatDate(date: Date): string {
-  return new Date(date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  return new Date(date).toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
 }
 
 export function OrderCard({ order, onSelect, className = '' }: OrderCardProps) {
@@ -36,14 +41,20 @@ export function OrderCard({ order, onSelect, className = '' }: OrderCardProps) {
       </div>
 
       <div className="text-sm text-gray-600 space-y-1">
-        <p>{order.customerSnapshot.name} • {order.customerSnapshot.phone}</p>
-        <p>{order.items.length} item{order.items.length !== 1 ? 's' : ''}</p>
+        <p>
+          {order.customerSnapshot.name} • {order.customerSnapshot.phone}
+        </p>
+        <p>
+          {order.items.length} item{order.items.length !== 1 ? 's' : ''}
+        </p>
         <p className="text-xs text-gray-400">{formatDate(order.createdAt)}</p>
       </div>
 
       <div className="mt-2 pt-2 border-t border-gray-100 flex justify-between items-center">
         <span className="text-xs text-gray-500">{order.orderNumber}</span>
-        <span className="text-sm font-semibold text-gray-900">{formatMoney(order.totals.grandTotal.amount)}</span>
+        <span className="text-sm font-semibold text-gray-900">
+          {formatMoney(order.totals.grandTotal.amount)}
+        </span>
       </div>
     </article>
   );

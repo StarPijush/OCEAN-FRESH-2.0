@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
-import { useReveal } from '../hooks/useReveal.js';
-import { useCartStore } from '../stores/cart.js';
-import { getProducts } from '../services/products.js';
+import { useMemo, useState } from 'react';
+
 import { showToast } from '../components/ui/Toast.js';
-import { useNavigate } from 'react-router-dom';
+import { useReveal } from '../hooks/useReveal.js';
+import { getProducts } from '../services/products.js';
+import { useCartStore } from '../stores/cart.js';
 
 const FILTERS = [
   { key: 'all', label: 'All' },
@@ -19,8 +19,6 @@ export function ProductsPage() {
   const cart = useCartStore((s) => s.items);
   const updateQty = useCartStore((s) => s.updateQty);
   const addItem = useCartStore((s) => s.addItem);
-  const navigate = useNavigate();
-
   useReveal();
 
   const products = useMemo(() => {
@@ -29,7 +27,7 @@ export function ProductsPage() {
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(
-        (p) => p.name.toLowerCase().includes(q) || p.sub.toLowerCase().includes(q)
+        (p) => p.name.toLowerCase().includes(q) || p.sub.toLowerCase().includes(q),
       );
     }
     return list;
@@ -62,7 +60,13 @@ export function ProductsPage() {
 
       <div
         id="prod-count-label"
-        style={{ padding: '16px 20px 0', fontSize: '0.6rem', color: 'var(--muted)', letterSpacing: '0.14em', textTransform: 'uppercase' }}
+        style={{
+          padding: '16px 20px 0',
+          fontSize: '0.6rem',
+          color: 'var(--muted)',
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase',
+        }}
       >
         {products.length} Product{products.length !== 1 ? 's' : ''} Available
       </div>
@@ -79,10 +83,23 @@ export function ProductsPage() {
             const qty = cart[p.id] ?? 0;
             const hasPhoto = p.image && !p.image.startsWith('data:image/svg');
             return (
-              <div className="prod-item" key={p.id} style={p.available ? undefined : { opacity: 0.5 }}>
+              <div
+                className="prod-item"
+                key={p.id}
+                style={p.available ? undefined : { opacity: 0.5 }}
+              >
                 {hasPhoto ? (
                   <div className="prod-emoji-box">
-                    <img src={p.image!} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '2px' }} />
+                    <img
+                      src={p.image ?? ''}
+                      alt={p.name}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        borderRadius: '2px',
+                      }}
+                    />
                   </div>
                 ) : (
                   <div className="prod-emoji-box">{p.emoji}</div>
@@ -91,7 +108,10 @@ export function ProductsPage() {
                   <div className="prod-sub">{p.sub}</div>
                   <div className="prod-name">{p.name}</div>
                   {p.available ? (
-                    <div className="prod-price">{'\u20B9'}{p.price} / kg</div>
+                    <div className="prod-price">
+                      {'\u20B9'}
+                      {p.price} / kg
+                    </div>
                   ) : (
                     <div className="prod-oos">Out of stock</div>
                   )}
@@ -100,11 +120,24 @@ export function ProductsPage() {
                   {p.available ? (
                     <>
                       <div className="qty-row">
-                        <button className="qty-btn qty-btn-dark" onClick={() => updateQty(p.id, -1)}>&minus;</button>
+                        <button
+                          className="qty-btn qty-btn-dark"
+                          onClick={() => updateQty(p.id, -1)}
+                        >
+                          &minus;
+                        </button>
                         <span className="qty-val qty-val-dark">{qty}</span>
-                        <button className="qty-btn qty-btn-dark" onClick={() => updateQty(p.id, 1)}>+</button>
+                        <button className="qty-btn qty-btn-dark" onClick={() => updateQty(p.id, 1)}>
+                          +
+                        </button>
                       </div>
-                      <button className="btn btn-aqua btn-sm" onClick={() => { addItem(p.id); showToast('Added to order'); }}>
+                      <button
+                        className="btn btn-aqua btn-sm"
+                        onClick={() => {
+                          addItem(p.id);
+                          showToast('Added to order');
+                        }}
+                      >
                         Add
                       </button>
                     </>

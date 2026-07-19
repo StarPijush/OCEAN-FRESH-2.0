@@ -1,4 +1,10 @@
-import type { Category, CreateCategoryInput, UpdateCategoryInput, CategoryQuery, PaginatedResult } from '@oceanfresh/shared';
+import type {
+  Category,
+  CategoryQuery,
+  CreateCategoryInput,
+  PaginatedResult,
+  UpdateCategoryInput,
+} from '@oceanfresh/shared';
 
 export interface ICategoryRepository {
   findById(id: string): Promise<Category | null>;
@@ -16,9 +22,14 @@ export interface ICategoryRepository {
   exists(id: string): Promise<boolean>;
   existsBySlug(slug: string): Promise<boolean>;
   count(query?: Partial<CategoryQuery>): Promise<number>;
-  create(data: CreateCategoryInput & { createdBy: string; slug: string; path: string; level: number }): Promise<Category>;
+  create(
+    data: CreateCategoryInput & { createdBy: string; slug: string; path: string; level: number },
+  ): Promise<Category>;
   update(id: string, data: Partial<UpdateCategoryInput> & { updatedBy: string }): Promise<Category>;
-  move(id: string, data: { parentId: string | null; path: string; level: number }): Promise<Category>;
+  move(
+    id: string,
+    data: { parentId: string | null; path: string; level: number },
+  ): Promise<Category>;
   softDelete(id: string): Promise<void>;
   restore(id: string): Promise<void>;
   archive(id: string): Promise<void>;

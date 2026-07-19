@@ -1,18 +1,25 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { OrderStateMachine } from '../service/order-state-machine.js';
-import { OrderValidationService } from '../service/order-validation.service.js';
+import type { IProductCatalog } from '@oceanfresh/product';
+import {
+  IllegalOrderStateTransitionError,
+  type Order,
+  OrderSource,
+  OrderStatus,
+  type ProductUnit,
+} from '@oceanfresh/shared';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { InMemoryEventBus } from '../events/in-memory-event-bus.js';
+import type { IOrderRepository } from '../repository/index.js';
+import { OrderService } from '../service/order.service.js';
+import type { OrderCancellationService } from '../service/order-cancellation.service.js';
+import type { OrderHistoryService } from '../service/order-history.service.js';
+import type { OrderNumberGenerator } from '../service/order-number-generator.js';
 import { OrderPricingService } from '../service/order-pricing.service.js';
 import { OrderSnapshotService } from '../service/order-snapshot.service.js';
-import { OrderService } from '../service/order.service.js';
-import { InMemoryEventBus } from '../events/in-memory-event-bus.js';
-import {
-  OrderStatus,
-  OrderSource,
-  IllegalOrderStateTransitionError,
-  OrderEventType,
-} from '@oceanfresh/shared';
+import { OrderStateMachine } from '../service/order-state-machine.js';
+import { OrderValidationService } from '../service/order-validation.service.js';
 
-function createMockRepository() {
+function createMockRepository(): IOrderRepository {
   return {
     findById: vi.fn(),
     findByOrderNumber: vi.fn(),
@@ -32,7 +39,7 @@ function createMockRepository() {
   };
 }
 
-function createMockCatalog() {
+function createMockCatalog(): IProductCatalog {
   return {
     getProduct: vi.fn(),
     getProducts: vi.fn(),
@@ -41,7 +48,7 @@ function createMockCatalog() {
   };
 }
 
-function sampleOrder(overrides = {}) {
+function sampleOrder(overrides = {}): Order {
   return {
     id: 'order-1',
     orderNumber: 'OF-2026-000001',
@@ -57,17 +64,36 @@ function sampleOrder(overrides = {}) {
       grandTotal: { amount: 565, currency: 'INR' },
     },
     customerSnapshot: {
-      name: 'Test User', email: null, phone: '9876543210',
-      address: 'Test St', city: 'City', state: 'State', pincode: '123456',
+      name: 'Test User',
+      email: null,
+      phone: '9876543210',
+      address: 'Test St',
+      city: 'City',
+      state: 'State',
+      pincode: '123456',
     },
     shippingSnapshot: {
-      address: 'Test St', city: 'City', state: 'State', pincode: '123456',
-      method: 'standard', amount: { amount: 40, currency: 'INR' },
+      address: 'Test St',
+      city: 'City',
+      state: 'State',
+      pincode: '123456',
+      method: 'standard',
+      amount: { amount: 40, currency: 'INR' },
     },
     billingSnapshot: {
-      address: 'Test St', city: 'City', state: 'State', pincode: '123456', gstin: null,
+      address: 'Test St',
+      city: 'City',
+      state: 'State',
+      pincode: '123456',
+      gstin: null,
     },
-    payment: { method: null, transactionId: null, paidAmount: null, paidAt: null, gatewayResponse: null },
+    payment: {
+      method: null,
+      transactionId: null,
+      paidAmount: null,
+      paidAt: null,
+      gatewayResponse: null,
+    },
     timeline: [],
     notes: '',
     cartId: 'cart-1',
@@ -91,11 +117,16 @@ function sampleCheckoutContext() {
         unitPrice: { amount: 250, currency: 'INR' },
         subtotal: { amount: 500, currency: 'INR' },
         snapshot: {
-          productId: 'prod-1', name: 'Fish', sku: null,
-          thumbnail: '', image: '',
+          productId: 'prod-1',
+          name: 'Fish',
+          sku: null,
+          thumbnail: '',
+          image: '',
           price: { amount: 250, currency: 'INR' },
-          currency: 'INR', unit: 'kg' as any,
-          variantSummary: null, capturedAt: new Date(),
+          currency: 'INR',
+          unit: 'kg' as ProductUnit,
+          variantSummary: null,
+          capturedAt: new Date(),
         },
       },
     ],
@@ -108,29 +139,39 @@ function sampleCheckoutContext() {
     },
     currency: 'INR',
     createdAt: new Date(),
-  } as any;
+  };
 }
 
 describe('OrderStateMachine', () => {
   it('allows valid transition DRAFT → VALIDATING', () => {
-    expect(() => OrderStateMachine.transition(OrderStatus.DRAFT, OrderStatus.VALIDATING)).not.toThrow();
+    expect(() =>
+      OrderStateMachine.transition(OrderStatus.DRAFT, OrderStatus.VALIDATING),
+    ).not.toThrow();
   });
 
   it('rejects invalid transition DRAFT → DELIVERED', () => {
-    expect(() => OrderStateMachine.transition(OrderStatus.DRAFT, OrderStatus.DELIVERED)).toThrow(IllegalOrderStateTransitionError);
+    expect(() => OrderStateMachine.transition(OrderStatus.DRAFT, OrderStatus.DELIVERED)).toThrow(
+      IllegalOrderStateTransitionError,
+    );
   });
 
   it('allows PAID → REFUND_REQUESTED (no direct CANCELLED)', () => {
     expect(OrderStateMachine.canTransition(OrderStatus.PAID, OrderStatus.CANCELLED)).toBe(false);
-    expect(OrderStateMachine.canTransition(OrderStatus.PAID, OrderStatus.REFUND_REQUESTED)).toBe(true);
+    expect(OrderStateMachine.canTransition(OrderStatus.PAID, OrderStatus.REFUND_REQUESTED)).toBe(
+      true,
+    );
   });
 
   it('rejects transition from terminal state REFUNDED', () => {
-    expect(() => OrderStateMachine.transition(OrderStatus.REFUNDED, OrderStatus.DRAFT)).toThrow(IllegalOrderStateTransitionError);
+    expect(() => OrderStateMachine.transition(OrderStatus.REFUNDED, OrderStatus.DRAFT)).toThrow(
+      IllegalOrderStateTransitionError,
+    );
   });
 
   it('rejects transition from terminal state ARCHIVED', () => {
-    expect(() => OrderStateMachine.transition(OrderStatus.ARCHIVED, OrderStatus.DRAFT)).toThrow(IllegalOrderStateTransitionError);
+    expect(() => OrderStateMachine.transition(OrderStatus.ARCHIVED, OrderStatus.DRAFT)).toThrow(
+      IllegalOrderStateTransitionError,
+    );
   });
 
   it('identifies terminal states', () => {
@@ -166,7 +207,7 @@ describe('OrderPricingService', () => {
 
   beforeEach(() => {
     catalog = createMockCatalog();
-    pricing = new OrderPricingService(catalog as any);
+    pricing = new OrderPricingService(catalog);
   });
 
   it('calculates totals from checkout context', async () => {
@@ -185,14 +226,20 @@ describe('OrderSnapshotService', () => {
     const ctx = sampleCheckoutContext();
     const snapshots = snapshotService.createProductSnapshot(ctx);
     expect(snapshots).toHaveLength(1);
-    expect(snapshots[0]!.name).toBe('Fish');
-    expect(snapshots[0]!.productId).toBe('prod-1');
+    const snapshot = snapshots[0] as NonNullable<(typeof snapshots)[0]>;
+    expect(snapshot.name).toBe('Fish');
+    expect(snapshot.productId).toBe('prod-1');
   });
 
   it('creates customer snapshot', () => {
     const input = {
-      name: 'Test', email: 'test@test.com', phone: '9876543210',
-      address: 'Addr', city: 'City', state: 'State', pincode: '123456',
+      name: 'Test',
+      email: 'test@test.com',
+      phone: '9876543210',
+      address: 'Addr',
+      city: 'City',
+      state: 'State',
+      pincode: '123456',
     };
     const snapshot = snapshotService.createCustomerSnapshot(input);
     expect(snapshot.name).toBe('Test');
@@ -201,8 +248,12 @@ describe('OrderSnapshotService', () => {
 
   it('creates shipping snapshot', () => {
     const input = {
-      address: 'Addr', city: 'City', state: 'State', pincode: '123456',
-      method: 'express', amount: { amount: 80, currency: 'INR' },
+      address: 'Addr',
+      city: 'City',
+      state: 'State',
+      pincode: '123456',
+      method: 'express',
+      amount: { amount: 80, currency: 'INR' },
     };
     const snapshot = snapshotService.createShippingSnapshot(input);
     expect(snapshot.method).toBe('express');
@@ -211,7 +262,11 @@ describe('OrderSnapshotService', () => {
 
   it('creates billing snapshot', () => {
     const input = {
-      address: 'Addr', city: 'City', state: 'State', pincode: '123456', gstin: 'GSTIN123',
+      address: 'Addr',
+      city: 'City',
+      state: 'State',
+      pincode: '123456',
+      gstin: 'GSTIN123',
     };
     const snapshot = snapshotService.createBillingSnapshot(input);
     expect(snapshot.gstin).toBe('GSTIN123');
@@ -228,15 +283,27 @@ describe('OrderService', () => {
     repository = createMockRepository();
     catalog = createMockCatalog();
     eventBus = new InMemoryEventBus();
-    const validator = new OrderValidationService(catalog as any);
+    const validator = new OrderValidationService(catalog);
     const snapshotService = new OrderSnapshotService();
-    const numberGen = { generateNumber: vi.fn().mockResolvedValue('OF-2026-000001') };
-    const pricing = new OrderPricingService(catalog as any);
-    const history = { recordStatusChange: vi.fn() } as any;
-    const cancellation = { cancel: vi.fn(), requestRefund: vi.fn(), completeRefund: vi.fn() } as any;
+    const numberGen = {
+      generateNumber: vi.fn().mockResolvedValue('OF-2026-000001'),
+    } as OrderNumberGenerator;
+    const pricing = new OrderPricingService(catalog);
+    const history = { recordStatusChange: vi.fn() } as unknown as OrderHistoryService;
+    const cancellation = {
+      cancel: vi.fn(),
+      requestRefund: vi.fn(),
+      completeRefund: vi.fn(),
+    } as unknown as OrderCancellationService;
     service = new OrderService(
-      repository as any, validator, snapshotService, numberGen as any,
-      pricing, cancellation, history, eventBus,
+      repository,
+      validator,
+      snapshotService,
+      numberGen,
+      pricing,
+      cancellation,
+      history,
+      eventBus,
     );
   });
 
@@ -255,9 +322,26 @@ describe('OrderService', () => {
     repository.findByIdempotencyKey.mockResolvedValue(sampleOrder({ id: 'existing-order' }));
     const ctx = sampleCheckoutContext();
     const input = {
-      cartId: 'cart-1', idempotencyKey: 'dup-key', userId: 'user-1',
-      customer: { name: 'Test', email: null, phone: '9876543210', address: 'Addr', city: 'City', state: 'State', pincode: '123456' },
-      shipping: { address: 'Addr', city: 'City', state: 'State', pincode: '123456', method: 'standard', amount: { amount: 40, currency: 'INR' } },
+      cartId: 'cart-1',
+      idempotencyKey: 'dup-key',
+      userId: 'user-1',
+      customer: {
+        name: 'Test',
+        email: null,
+        phone: '9876543210',
+        address: 'Addr',
+        city: 'City',
+        state: 'State',
+        pincode: '123456',
+      },
+      shipping: {
+        address: 'Addr',
+        city: 'City',
+        state: 'State',
+        pincode: '123456',
+        method: 'standard',
+        amount: { amount: 40, currency: 'INR' },
+      },
       billing: { address: 'Addr', city: 'City', state: 'State', pincode: '123456', gstin: null },
     };
     const result = await service.createFromCheckout(ctx, input);
@@ -268,16 +352,46 @@ describe('OrderService', () => {
   it('createFromCheckout creates new order', async () => {
     repository.findByIdempotencyKey.mockResolvedValue(null);
     repository.create.mockResolvedValue(sampleOrder({ id: 'new-order' }));
-    repository.updateStatus.mockResolvedValue(sampleOrder({ id: 'new-order', status: OrderStatus.VALIDATING }));
-    catalog.getProducts.mockResolvedValue(new Map([
-      ['prod-1', { id: 'prod-1', name: 'Fish', isAvailable: true, stock: 10, price: { amount: 250, currency: 'INR' } }],
-    ]));
+    repository.updateStatus.mockResolvedValue(
+      sampleOrder({ id: 'new-order', status: OrderStatus.VALIDATING }),
+    );
+    catalog.getProducts.mockResolvedValue(
+      new Map([
+        [
+          'prod-1',
+          {
+            id: 'prod-1',
+            name: 'Fish',
+            isAvailable: true,
+            stock: 10,
+            price: { amount: 250, currency: 'INR' },
+          },
+        ],
+      ]),
+    );
 
     const ctx = sampleCheckoutContext();
     const input = {
-      cartId: 'cart-1', idempotencyKey: 'ik-new', userId: 'user-1',
-      customer: { name: 'Test', email: null, phone: '9876543210', address: 'Addr', city: 'City', state: 'State', pincode: '123456' },
-      shipping: { address: 'Addr', city: 'City', state: 'State', pincode: '123456', method: 'standard', amount: { amount: 40, currency: 'INR' } },
+      cartId: 'cart-1',
+      idempotencyKey: 'ik-new',
+      userId: 'user-1',
+      customer: {
+        name: 'Test',
+        email: null,
+        phone: '9876543210',
+        address: 'Addr',
+        city: 'City',
+        state: 'State',
+        pincode: '123456',
+      },
+      shipping: {
+        address: 'Addr',
+        city: 'City',
+        state: 'State',
+        pincode: '123456',
+        method: 'standard',
+        amount: { amount: 40, currency: 'INR' },
+      },
       billing: { address: 'Addr', city: 'City', state: 'State', pincode: '123456', gstin: null },
     };
     const result = await service.createFromCheckout(ctx, input);
@@ -296,6 +410,8 @@ describe('OrderService', () => {
 
   it('updateStatus rejects invalid transition', async () => {
     repository.findById.mockResolvedValue(sampleOrder());
-    await expect(service.updateStatus('order-1', OrderStatus.DELIVERED, 'user')).rejects.toThrow(IllegalOrderStateTransitionError);
+    await expect(service.updateStatus('order-1', OrderStatus.DELIVERED, 'user')).rejects.toThrow(
+      IllegalOrderStateTransitionError,
+    );
   });
 });

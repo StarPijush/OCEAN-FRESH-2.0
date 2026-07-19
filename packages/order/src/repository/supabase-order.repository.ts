@@ -1,18 +1,22 @@
-import { supabaseService, type SupabaseQuery, type SupabaseOptions, rowToCamelCase, objToSnakeCase, stripId } from '@oceanfresh/supabase';
 import {
-  createLogger,
   NotFoundError,
-  RepositoryError,
-  OrderStatus,
   type Order,
   type OrderQuery,
+  OrderStatus,
   type OrderTimelineEntry,
-  type PaymentSummary,
   type PaginatedResult,
+  type PaymentSummary,
+  RepositoryError,
 } from '@oceanfresh/shared';
-import type { IOrderRepository } from './order.repository.js';
+import {
+  objToSnakeCase,
+  rowToCamelCase,
+  type SupabaseOptions,
+  type SupabaseQuery,
+  supabaseService,
+} from '@oceanfresh/supabase';
 
-const logger = createLogger('order:repository:supabase');
+import type { IOrderRepository } from './order.repository.js';
 
 const TABLE = 'orders';
 const TABLE_ITEMS = 'order_items';
@@ -32,9 +36,11 @@ export class SupabaseOrderRepository implements IOrderRepository {
       const items = await supabaseService.query<Record<string, unknown>>(TABLE_ITEMS, [
         { field: 'order_id', operator: 'eq', value: id },
       ]);
-      const timeline = await supabaseService.query<Record<string, unknown>>(TABLE_TIMELINE, [
-        { field: 'order_id', operator: 'eq', value: id },
-      ], { orderByField: 'created_at', orderDirection: 'asc' });
+      const timeline = await supabaseService.query<Record<string, unknown>>(
+        TABLE_TIMELINE,
+        [{ field: 'order_id', operator: 'eq', value: id }],
+        { orderByField: 'created_at', orderDirection: 'asc' },
+      );
 
       order.items = items.map((i: Record<string, unknown>) => {
         const camel = rowToCamelCase<Record<string, unknown>>(i);
@@ -48,11 +54,16 @@ export class SupabaseOrderRepository implements IOrderRepository {
         };
       }) as unknown as Order['items'];
 
-      order.timeline = timeline.map((t: Record<string, unknown>) => rowToCamelCase<OrderTimelineEntry>(t));
+      order.timeline = timeline.map((t: Record<string, unknown>) =>
+        rowToCamelCase<OrderTimelineEntry>(t),
+      );
 
       return order;
     } catch (err) {
-      throw new RepositoryError('Failed to find order by ID', 'findById', TABLE, { id, error: err });
+      throw new RepositoryError('Failed to find order by ID', 'findById', TABLE, {
+        id,
+        error: err,
+      });
     }
   }
 
@@ -62,9 +73,12 @@ export class SupabaseOrderRepository implements IOrderRepository {
         { field: 'order_number', operator: 'eq', value: orderNumber },
       ]);
       if (results.length === 0) return null;
-      return this.findById(results[0]!.id as string);
+      return this.findById((results[0] as Record<string, unknown>).id as string);
     } catch (err) {
-      throw new RepositoryError('Failed to find order by number', 'findByOrderNumber', TABLE, { orderNumber, error: err });
+      throw new RepositoryError('Failed to find order by number', 'findByOrderNumber', TABLE, {
+        orderNumber,
+        error: err,
+      });
     }
   }
 
@@ -74,9 +88,14 @@ export class SupabaseOrderRepository implements IOrderRepository {
         { field: 'idempotency_key', operator: 'eq', value: key },
       ]);
       if (results.length === 0) return null;
-      return this.findById(results[0]!.id as string);
+      return this.findById((results[0] as Record<string, unknown>).id as string);
     } catch (err) {
-      throw new RepositoryError('Failed to find order by idempotency key', 'findByIdempotencyKey', TABLE, { key, error: err });
+      throw new RepositoryError(
+        'Failed to find order by idempotency key',
+        'findByIdempotencyKey',
+        TABLE,
+        { key, error: err },
+      );
     }
   }
 
@@ -92,7 +111,10 @@ export class SupabaseOrderRepository implements IOrderRepository {
       }
       return orders;
     } catch (err) {
-      throw new RepositoryError('Failed to find orders by user', 'findByUserId', TABLE, { userId, error: err });
+      throw new RepositoryError('Failed to find orders by user', 'findByUserId', TABLE, {
+        userId,
+        error: err,
+      });
     }
   }
 
@@ -100,7 +122,8 @@ export class SupabaseOrderRepository implements IOrderRepository {
     try {
       const constraints: SupabaseQuery[] = [];
       if (query.userId) constraints.push({ field: 'user_id', operator: 'eq', value: query.userId });
-      if (query.orderNumber) constraints.push({ field: 'order_number', operator: 'eq', value: query.orderNumber });
+      if (query.orderNumber)
+        constraints.push({ field: 'order_number', operator: 'eq', value: query.orderNumber });
       if (query.status) {
         if (Array.isArray(query.status)) {
           constraints.push({ field: 'status', operator: 'in', value: query.status });
@@ -110,11 +133,25 @@ export class SupabaseOrderRepository implements IOrderRepository {
       }
 
       const options: SupabaseOptions = {};
-      if (query.sort) options.orderByField = query.sort === 'createdAt' ? 'created_at' : query.sort === 'updatedAt' ? 'updated_at' : query.sort === 'orderNumber' ? 'order_number' : query.sort === 'grandTotal' ? 'grand_total' : query.sort;
+      if (query.sort)
+        options.orderByField =
+          query.sort === 'createdAt'
+            ? 'created_at'
+            : query.sort === 'updatedAt'
+              ? 'updated_at'
+              : query.sort === 'orderNumber'
+                ? 'order_number'
+                : query.sort === 'grandTotal'
+                  ? 'grand_total'
+                  : query.sort;
       if (query.sortDirection) options.orderDirection = query.sortDirection;
       if (query.limit) options.limitCount = query.limit;
 
-      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, constraints, options);
+      const rows = await supabaseService.query<Record<string, unknown>>(
+        TABLE,
+        constraints,
+        options,
+      );
       const items: Order[] = [];
       for (const row of rows) {
         const order = await this.findById(row.id as string);
@@ -125,7 +162,10 @@ export class SupabaseOrderRepository implements IOrderRepository {
         items,
         total: items.length,
         hasMore: items.length === (query.limit ?? 20),
-        lastDoc: items.length > 0 && items[items.length - 1] ? items[items.length - 1]!.id : null,
+        lastDoc:
+          items.length > 0 && items[items.length - 1]
+            ? (items[items.length - 1] as Order).id
+            : null,
       };
     } catch (err) {
       throw new RepositoryError('Failed to query orders', 'findAll', TABLE, { query, error: err });
@@ -144,7 +184,10 @@ export class SupabaseOrderRepository implements IOrderRepository {
       }
       return orders;
     } catch (err) {
-      throw new RepositoryError('Failed to find orders by status', 'findByStatus', TABLE, { status, error: err });
+      throw new RepositoryError('Failed to find orders by status', 'findByStatus', TABLE, {
+        status,
+        error: err,
+      });
     }
   }
 
@@ -161,7 +204,8 @@ export class SupabaseOrderRepository implements IOrderRepository {
   async count(query?: Partial<OrderQuery>): Promise<number> {
     try {
       const constraints: SupabaseQuery[] = [];
-      if (query?.userId) constraints.push({ field: 'user_id', operator: 'eq', value: query.userId });
+      if (query?.userId)
+        constraints.push({ field: 'user_id', operator: 'eq', value: query.userId });
       if (query?.status) {
         if (Array.isArray(query.status)) {
           constraints.push({ field: 'status', operator: 'in', value: query.status });
@@ -179,7 +223,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
   async create(data: Order): Promise<Order> {
     try {
       const now = new Date().toISOString();
-      const { items, timeline, id: _id, ...orderFields } = data;
+      const { items, timeline, ...orderFields } = data;
       const orderData = {
         ...orderFields,
         createdAt: now,
@@ -219,11 +263,19 @@ export class SupabaseOrderRepository implements IOrderRepository {
       if (!created) throw new NotFoundError('Order not found after creation');
       return created;
     } catch (err) {
-      throw new RepositoryError('Failed to create order', 'create', TABLE, { orderNumber: data.orderNumber, error: err });
+      throw new RepositoryError('Failed to create order', 'create', TABLE, {
+        orderNumber: data.orderNumber,
+        error: err,
+      });
     }
   }
 
-  async updateStatus(id: string, status: OrderStatus, changedBy: string, note?: string): Promise<Order> {
+  async updateStatus(
+    id: string,
+    status: OrderStatus,
+    changedBy: string,
+    note?: string,
+  ): Promise<Order> {
     try {
       const existing = await this.findById(id);
       if (!existing) throw new NotFoundError('Order not found');
@@ -244,7 +296,11 @@ export class SupabaseOrderRepository implements IOrderRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to update order status', 'updateStatus', TABLE, { id, status, error: err });
+      throw new RepositoryError('Failed to update order status', 'updateStatus', TABLE, {
+        id,
+        status,
+        error: err,
+      });
     }
   }
 
@@ -258,7 +314,10 @@ export class SupabaseOrderRepository implements IOrderRepository {
         status: entry.status,
         changed_by: entry.changedBy,
         note: entry.note,
-        created_at: entry.timestamp instanceof Date ? entry.timestamp.toISOString() : new Date().toISOString(),
+        created_at:
+          entry.timestamp instanceof Date
+            ? entry.timestamp.toISOString()
+            : new Date().toISOString(),
       });
 
       const updated = await this.findById(id);
@@ -266,7 +325,10 @@ export class SupabaseOrderRepository implements IOrderRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to append order timeline', 'appendTimeline', TABLE, { id, error: err });
+      throw new RepositoryError('Failed to append order timeline', 'appendTimeline', TABLE, {
+        id,
+        error: err,
+      });
     }
   }
 
@@ -275,14 +337,19 @@ export class SupabaseOrderRepository implements IOrderRepository {
       const existing = await this.findById(id);
       if (!existing) throw new NotFoundError('Order not found');
 
-      await supabaseService.update(TABLE, id, { payment: payment as unknown as Record<string, unknown> });
+      await supabaseService.update(TABLE, id, {
+        payment: payment as unknown as Record<string, unknown>,
+      });
 
       const updated = await this.findById(id);
       if (!updated) throw new NotFoundError('Order not found after payment update');
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to update order payment', 'updatePayment', TABLE, { id, error: err });
+      throw new RepositoryError('Failed to update order payment', 'updatePayment', TABLE, {
+        id,
+        error: err,
+      });
     }
   }
 

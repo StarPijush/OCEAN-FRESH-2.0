@@ -1,6 +1,10 @@
+import {
+  type CreateProductInput,
+  type Product,
+  ProductStatus,
+  type UpdateProductInput,
+} from '@oceanfresh/shared';
 import { useCallback } from 'react';
-import type { CreateProductInput, UpdateProductInput, Product } from '@oceanfresh/shared';
-import { ProductStatus } from '@oceanfresh/shared';
 
 interface ProductFormProps {
   mode: 'create' | 'update';
@@ -10,7 +14,13 @@ interface ProductFormProps {
   className?: string;
 }
 
-export function ProductForm({ mode, initialData, onSubmit, isSubmitting, className = '' }: ProductFormProps) {
+export function ProductForm({
+  mode,
+  initialData,
+  onSubmit,
+  isSubmitting,
+  className = '',
+}: ProductFormProps) {
   const handleSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();

@@ -1,7 +1,14 @@
-import { slugify, createLogger, NotFoundError, type Product, type CreateProductInput, type UpdateProductInput } from '@oceanfresh/shared';
+import {
+  createLogger,
+  type CreateProductInput,
+  NotFoundError,
+  type Product,
+  slugify,
+  type UpdateProductInput,
+} from '@oceanfresh/shared';
+
+import { type EventBus, ProductEventType } from '../events/index.js';
 import type { IProductRepository } from '../repository/index.js';
-import type { EventBus } from '../events/index.js';
-import { ProductEventType } from '../events/index.js';
 
 const logger = createLogger('product:service:write');
 
@@ -33,7 +40,10 @@ export class ProductWriteService {
     return product;
   }
 
-  async update(id: string, data: Partial<UpdateProductInput> & { updatedBy: string }): Promise<Product> {
+  async update(
+    id: string,
+    data: Partial<UpdateProductInput> & { updatedBy: string },
+  ): Promise<Product> {
     logger.info('update', { id });
 
     const product = await this.repository.update(id, data);

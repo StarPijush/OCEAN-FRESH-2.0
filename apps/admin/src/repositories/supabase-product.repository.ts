@@ -1,4 +1,5 @@
-import { supabaseService, rowToCamelCase, objToSnakeCase } from '@oceanfresh/supabase';
+import { supabaseService } from '@oceanfresh/supabase';
+
 import type { ProductData, ProductInput } from './types';
 
 const TABLE = 'products';
@@ -69,7 +70,10 @@ export const productRepository = {
   },
 
   async remove(id: string): Promise<void> {
-    await supabaseService.update(TABLE, id, { is_deleted: true, deleted_at: new Date().toISOString() });
+    await supabaseService.update(TABLE, id, {
+      is_deleted: true,
+      deleted_at: new Date().toISOString(),
+    });
   },
 
   async toggleAvailable(id: string): Promise<void> {

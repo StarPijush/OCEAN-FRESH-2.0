@@ -1,8 +1,14 @@
-﻿import { createLogger, AuthEventType, AuthenticationState, type AuthSession } from '@oceanfresh/shared';
-import { AuthStateMachine } from './auth-state-machine.js';
-import type { SessionStore } from './session.store.js';
+﻿import {
+  AuthenticationState,
+  AuthEventType,
+  type AuthSession,
+  createLogger,
+} from '@oceanfresh/shared';
+
 import type { EventBus } from '../events/index.js';
-import { DeviceManager } from './device.manager.js';
+import { AuthStateMachine } from './auth-state-machine.js';
+import type { DeviceManager } from './device.manager.js';
+import type { SessionStore } from './session.store.js';
 
 const logger = createLogger('auth:session:manager');
 
@@ -123,7 +129,9 @@ export class SessionManager {
     this.stateMachine.transition(AuthenticationState.SESSION_EXPIRED);
   }
 
-  onStateTransition(callback: (state: AuthenticationState, prev: AuthenticationState) => void): () => void {
+  onStateTransition(
+    callback: (state: AuthenticationState, prev: AuthenticationState) => void,
+  ): () => void {
     return this.stateMachine.onTransition(callback);
   }
 
@@ -135,23 +143,38 @@ export class SessionManager {
 
   private scheduleIdleTimer(): void {
     if (this.idleTimer) clearTimeout(this.idleTimer);
-    this.idleTimer = setTimeout(() => { this.handleSessionExpired(); }, this.config.idleTimeoutMs);
+    this.idleTimer = setTimeout(() => {
+      this.handleSessionExpired();
+    }, this.config.idleTimeoutMs);
   }
 
   private scheduleAbsoluteTimer(): void {
     if (this.absoluteTimer) clearTimeout(this.absoluteTimer);
-    this.absoluteTimer = setTimeout(() => { this.handleSessionExpired(); }, this.config.absoluteTimeoutMs);
+    this.absoluteTimer = setTimeout(() => {
+      this.handleSessionExpired();
+    }, this.config.absoluteTimeoutMs);
   }
 
   private scheduleRefreshTimer(): void {
     if (this.refreshTimer) clearTimeout(this.refreshTimer);
-    this.refreshTimer = setTimeout(() => { this.refreshSession(); }, this.config.refreshBeforeExpiryMs);
+    this.refreshTimer = setTimeout(() => {
+      this.refreshSession();
+    }, this.config.refreshBeforeExpiryMs);
   }
 
   private clearTimers(): void {
-    if (this.idleTimer) { clearTimeout(this.idleTimer); this.idleTimer = null; }
-    if (this.absoluteTimer) { clearTimeout(this.absoluteTimer); this.absoluteTimer = null; }
-    if (this.refreshTimer) { clearTimeout(this.refreshTimer); this.refreshTimer = null; }
+    if (this.idleTimer) {
+      clearTimeout(this.idleTimer);
+      this.idleTimer = null;
+    }
+    if (this.absoluteTimer) {
+      clearTimeout(this.absoluteTimer);
+      this.absoluteTimer = null;
+    }
+    if (this.refreshTimer) {
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = null;
+    }
   }
 
   private setupActivityTracking(): void {

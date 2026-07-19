@@ -1,6 +1,6 @@
-import type { Logger } from './interface.js';
 import { ConsoleLogger } from './implementations/console.logger.js';
 import { ProductionLogger } from './implementations/production.logger.js';
+import type { Logger } from './interface.js';
 
 function isProduction(): boolean {
   try {
@@ -11,8 +11,7 @@ function isProduction(): boolean {
       const env = (import.meta as unknown as Record<string, Record<string, boolean>>).env;
       return env?.PROD === true;
     }
-  } catch {
-  }
+  } catch {}
   return false;
 }
 

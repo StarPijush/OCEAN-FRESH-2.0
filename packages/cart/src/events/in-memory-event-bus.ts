@@ -1,5 +1,6 @@
-import { createLogger, CartEventType } from '@oceanfresh/shared';
-import type { EventBus, CartEvent } from './cart-event.types.js';
+import { type CartEventType, createLogger } from '@oceanfresh/shared';
+
+import type { CartEvent, EventBus } from './cart-event.types.js';
 
 const logger = createLogger('cart:events');
 
@@ -29,15 +30,20 @@ export class InMemoryEventBus implements EventBus {
     this.isPublishing = false;
 
     if (errors.length > 0) {
-      throw new AggregateError(errors, `Failed to publish event ${type}: ${errors.length} handler(s) failed`);
+      throw new AggregateError(
+        errors,
+        `Failed to publish event ${type}: ${errors.length} handler(s) failed`,
+      );
     }
   }
 
   subscribe(eventType: CartEventType, handler: Handler): () => void {
-    if (!this.handlers.has(eventType)) {
-      this.handlers.set(eventType, new Set());
+    let handlers = this.handlers.get(eventType);
+    if (!handlers) {
+      handlers = new Set();
+      this.handlers.set(eventType, handlers);
     }
-    this.handlers.get(eventType)!.add(handler);
+    handlers.add(handler);
 
     return () => {
       this.handlers.get(eventType)?.delete(handler);

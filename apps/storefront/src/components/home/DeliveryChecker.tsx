@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
+
 import { servicePincodes } from '../../types/legacy.js';
 
 export function DeliveryChecker() {
@@ -14,16 +15,31 @@ export function DeliveryChecker() {
     if (servicePincodes.includes(pin)) {
       setResult({ type: 'ok', msg: '\u2713 Delivery available \u00B7 Expected 2\u20133 hours' });
     } else {
-      setResult({ type: 'err', msg: '\u2715 Not delivering to this area yet \u2014 expanding soon.' });
+      setResult({
+        type: 'err',
+        msg: '\u2715 Not delivering to this area yet \u2014 expanding soon.',
+      });
     }
   }
 
   return (
     <section className="section section-alt">
       <div className="section-eyebrow reveal">Service Area</div>
-      <h2 className="section-title-lg reveal">Deliver<br />to You?</h2>
+      <h2 className="section-title-lg reveal">
+        Deliver
+        <br />
+        to You?
+      </h2>
       <div className="section-rule reveal"></div>
-      <p style={{ fontSize: '0.8rem', color: 'rgba(245,240,232,0.5)', lineHeight: 1.7, marginBottom: '24px' }} className="reveal">
+      <p
+        style={{
+          fontSize: '0.8rem',
+          color: 'rgba(245,240,232,0.5)',
+          lineHeight: 1.7,
+          marginBottom: '24px',
+        }}
+        className="reveal"
+      >
         Enter your Jhargram PIN code to check if we deliver to your neighbourhood.
       </p>
       <div className="pin-wrap reveal">
@@ -38,7 +54,9 @@ export function DeliveryChecker() {
             if (el.value.length > 6) el.value = el.value.slice(0, 6);
           }}
         />
-        <button className="btn btn-dark" onClick={checkDelivery}>Check</button>
+        <button className="btn btn-dark" onClick={checkDelivery}>
+          Check
+        </button>
       </div>
       <div
         id="pincode-result"

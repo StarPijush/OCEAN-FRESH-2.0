@@ -22,17 +22,14 @@ export class ConsoleLogger implements Logger {
   }
 
   warn(message: string, meta?: LogMetadata): void {
-    // eslint-disable-next-line no-console
     console.warn(`[${this.module}]`, message, meta ?? '');
   }
 
   error(message: string, error?: unknown, meta?: LogMetadata): void {
-    // eslint-disable-next-line no-console
     console.error(`[${this.module}]`, message, error, meta ?? '');
   }
 
   critical(message: string, error?: unknown, meta?: LogMetadata): void {
-    // eslint-disable-next-line no-console
     console.error(`[CRITICAL][${this.module}]`, message, error, meta ?? '');
   }
 }

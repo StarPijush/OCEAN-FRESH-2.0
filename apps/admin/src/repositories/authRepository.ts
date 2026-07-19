@@ -1,5 +1,6 @@
-import { getAuth, signInWithEmailAndPassword, signOut as fbSignOut } from 'firebase/auth';
 import { getApp } from '@oceanfresh/firebase';
+import { getAuth, signInWithEmailAndPassword, signOut as fbSignOut } from 'firebase/auth';
+
 import { rtdbGet, rtdbUpdate } from './rtdb';
 import type { AdminProfile } from './types';
 
@@ -24,14 +25,18 @@ export const authRepository = {
       const auth = getAuth(getApp());
       await signInWithEmailAndPassword(auth, email, password);
       return true;
-    } catch {
-    }
+    } catch {}
 
     const admin = await authRepository.getAdmin();
     if (admin.mobile === input && admin.password === password) {
-      localStorage.setItem('of_session', JSON.stringify({
-        loggedIn: true, ts: Date.now(), uid: 'admin_db_user',
-      }));
+      localStorage.setItem(
+        'of_session',
+        JSON.stringify({
+          loggedIn: true,
+          ts: Date.now(),
+          uid: 'admin_db_user',
+        }),
+      );
       return true;
     }
 
@@ -50,7 +55,9 @@ export const authRepository = {
   async logout(): Promise<void> {
     try {
       await fbSignOut(getAuth(getApp()));
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     localStorage.setItem('of_session', JSON.stringify({ loggedIn: false }));
   },
 

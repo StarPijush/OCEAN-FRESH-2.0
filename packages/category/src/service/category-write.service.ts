@@ -1,7 +1,15 @@
-import { slugify, createLogger, NotFoundError, ConcurrencyError, type Category, type CreateCategoryInput, type UpdateCategoryInput } from '@oceanfresh/shared';
+import {
+  type Category,
+  ConcurrencyError,
+  type CreateCategoryInput,
+  createLogger,
+  NotFoundError,
+  slugify,
+  type UpdateCategoryInput,
+} from '@oceanfresh/shared';
+
+import { CategoryEventType, type EventBus } from '../events/index.js';
 import type { ICategoryRepository } from '../repository/index.js';
-import type { EventBus } from '../events/index.js';
-import { CategoryEventType } from '../events/index.js';
 
 const logger = createLogger('category:service:write');
 const MAX_DEPTH = 5;
@@ -41,7 +49,10 @@ export class CategoryWriteService {
     return category;
   }
 
-  async update(id: string, data: Partial<UpdateCategoryInput> & { updatedBy: string }): Promise<Category> {
+  async update(
+    id: string,
+    data: Partial<UpdateCategoryInput> & { updatedBy: string },
+  ): Promise<Category> {
     logger.info('update', { id });
 
     const existing = await this.repository.findById(id);
@@ -76,7 +87,9 @@ export class CategoryWriteService {
     if (!existing) throw new NotFoundError('Category not found');
 
     if (existing.productCount > 0) {
-      throw new ConcurrencyError(`Cannot delete category "${existing.name}": ${existing.productCount} product(s) still assigned`);
+      throw new ConcurrencyError(
+        `Cannot delete category "${existing.name}": ${existing.productCount} product(s) still assigned`,
+      );
     }
 
     await this.repository.softDelete(id);
@@ -136,9 +149,12 @@ export class CategoryWriteService {
       const { path } = await this.computePathAndLevel(newParentId);
       const selfPath = path + '/' + id;
 
-      await this.repository.move(id, { parentId: newParentId, path: selfPath, level: proposedLevel });
+      await this.repository.move(id, {
+        parentId: newParentId,
+        path: selfPath,
+        level: proposedLevel,
+      });
 
-      const prefix = category.path + '/';
       const descendants = await this.repository.findDescendants(id);
       for (const descendant of descendants) {
         const oldPrefix = category.path + '/';
@@ -155,10 +171,10 @@ export class CategoryWriteService {
       const selfPath = id;
       await this.repository.move(id, { parentId: null, path: selfPath, level: 0 });
 
-      const prefix = category.path + '/';
       const descendants = await this.repository.findDescendants(id);
       for (const descendant of descendants) {
-        const newDescPath = id + '/' + descendant.path.replace(prefix, '');
+        const oldPrefix = category.path + '/';
+        const newDescPath = id + '/' + descendant.path.replace(oldPrefix, '');
         const newLevel = descendant.level - category.level;
         await this.repository.move(descendant.id, {
           parentId: descendant.parentId,
@@ -177,7 +193,7 @@ export class CategoryWriteService {
       metadata: { source: 'CategoryWriteService', correlationId: `move-${id}` },
     });
 
-    return moved!;
+    return moved as Category;
   }
 
   async bulkUpdate(ids: string[], data: Partial<UpdateCategoryInput>): Promise<void> {
@@ -195,7 +211,9 @@ export class CategoryWriteService {
     await this.repository.refreshProductCount(id, count);
   }
 
-  private async computePathAndLevel(parentId: string | null): Promise<{ path: string; level: number }> {
+  private async computePathAndLevel(
+    parentId: string | null,
+  ): Promise<{ path: string; level: number }> {
     if (!parentId) {
       return { path: '', level: 0 };
     }

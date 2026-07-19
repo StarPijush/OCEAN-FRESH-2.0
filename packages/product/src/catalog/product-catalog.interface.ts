@@ -1,4 +1,4 @@
-import type { ProductUnit, Money } from '@oceanfresh/shared';
+import type { Money, ProductUnit } from '@oceanfresh/shared';
 
 export interface ProductSummary {
   id: string;

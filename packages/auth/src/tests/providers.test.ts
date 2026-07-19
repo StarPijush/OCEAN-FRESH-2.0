@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { FirebaseAuthProvider } from '../providers/firebase-auth.provider.js';
 
 vi.mock('firebase/auth', () => ({
@@ -8,7 +9,10 @@ vi.mock('firebase/auth', () => ({
   signInWithEmailAndPassword: vi.fn(),
   createUserWithEmailAndPassword: vi.fn(),
   signOut: vi.fn(),
-  onAuthStateChanged: vi.fn((_auth, cb) => { cb(null); return vi.fn(); }),
+  onAuthStateChanged: vi.fn((_auth, cb) => {
+    cb(null);
+    return vi.fn();
+  }),
   sendPasswordResetEmail: vi.fn(),
   verifyBeforeUpdateEmail: vi.fn(),
   reauthenticateWithCredential: vi.fn(),
@@ -36,16 +40,34 @@ describe('FirebaseAuthProvider', () => {
   it('login fails with invalid credentials', async () => {
     const { signInWithEmailAndPassword } = await import('firebase/auth');
     const authError = new Error('auth/invalid-credential');
-    (authError as any).code = 'auth/invalid-credential';
+    (authError as Record<string, unknown>).code = 'auth/invalid-credential';
     vi.mocked(signInWithEmailAndPassword).mockRejectedValue(authError);
 
-    await expect(provider.login({ email: 'bad@b.com', password: 'wrong' })).rejects.toThrow('Invalid email or password');
+    await expect(provider.login({ email: 'bad@b.com', password: 'wrong' })).rejects.toThrow(
+      'Invalid email or password',
+    );
   });
 
   it('register creates user via Firebase auth', async () => {
     const { createUserWithEmailAndPassword, updateProfile } = await import('firebase/auth');
-    const mockCredential = { user: { uid: '1', email: 'a@b.com', displayName: null, photoURL: null, phoneNumber: null, emailVerified: false, isAnonymous: false, metadata: { creationTime: '2024-01-01', lastSignInTime: '2024-01-01' }, reload: vi.fn(), getIdToken: vi.fn(), getIdTokenResult: vi.fn() } };
-    vi.mocked(createUserWithEmailAndPassword).mockResolvedValue(mockCredential as any);
+    const mockCredential = {
+      user: {
+        uid: '1',
+        email: 'a@b.com',
+        displayName: null,
+        photoURL: null,
+        phoneNumber: null,
+        emailVerified: false,
+        isAnonymous: false,
+        metadata: { creationTime: '2024-01-01', lastSignInTime: '2024-01-01' },
+        reload: vi.fn(),
+        getIdToken: vi.fn(),
+        getIdTokenResult: vi.fn(),
+      },
+    };
+    vi.mocked(createUserWithEmailAndPassword).mockResolvedValue(
+      mockCredential as unknown as Record<string, unknown>,
+    );
     vi.mocked(updateProfile).mockResolvedValue(undefined);
 
     const result = await provider.register('a@b.com', 'pass123', 'Test User');

@@ -1,7 +1,13 @@
+import {
+  type CreateProductInput,
+  type Product,
+  slugify,
+  type UpdateProductInput,
+} from '@oceanfresh/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { slugify, type CreateProductInput, type UpdateProductInput, type Product } from '@oceanfresh/shared';
-import { productKeys } from './product.query-keys.js';
+
 import { getProductRepository } from '../repository/index.js';
+import { productKeys } from './product.query-keys.js';
 
 export function useCreateProduct() {
   const queryClient = useQueryClient();
@@ -19,8 +25,13 @@ export function useUpdateProduct() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<UpdateProductInput> & { updatedBy: string } }) =>
-      getProductRepository().update(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Partial<UpdateProductInput> & { updatedBy: string };
+    }) => getProductRepository().update(id, data),
     onSuccess: (product: Product) => {
       queryClient.invalidateQueries({ queryKey: productKeys.detail(product.id) });
       queryClient.invalidateQueries({ queryKey: productKeys.lists() });

@@ -1,9 +1,10 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+
+import { DeleteModal } from '../components/products/DeleteModal';
+import { ProductModal } from '../components/products/ProductModal';
+import { useAdminToast } from '../components/shared/AdminToast';
 import { productRepository } from '../repositories';
 import type { ProductData } from '../repositories/types';
-import { useAdminToast } from '../components/shared/AdminToast';
-import { ProductModal } from '../components/products/ProductModal';
-import { DeleteModal } from '../components/products/DeleteModal';
 
 const fmt = (n: number) => `₹${Number(n).toLocaleString('en-IN')}`;
 
@@ -21,13 +22,16 @@ export function ProductsPage() {
     setProducts(list);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const filtered = products.filter(p => {
+  const filtered = products.filter((p) => {
     if (filter !== 'all' && p.category !== filter) return false;
     if (search) {
       const q = search.toLowerCase();
-      if (!p.name.toLowerCase().includes(q) && !(p.sub ?? '').toLowerCase().includes(q)) return false;
+      if (!p.name.toLowerCase().includes(q) && !(p.sub ?? '').toLowerCase().includes(q))
+        return false;
     }
     return true;
   });
@@ -78,14 +82,16 @@ export function ProductsPage() {
             type="text"
             placeholder="Search products…"
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>+ Add Product</button>
+        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
+          + Add Product
+        </button>
       </div>
 
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
-        {filterChips.map(chip => (
+        {filterChips.map((chip) => (
           <button
             key={chip.id}
             className={`btn btn-sm prod-filter-btn ${filter === chip.id ? 'active' : 'btn-ghost'}`}
@@ -122,14 +128,16 @@ export function ProductsPage() {
               <div className="empty-state-sub">Try a different filter or search term.</div>
             </div>
           ) : (
-            filtered.map(p => (
+            filtered.map((p) => (
               <div key={p.id} className="table-row">
                 <div className="col-img">
                   <div className="col-img-thumb">
                     <img
                       src={p.image}
                       alt={p.name}
-                      onError={e => { (e.target as HTMLElement).style.background = '#1c2030'; }}
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.background = '#1c2030';
+                      }}
                     />
                   </div>
                 </div>
@@ -137,23 +145,43 @@ export function ProductsPage() {
                   <div className="cell-name-main">{p.name}</div>
                   <div className="cell-name-sub">{p.sub}</div>
                 </div>
-                <div className="col-cat"><span className="badge badge-muted">{p.category}</span></div>
-                <div className="col-price" style={{ fontWeight: 600, color: 'var(--aqua)' }}>{fmt(p.price)}</div>
+                <div className="col-cat">
+                  <span className="badge badge-muted">{p.category}</span>
+                </div>
+                <div className="col-price" style={{ fontWeight: 600, color: 'var(--aqua)' }}>
+                  {fmt(p.price)}
+                </div>
                 <div className="col-status">
                   <label className="toggle">
-                    <input type="checkbox" checked={!!p.available} onChange={() => handleToggleAvailable(p.id)} />
+                    <input
+                      type="checkbox"
+                      checked={!!p.available}
+                      onChange={() => handleToggleAvailable(p.id)}
+                    />
                     <div className="toggle-track" />
                   </label>
                 </div>
                 <div className="col-feat">
                   <label className="toggle">
-                    <input type="checkbox" checked={!!p.featured} onChange={() => handleToggleFeatured(p.id)} />
+                    <input
+                      type="checkbox"
+                      checked={!!p.featured}
+                      onChange={() => handleToggleFeatured(p.id)}
+                    />
                     <div className="toggle-track" />
                   </label>
                 </div>
                 <div className="col-actions">
-                  <button className="icon-btn" onClick={() => setEditing(p)} title="Edit">✏️</button>
-                  <button className="icon-btn danger" onClick={() => setDeleting({ id: p.id, name: p.name })} title="Delete">🗑</button>
+                  <button className="icon-btn" onClick={() => setEditing(p)} title="Edit">
+                    ✏️
+                  </button>
+                  <button
+                    className="icon-btn danger"
+                    onClick={() => setDeleting({ id: p.id, name: p.name })}
+                    title="Delete"
+                  >
+                    🗑
+                  </button>
                 </div>
               </div>
             ))
@@ -161,9 +189,7 @@ export function ProductsPage() {
         </div>
       </div>
 
-      {showAdd && (
-        <ProductModal product={null} onClose={() => setShowAdd(false)} onSaved={load} />
-      )}
+      {showAdd && <ProductModal product={null} onClose={() => setShowAdd(false)} onSaved={load} />}
       {editing && (
         <ProductModal product={editing} onClose={() => setEditing(null)} onSaved={load} />
       )}

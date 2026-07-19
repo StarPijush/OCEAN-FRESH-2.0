@@ -1,16 +1,14 @@
-import {
-  createLogger,
-  OrderStatus,
-  OrderValidationException,
-  type OrderValidationResult,
-  type CreateOrderFromCheckoutInput,
-  type Order,
-} from '@oceanfresh/shared';
 import type { CartCheckoutContext } from '@oceanfresh/cart';
 import type { IProductCatalog } from '@oceanfresh/product';
-import { OrderStateMachine } from './order-state-machine.js';
+import {
+  type CreateOrderFromCheckoutInput,
+  type Order,
+  type OrderStatus,
+  OrderValidationException,
+  type OrderValidationResult,
+} from '@oceanfresh/shared';
 
-const logger = createLogger('order:validation');
+import { OrderStateMachine } from './order-state-machine.js';
 
 export class OrderValidationService {
   constructor(private readonly catalog: IProductCatalog) {}
@@ -75,19 +73,35 @@ export class OrderValidationService {
     }
 
     if (!input.customer.name) {
-      errors.push({ code: 'MISSING_CUSTOMER_NAME', message: 'Customer name is required', field: 'customer.name' });
+      errors.push({
+        code: 'MISSING_CUSTOMER_NAME',
+        message: 'Customer name is required',
+        field: 'customer.name',
+      });
     }
 
     if (!input.customer.phone || !/^[0-9]{10}$/.test(input.customer.phone)) {
-      errors.push({ code: 'INVALID_PHONE', message: 'Valid 10-digit phone is required', field: 'customer.phone' });
+      errors.push({
+        code: 'INVALID_PHONE',
+        message: 'Valid 10-digit phone is required',
+        field: 'customer.phone',
+      });
     }
 
     if (!input.customer.pincode || !/^[0-9]{6}$/.test(input.customer.pincode)) {
-      errors.push({ code: 'INVALID_PINCODE', message: 'Valid 6-digit pincode is required', field: 'customer.pincode' });
+      errors.push({
+        code: 'INVALID_PINCODE',
+        message: 'Valid 6-digit pincode is required',
+        field: 'customer.pincode',
+      });
     }
 
     if (!input.shipping.method) {
-      errors.push({ code: 'MISSING_SHIPPING_METHOD', message: 'Shipping method is required', field: 'shipping.method' });
+      errors.push({
+        code: 'MISSING_SHIPPING_METHOD',
+        message: 'Shipping method is required',
+        field: 'shipping.method',
+      });
     }
 
     return { valid: errors.length === 0, errors };

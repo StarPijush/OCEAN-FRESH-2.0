@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
-import { productRepository, imageRepository } from '../../repositories';
+import { useEffect, useRef, useState } from 'react';
+
+import { imageRepository, productRepository } from '../../repositories';
 import type { ProductData } from '../../repositories/types';
 import { useAdminToast } from '../shared/AdminToast';
 
@@ -46,7 +47,7 @@ export function ProductModal({ product, onClose, onSaved }: Props) {
     }
     setImageFile(file);
     const reader = new FileReader();
-    reader.onload = e => setImageData(e.target?.result as string);
+    reader.onload = (e) => setImageData(e.target?.result as string);
     reader.readAsDataURL(file);
   };
 
@@ -57,9 +58,15 @@ export function ProductModal({ product, onClose, onSaved }: Props) {
   };
 
   const handleSave = async () => {
-    if (!name.trim()) { toast('Product name is required', 'error'); return; }
+    if (!name.trim()) {
+      toast('Product name is required', 'error');
+      return;
+    }
     const parsedPrice = parseFloat(price);
-    if (isNaN(parsedPrice) || parsedPrice <= 0) { toast('Enter a valid price', 'error'); return; }
+    if (isNaN(parsedPrice) || parsedPrice <= 0) {
+      toast('Enter a valid price', 'error');
+      return;
+    }
 
     setSaving(true);
     try {
@@ -101,30 +108,52 @@ export function ProductModal({ product, onClose, onSaved }: Props) {
 
   return (
     <div className="modal-overlay show" onClick={onClose}>
-      <div className="modal" onClick={e => e.stopPropagation()}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">{isEdit ? 'Edit Product' : 'Add New Product'}</div>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <button className="modal-close" onClick={onClose}>
+            ✕
+          </button>
         </div>
 
         <div className="form-grp">
           <label className="form-lbl">Product Name</label>
-          <input className="form-inp" type="text" placeholder="e.g. Fresh Pomfret" value={name} onChange={e => setName(e.target.value)} />
+          <input
+            className="form-inp"
+            type="text"
+            placeholder="e.g. Fresh Pomfret"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
         </div>
 
         <div className="form-grp">
           <label className="form-lbl">Subtitle</label>
-          <input className="form-inp" type="text" placeholder="e.g. Whole, medium-sized" value={sub} onChange={e => setSub(e.target.value)} />
+          <input
+            className="form-inp"
+            type="text"
+            placeholder="e.g. Whole, medium-sized"
+            value={sub}
+            onChange={(e) => setSub(e.target.value)}
+          />
         </div>
 
         <div className="modal-form-grid">
           <div className="form-grp">
             <label className="form-lbl">Price (₹/kg)</label>
-            <input className="form-inp" type="number" step="0.01" min="0" placeholder="450" value={price} onChange={e => setPrice(e.target.value)} />
+            <input
+              className="form-inp"
+              type="number"
+              step="0.01"
+              min="0"
+              placeholder="450"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
           </div>
           <div className="form-grp">
             <label className="form-lbl">Category</label>
-            <select className="form-inp" value={cat} onChange={e => setCat(e.target.value)}>
+            <select className="form-inp" value={cat} onChange={(e) => setCat(e.target.value)}>
               <option value="fresh">Fresh Fish</option>
               <option value="sea">Sea Fish</option>
               <option value="prawns">Prawns</option>
@@ -137,14 +166,22 @@ export function ProductModal({ product, onClose, onSaved }: Props) {
           <div className="form-grp">
             <label className="form-lbl">Available</label>
             <label className="toggle" style={{ marginTop: '6px' }}>
-              <input type="checkbox" checked={available} onChange={e => setAvailable(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={available}
+                onChange={(e) => setAvailable(e.target.checked)}
+              />
               <div className="toggle-track" />
             </label>
           </div>
           <div className="form-grp">
             <label className="form-lbl">Featured</label>
             <label className="toggle" style={{ marginTop: '6px' }}>
-              <input type="checkbox" checked={featured} onChange={e => setFeatured(e.target.checked)} />
+              <input
+                type="checkbox"
+                checked={featured}
+                onChange={(e) => setFeatured(e.target.checked)}
+              />
               <div className="toggle-track" />
             </label>
           </div>
@@ -152,7 +189,14 @@ export function ProductModal({ product, onClose, onSaved }: Props) {
 
         <div className="form-grp">
           <label className="form-lbl">Emoji (fallback)</label>
-          <input className="form-inp" type="text" maxLength={2} placeholder="🐟" value={emoji} onChange={e => setEmoji(e.target.value)} />
+          <input
+            className="form-inp"
+            type="text"
+            maxLength={2}
+            placeholder="🐟"
+            value={emoji}
+            onChange={(e) => setEmoji(e.target.value)}
+          />
         </div>
 
         <div className="form-grp">
@@ -160,17 +204,24 @@ export function ProductModal({ product, onClose, onSaved }: Props) {
           {isRealPhoto ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '6px' }}>
               <div className="col-img-thumb">
-                <img src={imageData!} alt="Preview" />
+                <img src={imageData as string} alt="Preview" />
               </div>
-              <button className="btn btn-sm btn-danger" onClick={removeImage}>Remove</button>
+              <button className="btn btn-sm btn-danger" onClick={removeImage}>
+                Remove
+              </button>
             </div>
           ) : (
             <div
               id="prod-img-upload-placeholder"
               style={{
-                border: '1px dashed var(--border2)', borderRadius: '3px',
-                padding: '16px', textAlign: 'center', cursor: 'pointer', marginTop: '6px',
-                color: 'var(--muted)', fontSize: '0.75rem',
+                border: '1px dashed var(--border2)',
+                borderRadius: '3px',
+                padding: '16px',
+                textAlign: 'center',
+                cursor: 'pointer',
+                marginTop: '6px',
+                color: 'var(--muted)',
+                fontSize: '0.75rem',
               }}
               onClick={() => fileRef.current?.click()}
             >
@@ -183,12 +234,17 @@ export function ProductModal({ product, onClose, onSaved }: Props) {
             type="file"
             accept="image/*"
             style={{ display: 'none' }}
-            onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); }}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleImageUpload(f);
+            }}
           />
         </div>
 
         <div className="modal-footer">
-          <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+          <button className="btn btn-ghost" onClick={onClose}>
+            Cancel
+          </button>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
             {saving ? 'Saving…' : isEdit ? 'Update Product' : 'Add Product'}
           </button>

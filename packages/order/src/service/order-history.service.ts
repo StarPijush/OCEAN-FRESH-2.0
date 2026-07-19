@@ -1,4 +1,10 @@
-import { createLogger, OrderStatus, type Order, type OrderTimelineEntry } from '@oceanfresh/shared';
+import {
+  createLogger,
+  type Order,
+  type OrderStatus,
+  type OrderTimelineEntry,
+} from '@oceanfresh/shared';
+
 import type { IOrderRepository } from '../repository/index.js';
 
 const logger = createLogger('order:history');

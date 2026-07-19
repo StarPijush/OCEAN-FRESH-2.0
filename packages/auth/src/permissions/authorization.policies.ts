@@ -1,4 +1,5 @@
 import { Permission, type PermissionContext } from '@oceanfresh/shared';
+
 import { PermissionResolver } from './permission.resolver.js';
 
 const resolver = new PermissionResolver();

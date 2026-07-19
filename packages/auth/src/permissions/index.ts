@@ -1,19 +1,19 @@
-export { PermissionResolver } from './permission.resolver.js';
-export { ROLE_PERMISSIONS, ROLE_HIERARCHY } from './permission-matrix.js';
 export {
-  canReadProducts,
-  canCreateProduct,
-  canUpdateProduct,
-  canDeleteProduct,
-  canPublishProduct,
-  canManageOrders,
-  canRefundOrder,
-  canManageUsers,
-  canManageInventory,
-  canManagePayments,
   canAccessAdmin,
+  canAssignRoles,
+  canCreateProduct,
+  canDeleteProduct,
+  canImpersonate,
+  canManageInventory,
+  canManageOrders,
+  canManagePayments,
   canManageSettings,
   canManageSystem,
-  canImpersonate,
-  canAssignRoles,
+  canManageUsers,
+  canPublishProduct,
+  canReadProducts,
+  canRefundOrder,
+  canUpdateProduct,
 } from './authorization.policies.js';
+export { PermissionResolver } from './permission.resolver.js';
+export { ROLE_HIERARCHY, ROLE_PERMISSIONS } from './permission-matrix.js';

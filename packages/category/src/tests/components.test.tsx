@@ -1,13 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { CategoryCard } from '../components/category-card.js';
-import { CategoryStatusBadge } from '../components/category-status-badge.js';
-import { CategoryBadge } from '../components/category-badge.js';
-import { CategoryTree } from '../components/category-tree.js';
-import { CategoryBreadcrumb } from '../components/category-breadcrumb.js';
-import { CategorySkeleton } from '../components/category-skeleton.js';
-import { CategoryTable } from '../components/category-table.js';
 import { CategoryStatus } from '@oceanfresh/shared';
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+
+import { CategoryBadge } from '../components/category-badge.js';
+import { CategoryBreadcrumb } from '../components/category-breadcrumb.js';
+import { CategoryCard } from '../components/category-card.js';
+import { CategorySkeleton } from '../components/category-skeleton.js';
+import { CategoryStatusBadge } from '../components/category-status-badge.js';
+import { CategoryTable } from '../components/category-table.js';
+import { CategoryTree } from '../components/category-tree.js';
 
 const mockCategory = {
   id: '1',
@@ -31,8 +32,8 @@ const mockCategory = {
   updatedBy: null,
   version: 1,
   isDeleted: false,
-  createdAt: new Date() as any,
-  updatedAt: new Date() as any,
+  createdAt: new Date(),
+  updatedAt: new Date(),
   deletedAt: null,
 };
 
@@ -92,9 +93,7 @@ describe('CategoryTree', () => {
 
 describe('CategoryBreadcrumb', () => {
   it('renders ancestors and current', () => {
-    const ancestors = [
-      { ...mockCategory, id: '1', name: 'Food' },
-    ];
+    const ancestors = [{ ...mockCategory, id: '1', name: 'Food' }];
     const current = { ...mockCategory, id: '2', name: 'Seafood' };
     render(<CategoryBreadcrumb ancestors={ancestors} current={current} />);
     expect(screen.getByText('Food')).toBeDefined();

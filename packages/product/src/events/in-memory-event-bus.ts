@@ -1,4 +1,5 @@
-import { createLogger, ProductEventType } from '@oceanfresh/shared';
+import { createLogger, type ProductEventType } from '@oceanfresh/shared';
+
 import type { EventBus, ProductEvent } from './product-event.types.js';
 
 const logger = createLogger('product:events');
@@ -22,14 +23,20 @@ export class InMemoryEventBus implements EventBus {
         await Promise.resolve(handler(event));
       } catch (err) {
         errors.push(err as Error);
-        logger.error(`Event handler failed for ${type}`, { error: err, productId: event.productId });
+        logger.error(`Event handler failed for ${type}`, {
+          error: err,
+          productId: event.productId,
+        });
       }
     }
 
     this.isPublishing = false;
 
     if (errors.length > 0) {
-      throw new AggregateError(errors, `Failed to publish event ${type}: ${errors.length} handler(s) failed`);
+      throw new AggregateError(
+        errors,
+        `Failed to publish event ${type}: ${errors.length} handler(s) failed`,
+      );
     }
   }
 
@@ -37,7 +44,7 @@ export class InMemoryEventBus implements EventBus {
     if (!this.handlers.has(eventType)) {
       this.handlers.set(eventType, new Set());
     }
-    this.handlers.get(eventType)!.add(handler);
+    this.handlers.get(eventType)?.add(handler);
 
     return () => {
       this.handlers.get(eventType)?.delete(handler);

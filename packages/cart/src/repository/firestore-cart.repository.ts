@@ -1,19 +1,16 @@
 import { firestoreService } from '@oceanfresh/firebase';
-import { Timestamp } from 'firebase/firestore';
 import {
-  createLogger,
-  NotFoundError,
-  RepositoryError,
-  CartStatus,
-  CartSource,
   type Cart,
   type CartItem,
   type CartQuery,
-  type Money,
+  CartSource,
+  CartStatus,
+  NotFoundError,
+  RepositoryError,
 } from '@oceanfresh/shared';
-import type { ICartRepository } from './cart.repository.js';
+import { Timestamp } from 'firebase/firestore';
 
-const logger = createLogger('cart:repository');
+import type { ICartRepository } from './cart.repository.js';
 
 const COLLECTION = 'carts';
 
@@ -24,37 +21,62 @@ function docToCart(id: string, data: Record<string, unknown>): Cart {
 export class FirestoreCartRepository implements ICartRepository {
   async findById(id: string): Promise<Cart | null> {
     try {
-      const doc = await firestoreService.get<Record<string, unknown> & { id: string }>(COLLECTION, id);
+      const doc = await firestoreService.get<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        id,
+      );
       if (!doc) return null;
       return docToCart(doc.id, doc);
     } catch (err) {
-      throw new RepositoryError('Failed to find cart by ID', 'findById', COLLECTION, { id, error: err });
+      throw new RepositoryError('Failed to find cart by ID', 'findById', COLLECTION, {
+        id,
+        error: err,
+      });
     }
   }
 
   async findByUserId(userId: string): Promise<Cart | null> {
     try {
-      const results = await firestoreService.query<Record<string, unknown> & { id: string }>(COLLECTION, [
-        { field: 'userId', operator: '==', value: userId },
-        { field: 'status', operator: 'in', value: [CartStatus.ACTIVE, CartStatus.READY_FOR_CHECKOUT] },
-      ]);
-      const active = results.find((r) => r.status === CartStatus.ACTIVE || r.status === CartStatus.READY_FOR_CHECKOUT);
+      const results = await firestoreService.query<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        [
+          { field: 'userId', operator: '==', value: userId },
+          {
+            field: 'status',
+            operator: 'in',
+            value: [CartStatus.ACTIVE, CartStatus.READY_FOR_CHECKOUT],
+          },
+        ],
+      );
+      const active = results.find(
+        (r) => r.status === CartStatus.ACTIVE || r.status === CartStatus.READY_FOR_CHECKOUT,
+      );
       if (!active) return null;
       return docToCart(active.id, active);
     } catch (err) {
-      throw new RepositoryError('Failed to find cart by user ID', 'findByUserId', COLLECTION, { userId, error: err });
+      throw new RepositoryError('Failed to find cart by user ID', 'findByUserId', COLLECTION, {
+        userId,
+        error: err,
+      });
     }
   }
 
   async findBySessionId(sessionId: string): Promise<Cart | null> {
     try {
-      const results = await firestoreService.query<Record<string, unknown> & { id: string }>(COLLECTION, [
-        { field: 'sessionId', operator: '==', value: sessionId },
-      ]);
+      const results = await firestoreService.query<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        [{ field: 'sessionId', operator: '==', value: sessionId }],
+      );
       if (results.length === 0) return null;
-      return docToCart(results[0]!.id, results[0]!);
+      const row = results[0] as Record<string, unknown>;
+      return docToCart(row.id as string, row);
     } catch (err) {
-      throw new RepositoryError('Failed to find cart by session ID', 'findBySessionId', COLLECTION, { sessionId, error: err });
+      throw new RepositoryError(
+        'Failed to find cart by session ID',
+        'findBySessionId',
+        COLLECTION,
+        { sessionId, error: err },
+      );
     }
   }
 
@@ -73,13 +95,20 @@ export class FirestoreCartRepository implements ICartRepository {
     try {
       const constraints: { field: string; operator: string; value: unknown }[] = [];
       if (query.userId) constraints.push({ field: 'userId', operator: '==', value: query.userId });
-      if (query.sessionId) constraints.push({ field: 'sessionId', operator: '==', value: query.sessionId });
+      if (query.sessionId)
+        constraints.push({ field: 'sessionId', operator: '==', value: query.sessionId });
       if (query.status) constraints.push({ field: 'status', operator: '==', value: query.status });
       if (query.source) constraints.push({ field: 'source', operator: '==', value: query.source });
-      const docs = await firestoreService.query<Record<string, unknown> & { id: string }>(COLLECTION, constraints);
+      const docs = await firestoreService.query<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        constraints,
+      );
       return docs.map((d) => docToCart(d.id, d));
     } catch (err) {
-      throw new RepositoryError('Failed to query carts', 'findAll', COLLECTION, { query, error: err });
+      throw new RepositoryError('Failed to query carts', 'findAll', COLLECTION, {
+        query,
+        error: err,
+      });
     }
   }
 
@@ -93,14 +122,24 @@ export class FirestoreCartRepository implements ICartRepository {
       const constraints: { field: string; operator: string; value: unknown }[] = [];
       if (query?.userId) constraints.push({ field: 'userId', operator: '==', value: query.userId });
       if (query?.status) constraints.push({ field: 'status', operator: '==', value: query.status });
-      const docs = await firestoreService.query<Record<string, unknown> & { id: string }>(COLLECTION, constraints);
+      const docs = await firestoreService.query<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        constraints,
+      );
       return docs.length;
     } catch (err) {
-      throw new RepositoryError('Failed to count carts', 'count', COLLECTION, { query, error: err });
+      throw new RepositoryError('Failed to count carts', 'count', COLLECTION, {
+        query,
+        error: err,
+      });
     }
   }
 
-  async create(data: { userId: string | null; sessionId: string | null; source: CartSource }): Promise<Cart> {
+  async create(data: {
+    userId: string | null;
+    sessionId: string | null;
+    source: CartSource;
+  }): Promise<Cart> {
     try {
       const now = Timestamp.now();
       const expiresAt = new Timestamp(now.seconds + 7 * 86400, now.nanoseconds);
@@ -110,15 +149,27 @@ export class FirestoreCartRepository implements ICartRepository {
         source: data.source,
         status: CartStatus.ACTIVE,
         items: [],
-        totals: { subtotal: { amount: 0, currency: 'INR' }, tax: { amount: 0, currency: 'INR' }, shipping: { amount: 0, currency: 'INR' }, discount: { amount: 0, currency: 'INR' }, grandTotal: { amount: 0, currency: 'INR' } },
+        totals: {
+          subtotal: { amount: 0, currency: 'INR' },
+          tax: { amount: 0, currency: 'INR' },
+          shipping: { amount: 0, currency: 'INR' },
+          discount: { amount: 0, currency: 'INR' },
+          grandTotal: { amount: 0, currency: 'INR' },
+        },
         expiresAt,
         createdAt: now,
         updatedAt: now,
       };
-      const result = await firestoreService.add<Record<string, unknown>>(COLLECTION, docData as unknown as Record<string, unknown>);
+      const result = await firestoreService.add<Record<string, unknown>>(
+        COLLECTION,
+        docData as unknown as Record<string, unknown>,
+      );
       return docToCart(result.id as string, { ...docData, id: result.id });
     } catch (err) {
-      throw new RepositoryError('Failed to create cart', 'create', COLLECTION, { userId: data.userId, error: err });
+      throw new RepositoryError('Failed to create cart', 'create', COLLECTION, {
+        userId: data.userId,
+        error: err,
+      });
     }
   }
 
@@ -135,7 +186,10 @@ export class FirestoreCartRepository implements ICartRepository {
         subtotal: item.subtotal,
         addedAt: item.addedAt,
       };
-      const items = [...(existing.items as unknown as Record<string, unknown>[]), serializedItem as unknown as Record<string, unknown>];
+      const items = [
+        ...(existing.items as unknown as Record<string, unknown>[]),
+        serializedItem as unknown as Record<string, unknown>,
+      ];
       await firestoreService.update(COLLECTION, cartId, { items, updatedAt: Timestamp.now() });
 
       const updated = await this.findById(cartId);
@@ -143,21 +197,32 @@ export class FirestoreCartRepository implements ICartRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to add item to cart', 'addItem', COLLECTION, { cartId, productId: item.productId, error: err });
+      throw new RepositoryError('Failed to add item to cart', 'addItem', COLLECTION, {
+        cartId,
+        productId: item.productId,
+        error: err,
+      });
     }
   }
 
-  async updateItem(cartId: string, itemId: string, quantity: number, subtotal: { amount: number; currency: string }): Promise<Cart> {
+  async updateItem(
+    cartId: string,
+    itemId: string,
+    quantity: number,
+    subtotal: { amount: number; currency: string },
+  ): Promise<Cart> {
     try {
       const existing = await this.findById(cartId);
       if (!existing) throw new NotFoundError('Cart not found');
 
-      const items = (existing.items as unknown as Record<string, unknown>[]).map((item: Record<string, unknown>) => {
-        if (item.id === itemId) {
-          return { ...item, quantity, subtotal };
-        }
-        return item;
-      });
+      const items = (existing.items as unknown as Record<string, unknown>[]).map(
+        (item: Record<string, unknown>) => {
+          if (item.id === itemId) {
+            return { ...item, quantity, subtotal };
+          }
+          return item;
+        },
+      );
       await firestoreService.update(COLLECTION, cartId, { items, updatedAt: Timestamp.now() });
 
       const updated = await this.findById(cartId);
@@ -165,7 +230,11 @@ export class FirestoreCartRepository implements ICartRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to update cart item', 'updateItem', COLLECTION, { cartId, itemId, error: err });
+      throw new RepositoryError('Failed to update cart item', 'updateItem', COLLECTION, {
+        cartId,
+        itemId,
+        error: err,
+      });
     }
   }
 
@@ -174,7 +243,9 @@ export class FirestoreCartRepository implements ICartRepository {
       const existing = await this.findById(cartId);
       if (!existing) throw new NotFoundError('Cart not found');
 
-      const items = (existing.items as unknown as Record<string, unknown>[]).filter((item: Record<string, unknown>) => item.id !== itemId);
+      const items = (existing.items as unknown as Record<string, unknown>[]).filter(
+        (item: Record<string, unknown>) => item.id !== itemId,
+      );
       await firestoreService.update(COLLECTION, cartId, { items, updatedAt: Timestamp.now() });
 
       const updated = await this.findById(cartId);
@@ -182,7 +253,11 @@ export class FirestoreCartRepository implements ICartRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to remove item from cart', 'removeItem', COLLECTION, { cartId, itemId, error: err });
+      throw new RepositoryError('Failed to remove item from cart', 'removeItem', COLLECTION, {
+        cartId,
+        itemId,
+        error: err,
+      });
     }
   }
 
@@ -194,7 +269,11 @@ export class FirestoreCartRepository implements ICartRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to update cart status', 'updateStatus', COLLECTION, { cartId, status, error: err });
+      throw new RepositoryError('Failed to update cart status', 'updateStatus', COLLECTION, {
+        cartId,
+        status,
+        error: err,
+      });
     }
   }
 
@@ -206,7 +285,10 @@ export class FirestoreCartRepository implements ICartRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to update cart totals', 'updateTotals', COLLECTION, { cartId, error: err });
+      throw new RepositoryError('Failed to update cart totals', 'updateTotals', COLLECTION, {
+        cartId,
+        error: err,
+      });
     }
   }
 
@@ -217,7 +299,13 @@ export class FirestoreCartRepository implements ICartRepository {
 
       await firestoreService.update(COLLECTION, cartId, {
         items: [],
-        totals: { subtotal: { amount: 0, currency: 'INR' }, tax: { amount: 0, currency: 'INR' }, shipping: { amount: 0, currency: 'INR' }, discount: { amount: 0, currency: 'INR' }, grandTotal: { amount: 0, currency: 'INR' } },
+        totals: {
+          subtotal: { amount: 0, currency: 'INR' },
+          tax: { amount: 0, currency: 'INR' },
+          shipping: { amount: 0, currency: 'INR' },
+          discount: { amount: 0, currency: 'INR' },
+          grandTotal: { amount: 0, currency: 'INR' },
+        },
         updatedAt: Timestamp.now(),
       });
 
@@ -226,7 +314,10 @@ export class FirestoreCartRepository implements ICartRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to clear cart items', 'clearItems', COLLECTION, { cartId, error: err });
+      throw new RepositoryError('Failed to clear cart items', 'clearItems', COLLECTION, {
+        cartId,
+        error: err,
+      });
     }
   }
 
@@ -239,7 +330,11 @@ export class FirestoreCartRepository implements ICartRepository {
       if (!source) throw new NotFoundError('Source cart not found');
 
       const mergedItems = [...(destination.items as unknown as Record<string, unknown>[])];
-      const existingProductIds = new Set((destination.items as unknown as Record<string, unknown>[]).map((i: Record<string, unknown>) => i.productId as string));
+      const existingProductIds = new Set(
+        (destination.items as unknown as Record<string, unknown>[]).map(
+          (i: Record<string, unknown>) => i.productId as string,
+        ),
+      );
 
       for (const item of source.items as unknown as Record<string, unknown>[]) {
         if (!existingProductIds.has(item.productId as string)) {
@@ -263,7 +358,11 @@ export class FirestoreCartRepository implements ICartRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to merge carts', 'merge', COLLECTION, { destinationId, sourceId, error: err });
+      throw new RepositoryError('Failed to merge carts', 'merge', COLLECTION, {
+        destinationId,
+        sourceId,
+        error: err,
+      });
     }
   }
 

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 interface ProductSearchProps {
   onSearch: (term: string) => void;
@@ -7,7 +7,11 @@ interface ProductSearchProps {
   className?: string;
 }
 
-export function ProductSearch({ onSearch, placeholder = 'Search products...', debounceMs = 300, className = '' }: ProductSearchProps) {
+export function ProductSearch({
+  onSearch,
+  placeholder = 'Search products...',
+  className = '',
+}: ProductSearchProps) {
   const [value, setValue] = useState('');
 
   const handleChange = useCallback(
@@ -27,7 +31,12 @@ export function ProductSearch({ onSearch, placeholder = 'Search products...', de
         viewBox="0 0 24 24"
         stroke="currentColor"
       >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        />
       </svg>
       <input
         type="text"
@@ -48,7 +57,12 @@ export function ProductSearch({ onSearch, placeholder = 'Search products...', de
           aria-label="Clear search"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       )}

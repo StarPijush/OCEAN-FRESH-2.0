@@ -1,12 +1,15 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+
+import { OrderDetailModal } from '../components/orders/OrderDetailModal';
+import { Badge } from '../components/shared/Badge';
 import { orderRepository } from '../repositories';
 import type { OrderData } from '../repositories/types';
-import { Badge } from '../components/shared/Badge';
-import { OrderDetailModal } from '../components/orders/OrderDetailModal';
 
 const fmt = (n: number) => `₹${Number(n).toLocaleString('en-IN')}`;
-const fmtDate = (ts: number) => new Date(ts).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
-const fmtTime = (ts: number) => new Date(ts).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+const fmtDate = (ts: number) =>
+  new Date(ts).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+const fmtTime = (ts: number) =>
+  new Date(ts).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
 export function OrdersPage() {
   const [orders, setOrders] = useState<OrderData[]>([]);
@@ -19,13 +22,17 @@ export function OrdersPage() {
     setOrders(list);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const filtered = orders.filter(o => {
+  const filtered = orders.filter((o) => {
     if (filter !== 'all' && o.status !== filter) return false;
     if (search) {
       const q = search.toLowerCase();
-      return o.name.toLowerCase().includes(q) || o.id.toLowerCase().includes(q) || o.phone.includes(q);
+      return (
+        o.name.toLowerCase().includes(q) || o.id.toLowerCase().includes(q) || o.phone.includes(q)
+      );
     }
     return true;
   });
@@ -52,7 +59,7 @@ export function OrdersPage() {
             type="text"
             placeholder="Search by name, ID…"
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <span id="order-count" style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>
@@ -61,7 +68,7 @@ export function OrdersPage() {
       </div>
 
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
-        {filterBtns.map(btn => (
+        {filterBtns.map((btn) => (
           <button
             key={btn.id}
             className={`btn btn-sm order-filter-btn ${filter === btn.id ? 'active' : 'btn-ghost'}`}
@@ -88,7 +95,7 @@ export function OrdersPage() {
               <div className="empty-state-title">No orders found</div>
             </div>
           ) : (
-            filtered.map(o => (
+            filtered.map((o) => (
               <div
                 key={o.id}
                 className="table-row"
@@ -101,9 +108,12 @@ export function OrdersPage() {
                   <div className="cell-name-sub">{o.phone}</div>
                 </div>
                 <div className="col-total">{fmt(o.total)}</div>
-                <div className="col-ostatus"><Badge status={o.status} /></div>
+                <div className="col-ostatus">
+                  <Badge status={o.status} />
+                </div>
                 <div className="col-date">
-                  {fmtDate(o.ts)}<br />
+                  {fmtDate(o.ts)}
+                  <br />
                   <span style={{ fontSize: '.6rem', color: 'var(--muted)' }}>{fmtTime(o.ts)}</span>
                 </div>
               </div>
@@ -113,11 +123,7 @@ export function OrdersPage() {
       </div>
 
       {selected && (
-        <OrderDetailModal
-          order={selected}
-          onClose={() => setSelected(null)}
-          onUpdated={load}
-        />
+        <OrderDetailModal order={selected} onClose={() => setSelected(null)} onUpdated={load} />
       )}
     </div>
   );

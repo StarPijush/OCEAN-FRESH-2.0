@@ -1,5 +1,5 @@
-import type { AuditAction, AuditEntry } from '../interface.js';
 import { createLogger } from '../factory.js';
+import type { AuditAction, AuditEntry } from '../interface.js';
 
 const logger = createLogger('audit');
 

@@ -1,6 +1,6 @@
-import { createLogger, CartSource } from '@oceanfresh/shared';
+import { type Cart, type CartItem, CartSource, createLogger } from '@oceanfresh/shared';
+
 import type { ICartRepository } from '../repository/index.js';
-import type { Cart, CartItem } from '@oceanfresh/shared';
 
 const logger = createLogger('cart:merge');
 

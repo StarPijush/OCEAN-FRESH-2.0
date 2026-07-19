@@ -1,5 +1,6 @@
-import { createLogger, AuthEventType } from '@oceanfresh/shared';
-import type { EventBus, AuthEvent } from './auth-event.types.js';
+import { type AuthEventType, createLogger } from '@oceanfresh/shared';
+
+import type { AuthEvent, EventBus } from './auth-event.types.js';
 
 const logger = createLogger('auth:events');
 
@@ -29,7 +30,10 @@ export class InMemoryEventBus implements EventBus {
     this.isPublishing = false;
 
     if (errors.length > 0) {
-      throw new AggregateError(errors, `Failed to publish event ${type}: ${errors.length} handler(s) failed`);
+      throw new AggregateError(
+        errors,
+        `Failed to publish event ${type}: ${errors.length} handler(s) failed`,
+      );
     }
   }
 
@@ -37,7 +41,7 @@ export class InMemoryEventBus implements EventBus {
     if (!this.handlers.has(eventType)) {
       this.handlers.set(eventType, new Set());
     }
-    this.handlers.get(eventType)!.add(handler);
+    (this.handlers.get(eventType) as Set<Handler>).add(handler);
     return () => {
       this.handlers.get(eventType)?.delete(handler);
     };

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+
 import { authRepository } from '../../repositories';
 import { useAdminContext } from './AdminContext';
 
@@ -33,14 +34,14 @@ export function Sidebar({ onNavigate }: Props) {
   const { pendingCount } = useAdminContext();
 
   useEffect(() => {
-    authRepository.getAdmin().then(a => {
+    authRepository.getAdmin().then((a) => {
       if (a) setAdmin(a);
     });
   }, [location.pathname]);
 
   const initials = admin.name
     .split(' ')
-    .map(w => w[0])
+    .map((w) => w[0])
     .join('')
     .slice(0, 2)
     .toUpperCase();
@@ -62,15 +63,17 @@ export function Sidebar({ onNavigate }: Props) {
   return (
     <aside id="sidebar" className="desktop">
       <div className="sb-head">
-        <div className="sb-logo">Ocean<span>Fresh</span></div>
+        <div className="sb-logo">
+          Ocean<span>Fresh</span>
+        </div>
         <div className="sb-role">Admin Panel</div>
       </div>
 
       <nav className="sb-nav">
-        {navItems.map(group => (
+        {navItems.map((group) => (
           <div key={group.section}>
             <div className="sb-section-label">{group.section}</div>
-            {group.items.map(item => (
+            {group.items.map((item) => (
               <div
                 key={item.id}
                 className={`sb-item ${current === item.id ? 'active' : ''}`}
@@ -79,7 +82,9 @@ export function Sidebar({ onNavigate }: Props) {
                 <span className="sb-item-icon">{item.icon}</span>
                 {item.label}
                 {item.badge && pendingCount > 0 && (
-                  <span className="sb-badge" id="pending-badge">{pendingCount}</span>
+                  <span className="sb-badge" id="pending-badge">
+                    {pendingCount}
+                  </span>
                 )}
               </div>
             ))}
@@ -89,13 +94,21 @@ export function Sidebar({ onNavigate }: Props) {
 
       <div className="sb-foot">
         <div className="sb-user">
-          <div className="sb-avatar" id="sb-initials">{initials}</div>
+          <div className="sb-avatar" id="sb-initials">
+            {initials}
+          </div>
           <div>
-            <div className="sb-username" id="sb-name">{admin.name}</div>
-            <div className="sb-mobile" id="sb-mobile">{admin.mobile}</div>
+            <div className="sb-username" id="sb-name">
+              {admin.name}
+            </div>
+            <div className="sb-mobile" id="sb-mobile">
+              {admin.mobile}
+            </div>
           </div>
         </div>
-        <button className="sb-logout" onClick={handleLogout}>Sign Out</button>
+        <button className="sb-logout" onClick={handleLogout}>
+          Sign Out
+        </button>
       </div>
     </aside>
   );

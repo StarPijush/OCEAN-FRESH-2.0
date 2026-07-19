@@ -1,22 +1,32 @@
 import {
-  getAuth,
-  signInWithEmailAndPassword,
+  AccountStatus,
+  AuthError,
+  AuthProviderType,
+  type AuthSession,
+  createLogger,
+  IdentityType,
+  InvalidCredentialsError,
+  type LoginInput,
+  type UserIdentity,
+} from '@oceanfresh/shared';
+import {
   createUserWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  sendPasswordResetEmail,
-  verifyBeforeUpdateEmail,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
   deleteUser,
-  updateProfile,
+  EmailAuthProvider,
+  getAuth,
   GoogleAuthProvider,
-  signInWithPopup,
   linkWithPopup,
+  onAuthStateChanged,
+  reauthenticateWithCredential,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
   unlink,
+  updateProfile,
   type User,
+  verifyBeforeUpdateEmail,
 } from 'firebase/auth';
-import { createLogger, AuthProviderType, AccountStatus, IdentityType, InvalidCredentialsError, AuthError, type UserIdentity, type LoginInput, type AuthSession } from '@oceanfresh/shared';
+
 import type { IAuthProvider } from './auth-provider.interface.js';
 
 const logger = createLogger('auth:provider:firebase');

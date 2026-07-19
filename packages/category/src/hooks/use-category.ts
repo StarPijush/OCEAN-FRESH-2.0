@@ -1,5 +1,13 @@
-import { useCategory, useCategoryBySlug, useCategorySearch, useCategoryTree, useCategoryChildren, useRootCategories } from '../queries/index.js';
 import type { CategoryQuery } from '@oceanfresh/shared';
+
+import {
+  useCategory,
+  useCategoryBySlug,
+  useCategoryChildren,
+  useCategorySearch,
+  useCategoryTree,
+  useRootCategories,
+} from '../queries/index.js';
 
 export function useGetCategory(id: string | undefined) {
   return useCategory(id);

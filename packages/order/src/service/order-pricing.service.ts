@@ -1,8 +1,6 @@
-import { createLogger, type OrderTotals, type Money } from '@oceanfresh/shared';
 import type { CartCheckoutContext } from '@oceanfresh/cart';
 import type { IProductCatalog } from '@oceanfresh/product';
-
-const logger = createLogger('order:pricing');
+import type { Money, OrderTotals } from '@oceanfresh/shared';
 
 export class OrderPricingService {
   constructor(private readonly catalog: IProductCatalog) {}
@@ -32,10 +30,18 @@ export class OrderPricingService {
 
   private calculateTax(subtotal: Money): Money {
     const taxRate = 0.05;
-    return { amount: Math.round(subtotal.amount * taxRate * 100) / 100, currency: subtotal.currency };
+    return {
+      amount: Math.round(subtotal.amount * taxRate * 100) / 100,
+      currency: subtotal.currency,
+    };
   }
 
-  private calculateGrandTotal(subtotal: Money, discount: Money, shipping: Money, tax: Money): Money {
+  private calculateGrandTotal(
+    subtotal: Money,
+    discount: Money,
+    shipping: Money,
+    tax: Money,
+  ): Money {
     const total = subtotal.amount - discount.amount + shipping.amount + tax.amount;
     return { amount: Math.round(Math.max(0, total) * 100) / 100, currency: subtotal.currency };
   }

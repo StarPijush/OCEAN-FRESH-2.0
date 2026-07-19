@@ -1,10 +1,11 @@
-import { Routes, Route } from 'react-router-dom';
-import { HomePage } from './pages/home.js';
-import { ProductsPage } from './pages/products.js';
-import { OrderPage } from './pages/order.js';
-import { ContactPage } from './pages/contact.js';
-import { NotFoundPage } from './pages/not-found.js';
+import { Route, Routes } from 'react-router-dom';
+
 import { DefaultLayout } from './components/layout/DefaultLayout.js';
+import { ContactPage } from './pages/contact.js';
+import { HomePage } from './pages/home.js';
+import { NotFoundPage } from './pages/not-found.js';
+import { OrderPage } from './pages/order.js';
+import { ProductsPage } from './pages/products.js';
 
 export default function App() {
   return (

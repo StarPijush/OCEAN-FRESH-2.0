@@ -1,26 +1,26 @@
+import type { CartCheckoutContext } from '@oceanfresh/cart';
 import {
   createLogger,
-  OrderStatus,
-  OrderSource,
-  OrderEventType,
-  DuplicateIdempotencyKeyError,
-  OrderNotFoundError,
+  type CreateOrderFromCheckoutInput,
   type Order,
+  OrderEventType,
   type OrderItem,
+  OrderNotFoundError,
+  OrderSource,
+  OrderStatus,
   type OrderTotals,
   type PaymentSummary,
-  type CreateOrderFromCheckoutInput,
 } from '@oceanfresh/shared';
-import type { CartCheckoutContext } from '@oceanfresh/cart';
-import type { IOrderRepository } from '../repository/index.js';
+
 import type { EventBus } from '../events/index.js';
+import type { IOrderRepository } from '../repository/index.js';
+import type { OrderCancellationService } from './order-cancellation.service.js';
+import type { OrderHistoryService } from './order-history.service.js';
+import type { OrderNumberGenerator } from './order-number-generator.js';
+import type { OrderPricingService } from './order-pricing.service.js';
+import type { OrderSnapshotService } from './order-snapshot.service.js';
 import { OrderStateMachine } from './order-state-machine.js';
-import { OrderNumberGenerator } from './order-number-generator.js';
-import { OrderValidationService } from './order-validation.service.js';
-import { OrderSnapshotService } from './order-snapshot.service.js';
-import { OrderPricingService } from './order-pricing.service.js';
-import { OrderCancellationService } from './order-cancellation.service.js';
-import { OrderHistoryService } from './order-history.service.js';
+import type { OrderValidationService } from './order-validation.service.js';
 
 const logger = createLogger('order:service');
 
@@ -40,12 +40,18 @@ export class OrderService {
     context: CartCheckoutContext,
     input: CreateOrderFromCheckoutInput,
   ): Promise<Order> {
-    logger.info('Creating order from checkout', { cartId: context.cartId, idempotencyKey: input.idempotencyKey });
+    logger.info('Creating order from checkout', {
+      cartId: context.cartId,
+      idempotencyKey: input.idempotencyKey,
+    });
 
     // 1. Idempotency check
     const existing = await this.repository.findByIdempotencyKey(input.idempotencyKey);
     if (existing) {
-      logger.info('Returning existing order for idempotency key', { idempotencyKey: input.idempotencyKey, orderId: existing.id });
+      logger.info('Returning existing order for idempotency key', {
+        idempotencyKey: input.idempotencyKey,
+        orderId: existing.id,
+      });
       return existing;
     }
 
@@ -77,7 +83,7 @@ export class OrderService {
     const items: OrderItem[] = context.items.map((ci, index) => ({
       id: crypto.randomUUID(),
       productId: ci.productId,
-      snapshot: productSnapshots[index]!,
+      snapshot: productSnapshots[index] as OrderItem['snapshot'],
       quantity: ci.quantity,
       unitPrice: ci.unitPrice,
       subtotal: ci.subtotal,
@@ -116,7 +122,12 @@ export class OrderService {
 
     // 10. Transition to VALIDATING
     OrderStateMachine.transition(OrderStatus.DRAFT, OrderStatus.VALIDATING);
-    const validated = await this.repository.updateStatus(created.id, OrderStatus.VALIDATING, 'system', 'Order created and validated');
+    const validated = await this.repository.updateStatus(
+      created.id,
+      OrderStatus.VALIDATING,
+      'system',
+      'Order created and validated',
+    );
 
     // 11. Publish event
     await this.eventBus.publish({
@@ -141,7 +152,12 @@ export class OrderService {
     return order;
   }
 
-  async updateStatus(orderId: string, newStatus: OrderStatus, changedBy: string, note?: string): Promise<Order> {
+  async updateStatus(
+    orderId: string,
+    newStatus: OrderStatus,
+    changedBy: string,
+    note?: string,
+  ): Promise<Order> {
     const order = await this.getOrder(orderId);
 
     // Validate via state machine
@@ -183,7 +199,7 @@ export class OrderService {
   }
 
   async updatePayment(orderId: string, payment: PaymentSummary): Promise<Order> {
-    const order = await this.getOrder(orderId);
+    await this.getOrder(orderId);
     const updated = await this.repository.updatePayment(orderId, payment);
 
     await this.eventBus.publish({

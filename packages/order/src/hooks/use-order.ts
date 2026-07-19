@@ -1,5 +1,11 @@
-import { useOrder as useOrderQuery, useOrders, useCustomerOrders, useRecentOrders } from '../queries/index.js';
 import type { OrderQuery } from '@oceanfresh/shared';
+
+import {
+  useCustomerOrders,
+  useOrder as useOrderQuery,
+  useOrders,
+  useRecentOrders,
+} from '../queries/index.js';
 
 export function useGetOrder(orderId: string | undefined) {
   return useOrderQuery(orderId);

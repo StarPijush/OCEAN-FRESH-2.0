@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+
+import { ChartCard } from '../components/dashboard/ChartCard';
+import { RecentOrdersWidget } from '../components/dashboard/RecentOrdersWidget';
+import { StatCard } from '../components/dashboard/StatCard';
+import { TopProducts } from '../components/dashboard/TopProducts';
+import { useAdminContext } from '../components/layout/AdminContext';
 import { statsRepository } from '../repositories';
 import type { DashboardStats } from '../repositories/types';
-import { StatCard } from '../components/dashboard/StatCard';
-import { ChartCard } from '../components/dashboard/ChartCard';
-import { TopProducts } from '../components/dashboard/TopProducts';
-import { RecentOrdersWidget } from '../components/dashboard/RecentOrdersWidget';
-import { useAdminContext } from '../components/layout/AdminContext';
 
 const fmt = (n: number) => `₹${Number(n).toLocaleString('en-IN')}`;
 
@@ -15,7 +16,7 @@ export function DashboardPage() {
   const { setPendingCount } = useAdminContext();
 
   useEffect(() => {
-    statsRepository.getStats().then(s => {
+    statsRepository.getStats().then((s) => {
       setStats(s);
       setPendingCount(s.pendingOrders);
     });
@@ -28,7 +29,7 @@ export function DashboardPage() {
       <div className="panel-header">
         <div className="panel-eyebrow">OceanFresh</div>
         <h1 className="panel-title">Dashboard</h1>
-        <p className="panel-sub">Your shop at a glance — today's performance and trends.</p>
+        <p className="panel-sub">Your shop at a glance — today&apos;s performance and trends.</p>
       </div>
 
       <div className="stat-grid">
@@ -100,7 +101,9 @@ export function DashboardPage() {
         <div className="table-card">
           <div className="table-head">
             <div className="table-head-title">Recent Orders</div>
-            <Link to="/orders" className="btn btn-ghost btn-sm">View All</Link>
+            <Link to="/orders" className="btn btn-ghost btn-sm">
+              View All
+            </Link>
           </div>
           <div className="table-row header-row">
             <div className="col-id">Order ID</div>

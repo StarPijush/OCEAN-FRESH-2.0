@@ -1,4 +1,5 @@
 import type { OrderTimelineEntry } from '@oceanfresh/shared';
+
 import { OrderStatusBadge } from './order-status-badge.js';
 
 interface OrderTimelineProps {
@@ -18,11 +19,7 @@ function formatDateTime(date: Date): string {
 
 export function OrderTimeline({ timeline, className = '' }: OrderTimelineProps) {
   if (!timeline || timeline.length === 0) {
-    return (
-      <div className={`text-sm text-gray-500 ${className}`}>
-        No status history available
-      </div>
-    );
+    return <div className={`text-sm text-gray-500 ${className}`}>No status history available</div>;
   }
 
   return (
@@ -39,12 +36,8 @@ export function OrderTimeline({ timeline, className = '' }: OrderTimelineProps) 
               <OrderStatusBadge status={entry.status} />
             </div>
             <p className="mt-1 text-xs text-gray-500">{formatDateTime(entry.timestamp)}</p>
-            {entry.changedBy && (
-              <p className="text-xs text-gray-400">by {entry.changedBy}</p>
-            )}
-            {entry.note && (
-              <p className="mt-1 text-sm text-gray-600">{entry.note}</p>
-            )}
+            {entry.changedBy && <p className="text-xs text-gray-400">by {entry.changedBy}</p>}
+            {entry.note && <p className="mt-1 text-sm text-gray-600">{entry.note}</p>}
           </div>
         </div>
       ))}

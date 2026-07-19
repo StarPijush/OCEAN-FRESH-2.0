@@ -1,4 +1,5 @@
 import { container } from '@oceanfresh/shared';
+
 import type { IAuthRepository } from './auth.repository.js';
 import { SupabaseAuthRepository } from './supabase-auth.repository.js';
 

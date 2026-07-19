@@ -1,20 +1,21 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import type { Product, ProductQuery, PaginatedResult } from '@oceanfresh/shared';
-import { productKeys } from './product.query-keys.js';
+import type { PaginatedResult, Product, ProductQuery } from '@oceanfresh/shared';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+
 import { getProductRepository } from '../repository/index.js';
+import { productKeys } from './product.query-keys.js';
 
 export function useProduct(id: string | undefined) {
   return useQuery({
-    queryKey: productKeys.detail(id!),
-    queryFn: () => getProductRepository().findById(id!),
+    queryKey: productKeys.detail(id ?? ''),
+    queryFn: () => getProductRepository().findById(id ?? ''),
     enabled: !!id,
   });
 }
 
 export function useProductBySlug(slug: string | undefined) {
   return useQuery({
-    queryKey: productKeys.slug(slug!),
-    queryFn: () => getProductRepository().findBySlug(slug!),
+    queryKey: productKeys.slug(slug ?? ''),
+    queryFn: () => getProductRepository().findBySlug(slug ?? ''),
     enabled: !!slug,
   });
 }

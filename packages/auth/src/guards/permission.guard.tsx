@@ -1,5 +1,6 @@
+import type { Permission } from '@oceanfresh/shared';
 import type React from 'react';
-import { type Permission } from '@oceanfresh/shared';
+
 import { useRequirePermission } from '../queries/index.js';
 
 interface PermissionGateProps {
@@ -9,7 +10,12 @@ interface PermissionGateProps {
   fallback?: React.ReactNode;
 }
 
-export function PermissionGate({ children, permissions, requireAll = true, fallback = null }: PermissionGateProps) {
+export function PermissionGate({
+  children,
+  permissions,
+  requireAll = true,
+  fallback = null,
+}: PermissionGateProps) {
   const { data: hasPermission } = useRequirePermission(permissions, requireAll);
 
   if (!hasPermission) return <>{fallback}</>;

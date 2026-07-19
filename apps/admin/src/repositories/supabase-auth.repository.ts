@@ -1,5 +1,5 @@
-import { initSupabase, getClient } from '@oceanfresh/supabase';
-import { supabaseService } from '@oceanfresh/supabase';
+import { getClient, initSupabase, supabaseService } from '@oceanfresh/supabase';
+
 import type { AdminProfile } from './types';
 
 let _otpData: { code: string; ts: number } | null = null;
@@ -10,14 +10,21 @@ export const authRepository = {
     const rows = await supabaseService.query<Record<string, unknown>>('admin_profiles', []);
     const data = rows[0];
     return data
-      ? { mobile: data.mobile as string, password: data.password_hash as string, name: data.name as string }
+      ? {
+          mobile: data.mobile as string,
+          password: data.password_hash as string,
+          name: data.name as string,
+        }
       : defaults;
   },
 
   async updateAdmin(data: Partial<AdminProfile>): Promise<void> {
     const rows = await supabaseService.query<Record<string, unknown>>('admin_profiles', []);
     if (rows[0]) {
-      await supabaseService.update('admin_profiles', rows[0].id as string, { ...data, password_hash: data.password });
+      await supabaseService.update('admin_profiles', rows[0].id as string, {
+        ...data,
+        password_hash: data.password,
+      });
     } else {
       await supabaseService.add('admin_profiles', { ...data, password_hash: data.password });
     }
@@ -35,9 +42,14 @@ export const authRepository = {
 
     const admin = await authRepository.getAdmin();
     if (admin.mobile === input && admin.password === password) {
-      localStorage.setItem('of_session', JSON.stringify({
-        loggedIn: true, ts: Date.now(), uid: 'admin_db_user',
-      }));
+      localStorage.setItem(
+        'of_session',
+        JSON.stringify({
+          loggedIn: true,
+          ts: Date.now(),
+          uid: 'admin_db_user',
+        }),
+      );
       return true;
     }
 

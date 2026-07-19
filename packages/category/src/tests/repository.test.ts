@@ -1,7 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { FirestoreCategoryRepository } from '../repository/firestore-category.repository.js';
 import { firestoreService } from '@oceanfresh/firebase';
 import { CategoryStatus } from '@oceanfresh/shared';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { FirestoreCategoryRepository } from '../repository/firestore-category.repository.js';
 
 vi.mock('@oceanfresh/firebase', () => ({
   firestoreService: {
@@ -23,11 +24,11 @@ describe('FirestoreCategoryRepository', () => {
   describe('findById', () => {
     it('returns category when found', async () => {
       const mockDoc = { id: '1', name: 'Seafood', isDeleted: false, status: CategoryStatus.ACTIVE };
-      vi.mocked(firestoreService.get).mockResolvedValue(mockDoc as any);
+      vi.mocked(firestoreService.get).mockResolvedValue(mockDoc as Record<string, unknown>);
 
       const result = await repository.findById('1');
       expect(result).toBeDefined();
-      expect(result!.name).toBe('Seafood');
+      expect(result?.name).toBe('Seafood');
       expect(firestoreService.get).toHaveBeenCalledWith('categories', '1');
     });
 
@@ -38,8 +39,13 @@ describe('FirestoreCategoryRepository', () => {
     });
 
     it('returns null when category is soft-deleted', async () => {
-      const mockDoc = { id: '1', name: 'Deleted', isDeleted: true, status: CategoryStatus.ARCHIVED };
-      vi.mocked(firestoreService.get).mockResolvedValue(mockDoc as any);
+      const mockDoc = {
+        id: '1',
+        name: 'Deleted',
+        isDeleted: true,
+        status: CategoryStatus.ARCHIVED,
+      };
+      vi.mocked(firestoreService.get).mockResolvedValue(mockDoc as Record<string, unknown>);
 
       const result = await repository.findById('1');
       expect(result).toBeNull();
@@ -49,12 +55,18 @@ describe('FirestoreCategoryRepository', () => {
   describe('findBySlug', () => {
     it('returns category when found by slug', async () => {
       vi.mocked(firestoreService.query).mockResolvedValue([
-        { id: '1', name: 'Seafood', slug: 'seafood', isDeleted: false, status: CategoryStatus.ACTIVE },
-      ] as any[]);
+        {
+          id: '1',
+          name: 'Seafood',
+          slug: 'seafood',
+          isDeleted: false,
+          status: CategoryStatus.ACTIVE,
+        },
+      ] as Record<string, unknown>[]);
 
       const result = await repository.findBySlug('seafood');
       expect(result).toBeDefined();
-      expect(result!.slug).toBe('seafood');
+      expect(result?.slug).toBe('seafood');
     });
 
     it('returns null when slug not found', async () => {
@@ -69,7 +81,7 @@ describe('FirestoreCategoryRepository', () => {
       vi.mocked(firestoreService.query).mockResolvedValue([
         { id: '1', name: 'Root 1', parentId: null, isDeleted: false },
         { id: '2', name: 'Root 2', parentId: null, isDeleted: false },
-      ] as any[]);
+      ] as Record<string, unknown>[]);
 
       const result = await repository.findRootCategories();
       expect(result).toHaveLength(2);
@@ -80,7 +92,7 @@ describe('FirestoreCategoryRepository', () => {
     it('returns direct children of a parent', async () => {
       vi.mocked(firestoreService.query).mockResolvedValue([
         { id: '2', name: 'Child', parentId: '1', isDeleted: false },
-      ] as any[]);
+      ] as Record<string, unknown>[]);
 
       const result = await repository.findChildren('1');
       expect(result).toHaveLength(1);
@@ -90,7 +102,10 @@ describe('FirestoreCategoryRepository', () => {
 
   describe('create', () => {
     it('creates a category and returns it', async () => {
-      vi.mocked(firestoreService.add).mockResolvedValue({ id: 'new-id' } as any);
+      vi.mocked(firestoreService.add).mockResolvedValue({ id: 'new-id' } as Record<
+        string,
+        unknown
+      >);
 
       const result = await repository.create({
         name: 'Fresh Fish',
@@ -109,8 +124,11 @@ describe('FirestoreCategoryRepository', () => {
   describe('softDelete', () => {
     it('soft deletes a category', async () => {
       vi.mocked(firestoreService.get).mockResolvedValue({
-        id: '1', name: 'Test', isDeleted: false, status: CategoryStatus.ACTIVE,
-      } as any);
+        id: '1',
+        name: 'Test',
+        isDeleted: false,
+        status: CategoryStatus.ACTIVE,
+      } as Record<string, unknown>);
       vi.mocked(firestoreService.update).mockResolvedValue();
 
       await repository.softDelete('1');
@@ -126,7 +144,7 @@ describe('FirestoreCategoryRepository', () => {
     it('returns featured categories', async () => {
       vi.mocked(firestoreService.query).mockResolvedValue([
         { id: '1', name: 'Featured', featured: true, isDeleted: false },
-      ] as any[]);
+      ] as Record<string, unknown>[]);
 
       const result = await repository.findFeatured(5);
       expect(result).toHaveLength(1);
@@ -136,8 +154,11 @@ describe('FirestoreCategoryRepository', () => {
   describe('exists', () => {
     it('returns true when category exists', async () => {
       vi.mocked(firestoreService.get).mockResolvedValue({
-        id: '1', name: 'Test', isDeleted: false, status: CategoryStatus.ACTIVE,
-      } as any);
+        id: '1',
+        name: 'Test',
+        isDeleted: false,
+        status: CategoryStatus.ACTIVE,
+      } as Record<string, unknown>);
       expect(await repository.exists('1')).toBe(true);
     });
 
@@ -150,12 +171,15 @@ describe('FirestoreCategoryRepository', () => {
   describe('findDescendants', () => {
     it('returns descendants by path prefix', async () => {
       vi.mocked(firestoreService.get).mockResolvedValue({
-        id: '1', name: 'Parent', path: '', isDeleted: false,
-      } as any);
+        id: '1',
+        name: 'Parent',
+        path: '',
+        isDeleted: false,
+      } as Record<string, unknown>);
       vi.mocked(firestoreService.query).mockResolvedValue([
         { id: '2', name: 'Child', path: '1/2', isDeleted: false },
         { id: '3', name: 'Grandchild', path: '1/2/3', isDeleted: false },
-      ] as any[]);
+      ] as Record<string, unknown>[]);
 
       const result = await repository.findDescendants('1');
       expect(result).toHaveLength(2);
@@ -166,8 +190,12 @@ describe('FirestoreCategoryRepository', () => {
     it('updates path and level', async () => {
       vi.mocked(firestoreService.update).mockResolvedValue();
       vi.mocked(firestoreService.get).mockResolvedValue({
-        id: '2', name: 'Moved', parentId: '1', path: '1/2', level: 1,
-      } as any);
+        id: '2',
+        name: 'Moved',
+        parentId: '1',
+        path: '1/2',
+        level: 1,
+      } as Record<string, unknown>);
 
       const result = await repository.move('2', { parentId: '1', path: '1/2', level: 1 });
       expect(result).toBeDefined();

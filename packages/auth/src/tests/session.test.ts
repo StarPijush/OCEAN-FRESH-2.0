@@ -1,19 +1,43 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {
+  AuthenticationState,
+  type AuthSession,
+  IllegalStateTransitionError,
+} from '@oceanfresh/shared';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { AuthStateMachine } from '../session/auth-state-machine.js';
-import { InMemorySessionStore } from '../session/session.store.js';
 import { DeviceManager } from '../session/device.manager.js';
 import { SessionManager } from '../session/session.manager.js';
-import { AuthenticationState } from '@oceanfresh/shared';
-import { IllegalStateTransitionError } from '@oceanfresh/shared';
-import type { AuthSession } from '@oceanfresh/shared';
+import { InMemorySessionStore } from '../session/session.store.js';
 
 const mockSession: AuthSession = {
-  id: 's1', userId: 'u1',
-  tokenPair: { accessToken: 'at', refreshToken: 'rt', idToken: 'it', accessTokenExpiresAt: Date.now() + 3600000, refreshTokenExpiresAt: Date.now() + 2592000000 },
-  device: { id: 'd1', name: 'Desktop', type: 'desktop', os: 'Windows', browser: 'Chrome', ipHash: '', isTrusted: false, riskScore: 0, lastLoginAt: Date.now() },
+  id: 's1',
+  userId: 'u1',
+  tokenPair: {
+    accessToken: 'at',
+    refreshToken: 'rt',
+    idToken: 'it',
+    accessTokenExpiresAt: Date.now() + 3600000,
+    refreshTokenExpiresAt: Date.now() + 2592000000,
+  },
+  device: {
+    id: 'd1',
+    name: 'Desktop',
+    type: 'desktop',
+    os: 'Windows',
+    browser: 'Chrome',
+    ipHash: '',
+    isTrusted: false,
+    riskScore: 0,
+    lastLoginAt: Date.now(),
+  },
   metadata: { authMethod: 'password', mfaUsed: false },
-  startedAt: Date.now(), lastActivityAt: Date.now(), expiresAt: Date.now() + 3600000,
-  absoluteExpiresAt: Date.now() + 86400000, isRememberMe: false, isRevoked: false,
+  startedAt: Date.now(),
+  lastActivityAt: Date.now(),
+  expiresAt: Date.now() + 3600000,
+  absoluteExpiresAt: Date.now() + 86400000,
+  isRememberMe: false,
+  isRevoked: false,
 };
 
 describe('AuthStateMachine', () => {
@@ -46,7 +70,9 @@ describe('AuthStateMachine', () => {
   });
 
   it('throws on invalid transition', () => {
-    expect(() => machine.transition(AuthenticationState.AUTHENTICATED)).toThrow(IllegalStateTransitionError);
+    expect(() => machine.transition(AuthenticationState.AUTHENTICATED)).toThrow(
+      IllegalStateTransitionError,
+    );
   });
 
   it('calls onTransition listener', () => {
@@ -108,7 +134,7 @@ describe('InMemorySessionStore', () => {
   it('updates session fields', () => {
     store.setSession(mockSession);
     store.updateSession({ isRevoked: true });
-    expect(store.getSession()!.isRevoked).toBe(true);
+    expect((store.getSession() as AuthSession).isRevoked).toBe(true);
   });
 
   it('clears session', () => {
@@ -165,7 +191,11 @@ describe('DeviceManager', () => {
 
 describe('SessionManager', () => {
   let store: InMemorySessionStore;
-  let eventBus: { publish: ReturnType<typeof vi.fn>; subscribe: ReturnType<typeof vi.fn>; clear: ReturnType<typeof vi.fn> };
+  let eventBus: {
+    publish: ReturnType<typeof vi.fn>;
+    subscribe: ReturnType<typeof vi.fn>;
+    clear: ReturnType<typeof vi.fn>;
+  };
   let deviceManager: DeviceManager;
 
   beforeEach(() => {
@@ -175,19 +205,19 @@ describe('SessionManager', () => {
   });
 
   it('starts with UNAUTHENTICATED state', () => {
-    const manager = new SessionManager(store, eventBus as any, deviceManager);
+    const manager = new SessionManager(store, eventBus, deviceManager);
     expect(manager.state).toBe(AuthenticationState.UNAUTHENTICATED);
   });
 
   it('starts session and transitions to AUTHENTICATED', () => {
-    const manager = new SessionManager(store, eventBus as any, deviceManager);
+    const manager = new SessionManager(store, eventBus, deviceManager);
     manager.startSession(mockSession);
     expect(store.getSession()).toBe(mockSession);
     expect(manager.state).toBe(AuthenticationState.AUTHENTICATED);
   });
 
   it('ends session and transitions to UNAUTHENTICATED', () => {
-    const manager = new SessionManager(store, eventBus as any, deviceManager);
+    const manager = new SessionManager(store, eventBus, deviceManager);
     manager.startSession(mockSession);
     manager.endSession();
     expect(store.getSession()).toBeNull();
@@ -195,19 +225,19 @@ describe('SessionManager', () => {
   });
 
   it('returns session via getSession', () => {
-    const manager = new SessionManager(store, eventBus as any, deviceManager);
+    const manager = new SessionManager(store, eventBus, deviceManager);
     manager.startSession(mockSession);
     expect(manager.getSession()).toBe(mockSession);
   });
 
   it('validates active session', () => {
-    const manager = new SessionManager(store, eventBus as any, deviceManager);
+    const manager = new SessionManager(store, eventBus, deviceManager);
     manager.startSession(mockSession);
     expect(manager.validateSession()).resolves.toBe(true);
   });
 
   it('destroys and cleans up', () => {
-    const manager = new SessionManager(store, eventBus as any, deviceManager);
+    const manager = new SessionManager(store, eventBus, deviceManager);
     manager.startSession(mockSession);
     manager.destroy();
     expect(store.getSession()).toBeNull();

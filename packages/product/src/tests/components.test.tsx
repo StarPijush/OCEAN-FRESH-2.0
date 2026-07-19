@@ -1,15 +1,16 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { ProductCard } from '../components/product-card.js';
-import { ProductGrid } from '../components/product-grid.js';
-import { ProductStatusBadge } from '../components/product-status-badge.js';
-import { ProductPrice } from '../components/product-price.js';
-import { ProductGridSkeleton } from '../components/product-skeleton.js';
-import { ProductEmptyState } from '../components/product-empty-state.js';
-import { ProductBadge } from '../components/product-badge.js';
-import { ProductStockIndicator } from '../components/product-stock-indicator.js';
-import { ProductQuantity } from '../components/product-quantity.js';
 import { ProductStatus, ProductUnit } from '@oceanfresh/shared';
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+
+import { ProductBadge } from '../components/product-badge.js';
+import { ProductCard } from '../components/product-card.js';
+import { ProductEmptyState } from '../components/product-empty-state.js';
+import { ProductGrid } from '../components/product-grid.js';
+import { ProductPrice } from '../components/product-price.js';
+import { ProductQuantity } from '../components/product-quantity.js';
+import { ProductGridSkeleton } from '../components/product-skeleton.js';
+import { ProductStatusBadge } from '../components/product-status-badge.js';
+import { ProductStockIndicator } from '../components/product-stock-indicator.js';
 
 const mockProduct = {
   id: '1',
@@ -43,8 +44,8 @@ const mockProduct = {
   createdBy: 'user-1',
   updatedBy: null,
   isDeleted: false,
-  createdAt: new Date() as any,
-  updatedAt: new Date() as any,
+  createdAt: new Date(),
+  updatedAt: new Date(),
   deletedAt: null,
 };
 

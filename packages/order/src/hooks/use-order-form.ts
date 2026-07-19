@@ -1,6 +1,8 @@
+import {
+  type CreateOrderFromCheckoutInput,
+  createOrderFromCheckoutSchema,
+} from '@oceanfresh/shared';
 import { useCallback, useState } from 'react';
-import { createOrderFromCheckoutSchema } from '@oceanfresh/shared';
-import type { CreateOrderFromCheckoutInput } from '@oceanfresh/shared';
 
 interface FormState {
   customer: {
@@ -32,7 +34,14 @@ interface FormState {
 
 const INITIAL_STATE: FormState = {
   customer: { name: '', email: null, phone: '', address: '', city: '', state: '', pincode: '' },
-  shipping: { address: '', city: '', state: '', pincode: '', method: 'standard', amount: { amount: 0, currency: 'INR' } },
+  shipping: {
+    address: '',
+    city: '',
+    state: '',
+    pincode: '',
+    method: 'standard',
+    amount: { amount: 0, currency: 'INR' },
+  },
   billing: { address: '', city: '', state: '', pincode: '', gstin: null },
   notes: '',
 };
@@ -49,13 +58,16 @@ export function useOrderForm(initialState: FormState = INITIAL_STATE) {
     setTouched((prev) => new Set(prev).add(field));
   }, []);
 
-  const setNestedFieldValue = useCallback((parent: keyof FormState, field: string, value: unknown) => {
-    setValues((prev) => ({
-      ...prev,
-      [parent]: { ...(prev[parent] as Record<string, unknown>), [field]: value },
-    }));
-    setTouched((prev) => new Set(prev).add(`${parent}.${field}`));
-  }, []);
+  const setNestedFieldValue = useCallback(
+    (parent: keyof FormState, field: string, value: unknown) => {
+      setValues((prev) => ({
+        ...prev,
+        [parent]: { ...(prev[parent] as Record<string, unknown>), [field]: value },
+      }));
+      setTouched((prev) => new Set(prev).add(`${parent}.${field}`));
+    },
+    [],
+  );
 
   const validate = useCallback((): boolean => {
     const result = createOrderFromCheckoutSchema.safeParse(values);
@@ -75,7 +87,11 @@ export function useOrderForm(initialState: FormState = INITIAL_STATE) {
   }, [values]);
 
   const getCreateOrderInput = useCallback(
-    (cartId: string, idempotencyKey: string, userId: string | null): CreateOrderFromCheckoutInput => {
+    (
+      cartId: string,
+      idempotencyKey: string,
+      userId: string | null,
+    ): CreateOrderFromCheckoutInput => {
       return {
         cartId,
         idempotencyKey,

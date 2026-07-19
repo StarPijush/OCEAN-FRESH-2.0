@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 interface ProductQuantityProps {
   value?: number;
@@ -8,7 +8,13 @@ interface ProductQuantityProps {
   className?: string;
 }
 
-export function ProductQuantity({ value = 0, min = 0, max = 999, onChange, className = '' }: ProductQuantityProps) {
+export function ProductQuantity({
+  value = 0,
+  min = 0,
+  max = 999,
+  onChange,
+  className = '',
+}: ProductQuantityProps) {
   const [internalValue, setInternalValue] = useState(value);
 
   const currentValue = onChange ? value : internalValue;

@@ -1,1 +1,1 @@
-export type { IMfaProvider, MfaEnrollment, MfaChallenge } from './mfa-provider.interface.js';
+export type { IMfaProvider, MfaChallenge, MfaEnrollment } from './mfa-provider.interface.js';

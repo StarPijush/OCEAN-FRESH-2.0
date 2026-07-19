@@ -1,4 +1,5 @@
 import type React from 'react';
+
 import { useIsAuthenticated } from '../queries/index.js';
 
 interface ProtectedProps {

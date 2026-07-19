@@ -1,18 +1,20 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { CartStateMachine } from '../service/cart-state-machine.js';
-import { CartPricingService } from '../service/cart-pricing.service.js';
-import { CartValidationService } from '../service/cart-validation.service.js';
-import { CartMergeService } from '../service/cart-merge.service.js';
-import { CartService } from '../service/cart.service.js';
-import { CartCheckoutFactory } from '../service/cart-checkout-context.interface.js';
-import { InMemoryEventBus } from '../events/in-memory-event-bus.js';
+import type { IProductCatalog } from '@oceanfresh/product';
 import {
+  CartSource,
   CartStatus,
   IllegalCartStateTransitionError,
   Quantity,
-  CartSource,
-  CartEventType,
 } from '@oceanfresh/shared';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { InMemoryEventBus } from '../events/in-memory-event-bus.js';
+import type { ICartRepository } from '../repository/cart.repository.js';
+import { CartService } from '../service/cart.service.js';
+import { CartCheckoutFactory } from '../service/cart-checkout-context.interface.js';
+import { CartMergeService } from '../service/cart-merge.service.js';
+import { CartPricingService } from '../service/cart-pricing.service.js';
+import { CartStateMachine } from '../service/cart-state-machine.js';
+import { CartValidationService } from '../service/cart-validation.service.js';
 
 function createMockRepository() {
   return {
@@ -68,15 +70,21 @@ function sampleCart(overrides = {}) {
 
 describe('CartStateMachine', () => {
   it('allows valid transition ACTIVE → VALIDATING', () => {
-    expect(() => CartStateMachine.transition(CartStatus.ACTIVE, CartStatus.VALIDATING)).not.toThrow();
+    expect(() =>
+      CartStateMachine.transition(CartStatus.ACTIVE, CartStatus.VALIDATING),
+    ).not.toThrow();
   });
 
   it('rejects invalid transition ACTIVE → CHECKED_OUT', () => {
-    expect(() => CartStateMachine.transition(CartStatus.ACTIVE, CartStatus.CHECKED_OUT)).toThrow(IllegalCartStateTransitionError);
+    expect(() => CartStateMachine.transition(CartStatus.ACTIVE, CartStatus.CHECKED_OUT)).toThrow(
+      IllegalCartStateTransitionError,
+    );
   });
 
   it('rejects transition from terminal state CHECKED_OUT', () => {
-    expect(() => CartStateMachine.transition(CartStatus.CHECKED_OUT, CartStatus.ACTIVE)).toThrow(IllegalCartStateTransitionError);
+    expect(() => CartStateMachine.transition(CartStatus.CHECKED_OUT, CartStatus.ACTIVE)).toThrow(
+      IllegalCartStateTransitionError,
+    );
   });
 
   it('allows EXPIRED → ACTIVE reactivation', () => {
@@ -84,7 +92,9 @@ describe('CartStateMachine', () => {
   });
 
   it('allows ABANDONED → ACTIVE reactivation', () => {
-    expect(() => CartStateMachine.transition(CartStatus.ABANDONED, CartStatus.ACTIVE)).not.toThrow();
+    expect(() =>
+      CartStateMachine.transition(CartStatus.ABANDONED, CartStatus.ACTIVE),
+    ).not.toThrow();
   });
 
   it('identifies terminal states', () => {
@@ -105,12 +115,15 @@ describe('CartPricingService', () => {
     const items = [
       { subtotal: { amount: 100, currency: 'INR' } },
       { subtotal: { amount: 50, currency: 'INR' } },
-    ] as any;
+    ] as Array<Record<string, unknown>>;
     expect(pricing.calculateSubtotal(items)).toEqual({ amount: 150, currency: 'INR' });
   });
 
   it('calculates tax as 5% of subtotal', () => {
-    expect(pricing.calculateTax({ amount: 200, currency: 'INR' })).toEqual({ amount: 10, currency: 'INR' });
+    expect(pricing.calculateTax({ amount: 200, currency: 'INR' })).toEqual({
+      amount: 10,
+      currency: 'INR',
+    });
   });
 
   it('shipping is free above threshold', async () => {
@@ -126,7 +139,7 @@ describe('CartPricingService', () => {
   it('calculateTotals returns full breakdown', async () => {
     const items = [
       { subtotal: { amount: 300, currency: 'INR' }, quantity: Quantity.create(1) },
-    ] as any;
+    ] as Array<Record<string, unknown>>;
     const totals = await pricing.calculateTotals(items);
     expect(totals.subtotal).toEqual({ amount: 300, currency: 'INR' });
     expect(totals.tax).toEqual({ amount: 15, currency: 'INR' });
@@ -142,7 +155,7 @@ describe('CartValidationService', () => {
 
   beforeEach(() => {
     catalog = createMockCatalog();
-    validator = new CartValidationService(catalog as any);
+    validator = new CartValidationService(catalog as unknown as IProductCatalog);
   });
 
   it('returns valid for empty cart', async () => {
@@ -154,67 +167,108 @@ describe('CartValidationService', () => {
   it('detects missing products', async () => {
     catalog.getProducts.mockResolvedValue(new Map());
     const cart = sampleCart({
-      items: [{
-        id: 'item-1',
-        productId: 'prod-1',
-        quantity: Quantity.create(1),
-        snapshot: { price: { amount: 100, currency: 'INR' } },
-      }],
+      items: [
+        {
+          id: 'item-1',
+          productId: 'prod-1',
+          quantity: Quantity.create(1),
+          snapshot: { price: { amount: 100, currency: 'INR' } },
+        },
+      ],
     });
     const result = await validator.validateCart(cart);
     expect(result.valid).toBe(false);
-    expect(result.errors[0]!.code).toBe('PRODUCT_NOT_FOUND');
+    expect((result.errors[0] as { code: string }).code).toBe('PRODUCT_NOT_FOUND');
   });
 
   it('detects unavailable products', async () => {
-    catalog.getProducts.mockResolvedValue(new Map([
-      ['prod-1', { id: 'prod-1', name: 'Test', isAvailable: false, stock: 5, price: { amount: 100, currency: 'INR' } }],
-    ]));
+    catalog.getProducts.mockResolvedValue(
+      new Map([
+        [
+          'prod-1',
+          {
+            id: 'prod-1',
+            name: 'Test',
+            isAvailable: false,
+            stock: 5,
+            price: { amount: 100, currency: 'INR' },
+          },
+        ],
+      ]),
+    );
     const cart = sampleCart({
-      items: [{
-        id: 'item-1',
-        productId: 'prod-1',
-        quantity: Quantity.create(1),
-        snapshot: { price: { amount: 100, currency: 'INR' } },
-      }],
+      items: [
+        {
+          id: 'item-1',
+          productId: 'prod-1',
+          quantity: Quantity.create(1),
+          snapshot: { price: { amount: 100, currency: 'INR' } },
+        },
+      ],
     });
     const result = await validator.validateCart(cart);
     expect(result.valid).toBe(false);
-    expect(result.errors[0]!.code).toBe('PRODUCT_UNAVAILABLE');
+    expect((result.errors[0] as { code: string }).code).toBe('PRODUCT_UNAVAILABLE');
   });
 
   it('detects insufficient stock', async () => {
-    catalog.getProducts.mockResolvedValue(new Map([
-      ['prod-1', { id: 'prod-1', name: 'Test', isAvailable: true, stock: 2, price: { amount: 100, currency: 'INR' } }],
-    ]));
+    catalog.getProducts.mockResolvedValue(
+      new Map([
+        [
+          'prod-1',
+          {
+            id: 'prod-1',
+            name: 'Test',
+            isAvailable: true,
+            stock: 2,
+            price: { amount: 100, currency: 'INR' },
+          },
+        ],
+      ]),
+    );
     const cart = sampleCart({
-      items: [{
-        id: 'item-1',
-        productId: 'prod-1',
-        quantity: Quantity.create(5),
-        snapshot: { price: { amount: 100, currency: 'INR' } },
-      }],
+      items: [
+        {
+          id: 'item-1',
+          productId: 'prod-1',
+          quantity: Quantity.create(5),
+          snapshot: { price: { amount: 100, currency: 'INR' } },
+        },
+      ],
     });
     const result = await validator.validateCart(cart);
     expect(result.valid).toBe(false);
-    expect(result.errors[0]!.code).toBe('INSUFFICIENT_STOCK');
+    expect((result.errors[0] as { code: string }).code).toBe('INSUFFICIENT_STOCK');
   });
 
   it('detects price changes', async () => {
-    catalog.getProducts.mockResolvedValue(new Map([
-      ['prod-1', { id: 'prod-1', name: 'Test', isAvailable: true, stock: 10, price: { amount: 150, currency: 'INR' } }],
-    ]));
+    catalog.getProducts.mockResolvedValue(
+      new Map([
+        [
+          'prod-1',
+          {
+            id: 'prod-1',
+            name: 'Test',
+            isAvailable: true,
+            stock: 10,
+            price: { amount: 150, currency: 'INR' },
+          },
+        ],
+      ]),
+    );
     const cart = sampleCart({
-      items: [{
-        id: 'item-1',
-        productId: 'prod-1',
-        quantity: Quantity.create(1),
-        snapshot: { price: { amount: 100, currency: 'INR' } },
-      }],
+      items: [
+        {
+          id: 'item-1',
+          productId: 'prod-1',
+          quantity: Quantity.create(1),
+          snapshot: { price: { amount: 100, currency: 'INR' } },
+        },
+      ],
     });
     const result = await validator.validateCart(cart);
     expect(result.valid).toBe(false);
-    expect(result.errors[0]!.code).toBe('PRICE_CHANGED');
+    expect((result.errors[0] as { code: string }).code).toBe('PRICE_CHANGED');
   });
 });
 
@@ -224,7 +278,7 @@ describe('CartMergeService', () => {
 
   beforeEach(() => {
     repository = createMockRepository();
-    merger = new CartMergeService(repository as any);
+    merger = new CartMergeService(repository as unknown as ICartRepository);
   });
 
   it('creates new cart when no guest or user cart exists', async () => {
@@ -258,31 +312,33 @@ describe('CartCheckoutFactory', () => {
   it('creates CartCheckoutContext from Cart', () => {
     const factory = new CartCheckoutFactory();
     const cart = sampleCart({
-      items: [{
-        id: 'item-1',
-        productId: 'prod-1',
-        quantity: Quantity.create(2),
-        subtotal: { amount: 200, currency: 'INR' },
-        snapshot: {
+      items: [
+        {
+          id: 'item-1',
           productId: 'prod-1',
-          name: 'Fish',
-          price: { amount: 100, currency: 'INR' },
-          thumbnail: '',
-          image: '',
-          sku: null,
-          unit: 'kg' as any,
-          variantSummary: null,
-          capturedAt: new Date(),
+          quantity: Quantity.create(2),
+          subtotal: { amount: 200, currency: 'INR' },
+          snapshot: {
+            productId: 'prod-1',
+            name: 'Fish',
+            price: { amount: 100, currency: 'INR' },
+            thumbnail: '',
+            image: '',
+            sku: null,
+            unit: 'kg' as string,
+            variantSummary: null,
+            capturedAt: new Date(),
+          },
+          addedAt: new Date(),
         },
-        addedAt: new Date(),
-      }],
+      ],
     });
 
     const ctx = factory.createCheckoutContext(cart);
     expect(ctx.cartId).toBe('cart-1');
     expect(ctx.items).toHaveLength(1);
-    expect(ctx.items[0]!.quantity).toBe(2);
-    expect(ctx.items[0]!.name).toBe('Fish');
+    expect((ctx.items[0] as { quantity: number; name: string }).quantity).toBe(2);
+    expect((ctx.items[0] as { quantity: number; name: string }).name).toBe('Fish');
     expect(ctx.currency).toBe('INR');
   });
 });
@@ -297,7 +353,11 @@ describe('CartService', () => {
     repository = createMockRepository();
     catalog = createMockCatalog();
     eventBus = new InMemoryEventBus();
-    service = new CartService(repository as any, catalog as any, eventBus);
+    service = new CartService(
+      repository as unknown as ICartRepository,
+      catalog as unknown as IProductCatalog,
+      eventBus,
+    );
   });
 
   it('getCart returns cart from repository', async () => {
@@ -327,6 +387,8 @@ describe('CartService', () => {
 
   it('updateStatus rejects invalid transition', async () => {
     repository.findById.mockResolvedValue(sampleCart());
-    await expect(service.updateStatus('cart-1', CartStatus.CHECKED_OUT)).rejects.toThrow(IllegalCartStateTransitionError);
+    await expect(service.updateStatus('cart-1', CartStatus.CHECKED_OUT)).rejects.toThrow(
+      IllegalCartStateTransitionError,
+    );
   });
 });

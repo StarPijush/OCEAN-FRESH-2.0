@@ -1,6 +1,7 @@
-import type { IProductCatalog, ProductSummary } from './product-catalog.interface.js';
+import { type Money, type Product, ProductStatus } from '@oceanfresh/shared';
+
 import type { IProductRepository } from '../repository/product.repository.js';
-import { ProductStatus, type Money } from '@oceanfresh/shared';
+import type { IProductCatalog, ProductSummary } from './product-catalog.interface.js';
 
 export class ProductCatalogImpl implements IProductCatalog {
   constructor(private readonly repository: IProductRepository) {}
@@ -34,21 +35,21 @@ export class ProductCatalogImpl implements IProductCatalog {
     return { amount: product.price, currency: 'USD' };
   }
 
-  private toSummary(product: any): ProductSummary {
+  private toSummary(product: Product): ProductSummary {
     return {
       id: product.id,
       name: product.name,
-      sku: product.sku ?? null,
+      sku: product.sku,
       slug: product.slug,
-      thumbnail: product.thumbnail ?? '',
-      image: product.image ?? '',
+      thumbnail: product.thumbnail,
+      image: product.images[0] ?? product.thumbnail ?? '',
       price: { amount: product.price, currency: 'USD' },
       unit: product.unit,
-      stock: product.stock ?? 0,
+      stock: product.stock,
       isAvailable: product.status === ProductStatus.ACTIVE && product.stock > 0,
-      variantSummary: product.variantSummary ?? null,
-      categoryId: product.categoryId ?? null,
-      updatedAt: product.updatedAt ?? new Date(),
+      variantSummary: product.variants?.map((v) => v.name).join(', ') ?? null,
+      categoryId: product.categoryId,
+      updatedAt: product.updatedAt.toDate(),
     };
   }
 }

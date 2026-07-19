@@ -1,10 +1,29 @@
-import { createLogger, AuthProviderType, AccountStatus, IdentityType, InvalidCredentialsError, AuthError, type UserIdentity, type LoginInput, type AuthSession } from '@oceanfresh/shared';
-import { initSupabase, getClient } from '@oceanfresh/supabase';
+import {
+  AccountStatus,
+  AuthError,
+  AuthProviderType,
+  type AuthSession,
+  createLogger,
+  IdentityType,
+  InvalidCredentialsError,
+  type LoginInput,
+  type UserIdentity,
+} from '@oceanfresh/shared';
+import { getClient, initSupabase } from '@oceanfresh/supabase';
+
 import type { IAuthProvider } from './auth-provider.interface.js';
 
 const logger = createLogger('auth:provider:supabase');
 
-function mapSupabaseUser(user: { id: string; email?: string | null; phone?: string | null; user_metadata?: Record<string, unknown>; email_confirmed_at?: string | null; created_at?: string; last_sign_in_at?: string | null }): UserIdentity {
+function mapSupabaseUser(user: {
+  id: string;
+  email?: string | null;
+  phone?: string | null;
+  user_metadata?: Record<string, unknown>;
+  email_confirmed_at?: string | null;
+  created_at?: string;
+  last_sign_in_at?: string | null;
+}): UserIdentity {
   return {
     id: user.id,
     email: user.email ?? null,
@@ -131,35 +150,43 @@ export class SupabaseAuthProvider implements IAuthProvider {
 
   async getCurrentUser(): Promise<UserIdentity | null> {
     initSupabase();
-    const { data: { user } } = await getClient().auth.getUser();
+    const {
+      data: { user },
+    } = await getClient().auth.getUser();
     if (!user) return null;
     return mapSupabaseUser(user);
   }
 
   observeAuthState(callback: (user: UserIdentity | null) => void): () => void {
     initSupabase();
-    const { data: { subscription } } = getClient().auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = getClient().auth.onAuthStateChange((_event, session) => {
       callback(session?.user ? mapSupabaseUser(session.user) : null);
     });
     return () => subscription.unsubscribe();
   }
 
-  async getIdToken(forceRefresh = false): Promise<string> {
+  async getIdToken(_forceRefresh = false): Promise<string> {
     initSupabase();
-    const { data: { session } } = await getClient().auth.getSession();
+    const {
+      data: { session },
+    } = await getClient().auth.getSession();
     if (!session) throw new AuthError('No authenticated user');
     return session.access_token;
   }
 
   async getCustomClaims(): Promise<Record<string, unknown>> {
     const token = await this.getIdToken();
-    const payload = JSON.parse(atob(token.split('.')[1]!));
+    const payload = JSON.parse(atob(token.split('.')[1] as string));
     return payload as Record<string, unknown>;
   }
 
   async reauthenticate(password: string): Promise<void> {
     initSupabase();
-    const { data: { user } } = await getClient().auth.getUser();
+    const {
+      data: { user },
+    } = await getClient().auth.getUser();
     if (!user?.email) throw new AuthError('Cannot reauthenticate');
     const { error } = await getClient().auth.signInWithPassword({
       email: user.email,
@@ -184,7 +211,9 @@ export class SupabaseAuthProvider implements IAuthProvider {
 
   async verifyEmail(): Promise<void> {
     initSupabase();
-    const { data: { user } } = await getClient().auth.getUser();
+    const {
+      data: { user },
+    } = await getClient().auth.getUser();
     if (!user?.email) throw new AuthError('No email to verify');
     const { error } = await getClient().auth.resend({
       type: 'signup',
@@ -201,10 +230,14 @@ export class SupabaseAuthProvider implements IAuthProvider {
 
   async unlinkProvider(providerId: string): Promise<void> {
     initSupabase();
-    const { data: { user } } = await getClient().auth.getUser();
+    const {
+      data: { user },
+    } = await getClient().auth.getUser();
     if (!user) throw new AuthError('No authenticated user');
     const identities = user.identities ?? [];
-    const identity = identities.find((i: { provider?: string; id?: string }) => i.provider === providerId || i.id === providerId);
+    const identity = identities.find(
+      (i: { provider?: string; id?: string }) => i.provider === providerId || i.id === providerId,
+    );
     if (!identity) throw new AuthError('Provider not linked');
     const { error } = await getClient().auth.unlinkIdentity(identity);
     if (error) throw new AuthError('Failed to unlink provider');

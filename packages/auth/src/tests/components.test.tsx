@@ -1,17 +1,18 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { Protected } from '../components/protected.js';
-import { RoleGate } from '../components/role-gate.js';
-import { PermissionGate } from '../components/permission-gate.js';
-import { AuthStatus } from '../components/auth-status.js';
-import { UserAvatar } from '../components/user-avatar.js';
-import { LoginForm } from '../components/login-form.js';
-import { RegisterForm } from '../components/register-form.js';
-import { PasswordStrength } from '../components/password-strength.js';
-import { SessionExpiredDialog } from '../components/session-expired-dialog.js';
-import { Role, Permission } from '@oceanfresh/shared';
+import { Permission, Role } from '@oceanfresh/shared';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, render, screen } from '@testing-library/react';
 import type React from 'react';
+import { describe, expect, it, vi } from 'vitest';
+
+import { AuthStatus } from '../components/auth-status.js';
+import { LoginForm } from '../components/login-form.js';
+import { PasswordStrength } from '../components/password-strength.js';
+import { PermissionGate } from '../components/permission-gate.js';
+import { Protected } from '../components/protected.js';
+import { RegisterForm } from '../components/register-form.js';
+import { RoleGate } from '../components/role-gate.js';
+import { SessionExpiredDialog } from '../components/session-expired-dialog.js';
+import { UserAvatar } from '../components/user-avatar.js';
 
 vi.mock('../queries/index.js', () => ({
   useIsAuthenticated: vi.fn(),
@@ -21,7 +22,13 @@ vi.mock('../queries/index.js', () => ({
   useRequirePermission: vi.fn(),
 }));
 
-import { useIsAuthenticated, useCurrentUser, useAuthState, useRole, useRequirePermission } from '../queries/index.js';
+import {
+  useAuthState,
+  useCurrentUser,
+  useIsAuthenticated,
+  useRequirePermission,
+  useRole,
+} from '../queries/index.js';
 
 function Wrapper({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -30,45 +37,73 @@ function Wrapper({ children }: { children: React.ReactNode }) {
 
 describe('Protected', () => {
   it('renders children when authenticated', () => {
-    vi.mocked(useIsAuthenticated).mockReturnValue({ data: true, isLoading: false } as any);
-    render(<Protected><div>Protected Content</div></Protected>, { wrapper: Wrapper });
+    vi.mocked(useIsAuthenticated).mockReturnValue({ data: true, isLoading: false } as Record<
+      string,
+      unknown
+    >);
+    render(
+      <Protected>
+        <div>Protected Content</div>
+      </Protected>,
+      { wrapper: Wrapper },
+    );
     expect(screen.getByText('Protected Content')).toBeDefined();
   });
 
   it('renders fallback when not authenticated', () => {
-    vi.mocked(useIsAuthenticated).mockReturnValue({ data: false, isLoading: false } as any);
-    render(<Protected fallback={<div>Login Required</div>}><div>Protected</div></Protected>, { wrapper: Wrapper });
+    vi.mocked(useIsAuthenticated).mockReturnValue({ data: false, isLoading: false } as Record<
+      string,
+      unknown
+    >);
+    render(
+      <Protected fallback={<div>Login Required</div>}>
+        <div>Protected</div>
+      </Protected>,
+      { wrapper: Wrapper },
+    );
     expect(screen.getByText('Login Required')).toBeDefined();
   });
 });
 
 describe('RoleGate (component)', () => {
   it('renders children when sufficient role', () => {
-    vi.mocked(useRole).mockReturnValue({ data: Role.ADMIN } as any);
-    render(<RoleGate requiredRole={Role.MODERATOR}><div>Role Content</div></RoleGate>, { wrapper: Wrapper });
+    vi.mocked(useRole).mockReturnValue({ data: Role.ADMIN } as Record<string, unknown>);
+    render(
+      <RoleGate requiredRole={Role.MODERATOR}>
+        <div>Role Content</div>
+      </RoleGate>,
+      { wrapper: Wrapper },
+    );
     expect(screen.getByText('Role Content')).toBeDefined();
   });
 });
 
 describe('PermissionGate (component)', () => {
   it('renders children when has permission', () => {
-    vi.mocked(useRequirePermission).mockReturnValue({ data: true } as any);
-    render(<PermissionGate permissions={[Permission.ADMIN_ACCESS]}><div>Perm Content</div></PermissionGate>, { wrapper: Wrapper });
+    vi.mocked(useRequirePermission).mockReturnValue({ data: true } as Record<string, unknown>);
+    render(
+      <PermissionGate permissions={[Permission.ADMIN_ACCESS]}>
+        <div>Perm Content</div>
+      </PermissionGate>,
+      { wrapper: Wrapper },
+    );
     expect(screen.getByText('Perm Content')).toBeDefined();
   });
 });
 
 describe('AuthStatus', () => {
   it('shows signed out state when no user', () => {
-    vi.mocked(useCurrentUser).mockReturnValue({ data: null } as any);
-    vi.mocked(useAuthState).mockReturnValue({ data: null } as any);
+    vi.mocked(useCurrentUser).mockReturnValue({ data: null } as Record<string, unknown>);
+    vi.mocked(useAuthState).mockReturnValue({ data: null } as Record<string, unknown>);
     render(<AuthStatus />, { wrapper: Wrapper });
     expect(screen.getByText('Not signed in')).toBeDefined();
   });
 
   it('shows user state when signed in', () => {
-    vi.mocked(useCurrentUser).mockReturnValue({ data: { displayName: 'John Doe', photoURL: null } } as any);
-    vi.mocked(useAuthState).mockReturnValue({ data: 'authenticated' } as any);
+    vi.mocked(useCurrentUser).mockReturnValue({
+      data: { displayName: 'John Doe', photoURL: null },
+    } as Record<string, unknown>);
+    vi.mocked(useAuthState).mockReturnValue({ data: 'authenticated' } as Record<string, unknown>);
     render(<AuthStatus />, { wrapper: Wrapper });
     expect(screen.getByText('John Doe')).toBeDefined();
   });
@@ -96,7 +131,7 @@ describe('UserAvatar', () => {
     );
     const img = container.querySelector('img');
     expect(img).toBeDefined();
-    expect(img!.src).toBe('https://example.com/photo.jpg');
+    expect((img as HTMLImageElement).src).toBe('https://example.com/photo.jpg');
   });
 });
 
@@ -126,7 +161,11 @@ describe('LoginForm', () => {
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'pass123' } });
     fireEvent.click(screen.getByText('Sign In'));
 
-    expect(onSubmit).toHaveBeenCalledWith({ email: 'a@b.com', password: 'pass123', rememberMe: false });
+    expect(onSubmit).toHaveBeenCalledWith({
+      email: 'a@b.com',
+      password: 'pass123',
+      rememberMe: false,
+    });
   });
 });
 

@@ -1,13 +1,14 @@
+import type { AddToCartInput, Cart, CartSource } from '@oceanfresh/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { AddToCartInput, Cart } from '@oceanfresh/shared';
-import { cartKeys } from './cart.query-keys.js';
+
 import { getCartRepository } from '../repository/index.js';
+import { cartKeys } from './cart.query-keys.js';
 
 export function useCreateCart() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { userId: string | null; sessionId: string | null; source: import('@oceanfresh/shared').CartSource }) =>
+    mutationFn: (data: { userId: string | null; sessionId: string | null; source: CartSource }) =>
       getCartRepository().create(data),
     onSuccess: (cart: Cart) => {
       queryClient.invalidateQueries({ queryKey: cartKeys.all });
@@ -32,8 +33,15 @@ export function useUpdateCartItem() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ cartId, itemId, quantity }: { cartId: string; itemId: string; quantity: number }) =>
-      getCartRepository().updateItem(cartId, itemId, quantity, { amount: 0, currency: 'INR' }),
+    mutationFn: ({
+      cartId,
+      itemId,
+      quantity,
+    }: {
+      cartId: string;
+      itemId: string;
+      quantity: number;
+    }) => getCartRepository().updateItem(cartId, itemId, quantity, { amount: 0, currency: 'INR' }),
     onSuccess: (cart: Cart) => {
       queryClient.invalidateQueries({ queryKey: cartKeys.detail(cart.id) });
       queryClient.invalidateQueries({ queryKey: cartKeys.lists() });

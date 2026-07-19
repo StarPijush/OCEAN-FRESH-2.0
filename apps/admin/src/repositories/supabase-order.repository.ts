@@ -1,4 +1,5 @@
-import { supabaseService, rowToCamelCase } from '@oceanfresh/supabase';
+import { supabaseService } from '@oceanfresh/supabase';
+
 import type { OrderData } from './types';
 
 const TABLE = 'orders';
@@ -25,7 +26,9 @@ export const orderRepository = {
           price: (i.unit_price_amount as number) ?? 0,
           sub: (i.subtotal_amount as number) ?? 0,
         })),
-        total: ((row.totals as Record<string, unknown>)?.grandTotal as Record<string, unknown>)?.amount as number ?? 0,
+        total:
+          (((row.totals as Record<string, unknown>)?.grandTotal as Record<string, unknown>)
+            ?.amount as number) ?? 0,
         status: (row.status as OrderData['status']) ?? 'pending',
         ts: row.created_at ? new Date(row.created_at as string).getTime() : 0,
       });

@@ -1,5 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import { createProductSchema, createOrderFromCheckoutSchema, loginSchema } from '../validators/index.js';
+import { describe, expect, it } from 'vitest';
+
+import {
+  createOrderFromCheckoutSchema,
+  createProductSchema,
+  loginSchema,
+} from '../validators/index.js';
 
 describe('validators', () => {
   describe('createProductSchema', () => {

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
 import type { Category } from '@oceanfresh/shared';
+import React, { useState } from 'react';
+
 import { CategoryStatusBadge } from './category-status-badge.js';
 
 interface CategoryTreeNodeProps {
@@ -11,7 +12,14 @@ interface CategoryTreeNodeProps {
   className?: string;
 }
 
-export function CategoryTreeNode({ category, children, depth = 0, onSelect, defaultExpanded = false, className = '' }: CategoryTreeNodeProps) {
+export function CategoryTreeNode({
+  category,
+  children,
+  depth = 0,
+  onSelect,
+  defaultExpanded = false,
+  className = '',
+}: CategoryTreeNodeProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const hasChildren = children && React.Children.count(children) > 0;
 
@@ -29,7 +37,10 @@ export function CategoryTreeNode({ category, children, depth = 0, onSelect, defa
         {hasChildren && (
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpanded(!expanded);
+            }}
             className="flex-shrink-0 text-gray-400 hover:text-gray-600 focus:outline-none"
             aria-label={expanded ? 'Collapse' : 'Expand'}
           >
@@ -53,15 +64,11 @@ export function CategoryTreeNode({ category, children, depth = 0, onSelect, defa
         </span>
 
         <CategoryStatusBadge status={category.status} />
-        {category.featured && (
-          <span className="text-xs text-amber-600 font-medium">Featured</span>
-        )}
+        {category.featured && <span className="text-xs text-amber-600 font-medium">Featured</span>}
         <span className="text-xs text-gray-400">{category.productCount}</span>
       </div>
 
-      {hasChildren && expanded && (
-        <div role="group">{children}</div>
-      )}
+      {hasChildren && expanded && <div role="group">{children}</div>}
     </div>
   );
 }

@@ -1,11 +1,15 @@
 import { z } from 'zod';
-import { CategoryStatus, CategorySortField } from '../types/category.js';
 
-export const categorySeoSchema = z.object({
-  title: z.string().max(200),
-  description: z.string().max(500),
-  canonicalUrl: z.string().url(),
-}).nullable().optional();
+import { CategorySortField, CategoryStatus } from '../types/category.js';
+
+export const categorySeoSchema = z
+  .object({
+    title: z.string().max(200),
+    description: z.string().max(500),
+    canonicalUrl: z.string().url(),
+  })
+  .nullable()
+  .optional();
 
 export const createCategorySchema = z.object({
   name: z.string().min(1, 'Category name is required').max(100),

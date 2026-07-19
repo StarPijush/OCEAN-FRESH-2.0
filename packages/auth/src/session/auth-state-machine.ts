@@ -1,4 +1,4 @@
-import { AuthenticationState, IllegalStateTransitionError, createLogger } from '@oceanfresh/shared';
+import { AuthenticationState, createLogger, IllegalStateTransitionError } from '@oceanfresh/shared';
 
 const logger = createLogger('auth:session:state-machine');
 
@@ -35,17 +35,14 @@ const VALID_TRANSITIONS: Record<AuthenticationState, AuthenticationState[]> = {
     AuthenticationState.AUTHENTICATING,
     AuthenticationState.UNAUTHENTICATED,
   ],
-  [AuthenticationState.ACCOUNT_DISABLED]: [
-    AuthenticationState.AUTHENTICATING,
-  ],
-  [AuthenticationState.ACCOUNT_DELETED]: [
-    AuthenticationState.UNAUTHENTICATED,
-  ],
+  [AuthenticationState.ACCOUNT_DISABLED]: [AuthenticationState.AUTHENTICATING],
+  [AuthenticationState.ACCOUNT_DELETED]: [AuthenticationState.UNAUTHENTICATED],
 };
 
 export class AuthStateMachine {
   private state: AuthenticationState;
-  private listeners: Set<(state: AuthenticationState, prev: AuthenticationState) => void> = new Set();
+  private listeners: Set<(state: AuthenticationState, prev: AuthenticationState) => void> =
+    new Set();
 
   constructor(initialState: AuthenticationState = AuthenticationState.UNAUTHENTICATED) {
     this.state = initialState;
@@ -77,7 +74,9 @@ export class AuthStateMachine {
     return allowed?.includes(to) ?? false;
   }
 
-  onTransition(listener: (state: AuthenticationState, prev: AuthenticationState) => void): () => void {
+  onTransition(
+    listener: (state: AuthenticationState, prev: AuthenticationState) => void,
+  ): () => void {
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);

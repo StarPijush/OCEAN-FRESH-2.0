@@ -1,8 +1,9 @@
+import { AuthenticationState, type Permission } from '@oceanfresh/shared';
 import { useQuery } from '@tanstack/react-query';
-import { type Permission, AuthenticationState } from '@oceanfresh/shared';
-import { authKeys } from './auth.query-keys.js';
-import { getAuthRepository } from '../repository/index.js';
+
 import { SupabaseAuthProvider } from '../providers/index.js';
+import { getAuthRepository } from '../repository/index.js';
+import { authKeys } from './auth.query-keys.js';
 
 const authProvider = new SupabaseAuthProvider();
 

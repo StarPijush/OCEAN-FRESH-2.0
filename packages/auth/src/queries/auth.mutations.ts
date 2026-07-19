@@ -1,11 +1,12 @@
+import type { LoginInput } from '@oceanfresh/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { type LoginInput } from '@oceanfresh/shared';
-import { authKeys } from './auth.query-keys.js';
-import { SupabaseAuthProvider } from '../providers/index.js';
+
 import { InMemoryEventBus } from '../events/index.js';
-import { AuthStateMachine, InMemorySessionStore, DeviceManager, SessionManager } from '../session/index.js';
 import { PermissionResolver } from '../permissions/index.js';
+import { SupabaseAuthProvider } from '../providers/index.js';
 import { AuthService } from '../service/index.js';
+import { DeviceManager, InMemorySessionStore, SessionManager } from '../session/index.js';
+import { authKeys } from './auth.query-keys.js';
 
 function createAuthService(): AuthService {
   const provider = new SupabaseAuthProvider();
@@ -32,8 +33,15 @@ export function useRegister() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ email, password, displayName }: { email: string; password: string; displayName: string }) =>
-      createAuthService().register(email, password, displayName),
+    mutationFn: ({
+      email,
+      password,
+      displayName,
+    }: {
+      email: string;
+      password: string;
+      displayName: string;
+    }) => createAuthService().register(email, password, displayName),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: authKeys.all });
     },

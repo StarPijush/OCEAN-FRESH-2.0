@@ -1,4 +1,11 @@
-import { Permission, Role, createLogger, type PermissionContext, type ABACEngine } from '@oceanfresh/shared';
+import {
+  type ABACEngine,
+  createLogger,
+  type Permission,
+  type PermissionContext,
+  type Role,
+} from '@oceanfresh/shared';
+
 import { ROLE_HIERARCHY, ROLE_PERMISSIONS } from './permission-matrix.js';
 
 const logger = createLogger('auth:permission:resolver');
@@ -18,7 +25,7 @@ export class PermissionResolver {
     }
 
     for (const engine of this.abacEngines) {
-      if (!await engine.evaluate(context, permission)) {
+      if (!(await engine.evaluate(context, permission))) {
         return false;
       }
     }

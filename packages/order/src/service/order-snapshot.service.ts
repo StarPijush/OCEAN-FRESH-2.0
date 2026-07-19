@@ -1,13 +1,10 @@
-import {
-  createLogger,
-  type OrderProductSnapshot,
-  type OrderCustomerSnapshot,
-  type OrderShippingSnapshot,
-  type OrderBillingSnapshot,
-} from '@oceanfresh/shared';
 import type { CartCheckoutContext } from '@oceanfresh/cart';
-
-const logger = createLogger('order:snapshot');
+import type {
+  OrderBillingSnapshot,
+  OrderCustomerSnapshot,
+  OrderProductSnapshot,
+  OrderShippingSnapshot,
+} from '@oceanfresh/shared';
 
 export class OrderSnapshotService {
   createProductSnapshot(context: CartCheckoutContext): OrderProductSnapshot[] {

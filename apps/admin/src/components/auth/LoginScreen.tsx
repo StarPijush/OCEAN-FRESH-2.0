@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Props {
   onLogin: (mobile: string, password: string) => Promise<boolean>;
@@ -13,7 +13,9 @@ export function LoginScreen({ onLogin, onForgot, error, loading }: Props) {
   const [showPass, setShowPass] = useState(false);
   const mobileRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { mobileRef.current?.focus(); }, []);
+  useEffect(() => {
+    mobileRef.current?.focus();
+  }, []);
 
   const handleSubmit = async () => {
     if (!mobile || !password) return;
@@ -22,7 +24,9 @@ export function LoginScreen({ onLogin, onForgot, error, loading }: Props) {
 
   return (
     <div className="auth-screen auth-card">
-      <div className="auth-logo">Ocean<span>Fresh</span></div>
+      <div className="auth-logo">
+        Ocean<span>Fresh</span>
+      </div>
       <div className="auth-eyebrow">Admin Panel · Secure Login</div>
       <h2 className="auth-title">Welcome back</h2>
       <p className="auth-sub">Sign in with your registered mobile number and password.</p>
@@ -40,9 +44,11 @@ export function LoginScreen({ onLogin, onForgot, error, loading }: Props) {
             placeholder="9876543210"
             maxLength={10}
             value={mobile}
-            onChange={e => setMobile(e.target.value)}
+            onChange={(e) => setMobile(e.target.value)}
             ref={mobileRef}
-            onKeyDown={e => { if (e.key === 'Enter') handleSubmit(); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSubmit();
+            }}
           />
         </div>
       </div>
@@ -56,13 +62,15 @@ export function LoginScreen({ onLogin, onForgot, error, loading }: Props) {
             type={showPass ? 'text' : 'password'}
             placeholder="Enter password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') handleSubmit(); }}
+            onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSubmit();
+            }}
           />
           <button
             type="button"
             className="btn-eye"
-            onClick={() => setShowPass(p => !p)}
+            onClick={() => setShowPass((p) => !p)}
             tabIndex={-1}
           >
             {showPass ? '🙈' : '👁️'}
@@ -80,7 +88,9 @@ export function LoginScreen({ onLogin, onForgot, error, loading }: Props) {
       </button>
 
       <div style={{ textAlign: 'center' }}>
-        <span className="auth-link" onClick={onForgot}>Forgot password?</span>
+        <span className="auth-link" onClick={onForgot}>
+          Forgot password?
+        </span>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import type { Order, Money } from '@oceanfresh/shared';
+import type { Money, Order } from '@oceanfresh/shared';
 
 export interface IPaymentGateway {
   createPayment(order: Order): Promise<{
@@ -11,7 +11,10 @@ export interface IPaymentGateway {
     gatewayResponse: Record<string, unknown>;
   }>;
 
-  refund(transactionId: string, amount: Money): Promise<{
+  refund(
+    transactionId: string,
+    amount: Money,
+  ): Promise<{
     success: boolean;
     refundId: string;
   }>;

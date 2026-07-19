@@ -1,7 +1,13 @@
+import {
+  type Category,
+  type CreateCategoryInput,
+  slugify,
+  type UpdateCategoryInput,
+} from '@oceanfresh/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { slugify, type CreateCategoryInput, type UpdateCategoryInput, type Category } from '@oceanfresh/shared';
-import { categoryKeys } from './category.query-keys.js';
+
 import { getCategoryRepository } from '../repository/index.js';
+import { categoryKeys } from './category.query-keys.js';
 
 export function useCreateCategory() {
   const queryClient = useQueryClient();
@@ -19,8 +25,13 @@ export function useUpdateCategory() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<UpdateCategoryInput> & { updatedBy: string } }) =>
-      getCategoryRepository().update(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Partial<UpdateCategoryInput> & { updatedBy: string };
+    }) => getCategoryRepository().update(id, data),
     onSuccess: (category: Category) => {
       queryClient.invalidateQueries({ queryKey: categoryKeys.detail(category.id) });
       queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });

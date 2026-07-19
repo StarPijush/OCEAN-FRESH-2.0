@@ -1,23 +1,62 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {
+  AccountStatus,
+  AuthEventType,
+  AuthProviderType,
+  type AuthSession,
+  IdentityType,
+  Permission,
+  Role,
+  type UserIdentity,
+} from '@oceanfresh/shared';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { AuthService } from '../service/auth.service.js';
 import { AuthorizationService } from '../service/authorization.service.js';
 import { TokenService } from '../service/token.service.js';
-import { Role, Permission, AuthEventType, IdentityType, AccountStatus, AuthProviderType } from '@oceanfresh/shared';
-import type { UserIdentity, AuthSession, PermissionContext } from '@oceanfresh/shared';
 
 const mockUser: UserIdentity = {
-  id: 'user-1', email: 'a@b.com', phone: null, displayName: 'Test', photoURL: null,
-  provider: AuthProviderType.EMAIL, identityType: IdentityType.USER, emailVerified: true,
-  accountStatus: AccountStatus.ACTIVE, isAnonymous: false, createdAt: new Date(), lastLoginAt: null,
+  id: 'user-1',
+  email: 'a@b.com',
+  phone: null,
+  displayName: 'Test',
+  photoURL: null,
+  provider: AuthProviderType.EMAIL,
+  identityType: IdentityType.USER,
+  emailVerified: true,
+  accountStatus: AccountStatus.ACTIVE,
+  isAnonymous: false,
+  createdAt: new Date(),
+  lastLoginAt: null,
 };
 
 const mockSession: AuthSession = {
-  id: 's1', userId: 'user-1',
-  tokenPair: { accessToken: 'at', refreshToken: 'rt', idToken: 'it', accessTokenExpiresAt: 0, refreshTokenExpiresAt: 0 },
-  device: { id: 'd1', name: '', type: 'desktop', os: '', browser: '', ipHash: '', isTrusted: false, riskScore: 0, lastLoginAt: 0 },
+  id: 's1',
+  userId: 'user-1',
+  tokenPair: {
+    accessToken: 'at',
+    refreshToken: 'rt',
+    idToken: 'it',
+    accessTokenExpiresAt: 0,
+    refreshTokenExpiresAt: 0,
+  },
+  device: {
+    id: 'd1',
+    name: '',
+    type: 'desktop',
+    os: '',
+    browser: '',
+    ipHash: '',
+    isTrusted: false,
+    riskScore: 0,
+    lastLoginAt: 0,
+  },
   metadata: { authMethod: 'password', mfaUsed: false },
-  startedAt: Date.now(), lastActivityAt: Date.now(), expiresAt: Date.now() + 3600000,
-  absoluteExpiresAt: Date.now() + 86400000, isRememberMe: false, isRevoked: false,
+  startedAt: Date.now(),
+  lastActivityAt: Date.now(),
+  expiresAt: Date.now() + 3600000,
+  absoluteExpiresAt: Date.now() + 86400000,
+  isRememberMe: false,
+  isRevoked: false,
 };
 
 function createMockProvider() {
@@ -80,16 +119,24 @@ describe('AuthService', () => {
     sessionManager = createMockSessionManager();
     eventBus = createMockEventBus();
     resolver = createMockResolver();
-    service = new AuthService(provider as any, sessionManager as any, eventBus as any, resolver as any);
+    service = new AuthService(provider, sessionManager, eventBus, resolver);
   });
 
   it('login delegates to provider and publishes event', async () => {
     provider.login.mockResolvedValue(mockSession);
     eventBus.publish.mockResolvedValue(undefined);
 
-    const result = await service.login({ email: 'a@b.com', password: 'pass123', rememberMe: false });
+    const result = await service.login({
+      email: 'a@b.com',
+      password: 'pass123',
+      rememberMe: false,
+    });
 
-    expect(provider.login).toHaveBeenCalledWith({ email: 'a@b.com', password: 'pass123', rememberMe: false });
+    expect(provider.login).toHaveBeenCalledWith({
+      email: 'a@b.com',
+      password: 'pass123',
+      rememberMe: false,
+    });
     expect(sessionManager.startSession).toHaveBeenCalledWith(mockSession);
     expect(eventBus.publish).toHaveBeenCalledWith(
       expect.objectContaining({ type: AuthEventType.LOGGED_IN }),
@@ -171,9 +218,9 @@ describe('AuthorizationService', () => {
   beforeEach(() => {
     resolver = createMockResolver();
     eventBus = createMockEventBus();
-    const mockRepo = { findUserById: vi.fn() } as any;
-    const mockFn = { assignRole: vi.fn() } as any;
-    service = new AuthorizationService(resolver as any, mockRepo, mockFn, eventBus as any);
+    const mockRepo = { findUserById: vi.fn() } as Record<string, unknown>;
+    const mockFn = { assignRole: vi.fn() } as Record<string, unknown>;
+    service = new AuthorizationService(resolver, mockRepo, mockFn, eventBus);
   });
 
   it('hasPermission delegates to resolver', async () => {
@@ -184,7 +231,9 @@ describe('AuthorizationService', () => {
 
   it('requirePermission returns true when allowed', async () => {
     resolver.hasPermission.mockResolvedValue(true);
-    await expect(service.requirePermission(mockUser, Permission.USER_MANAGE)).resolves.toBeUndefined();
+    await expect(
+      service.requirePermission(mockUser, Permission.USER_MANAGE),
+    ).resolves.toBeUndefined();
   });
 
   it('requirePermission throws when denied', async () => {
@@ -218,7 +267,7 @@ describe('TokenService', () => {
   beforeEach(() => {
     provider = createMockProvider();
     sessionManager = createMockSessionManager();
-    service = new TokenService(provider as any, sessionManager as any);
+    service = new TokenService(provider, sessionManager);
   });
 
   it('checks if token is expired', () => {

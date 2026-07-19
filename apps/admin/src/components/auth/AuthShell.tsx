@@ -1,9 +1,9 @@
 import { useAdminAuth } from '../../hooks/useAdminAuth';
-import { LoginScreen } from './LoginScreen';
+import { useAdminToast } from '../shared/AdminToast';
 import { ForgotScreen } from './ForgotScreen';
+import { LoginScreen } from './LoginScreen';
 import { OTPScreen } from './OTPScreen';
 import { ResetScreen } from './ResetScreen';
-import { useAdminToast } from '../shared/AdminToast';
 
 interface Props {
   onLoggedIn: () => void;
@@ -11,8 +11,15 @@ interface Props {
 
 export function AuthShell({ onLoggedIn }: Props) {
   const {
-    currentScreen, loading, error, otpMobile,
-    showScreen, doLogin, doForgotSendOTP, doVerifyOTP, doResetPassword, setError,
+    currentScreen,
+    loading,
+    error,
+    otpMobile,
+    showScreen,
+    doLogin,
+    doForgotSendOTP,
+    doVerifyOTP,
+    doResetPassword,
   } = useAdminAuth();
   const { toast } = useAdminToast();
 
@@ -83,12 +90,7 @@ export function AuthShell({ onLoggedIn }: Props) {
         />
       )}
 
-      {currentScreen === 'reset' && (
-        <ResetScreen
-          onReset={handleReset}
-          error={error}
-        />
-      )}
+      {currentScreen === 'reset' && <ResetScreen onReset={handleReset} error={error} />}
     </div>
   );
 }

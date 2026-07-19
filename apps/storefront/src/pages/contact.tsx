@@ -7,9 +7,17 @@ export function ContactPage() {
     <div id="page-contact" className="page active">
       <div className="contact-hero">
         <div className="hero-noise"></div>
-        <div className="section-eyebrow" style={{ marginBottom: '20px' }}>Get in Touch</div>
-        <h2 className="contact-title">Let's Talk<br /><em>Fresh Fish</em></h2>
-        <p className="contact-sub" style={{ marginTop: '12px' }}>We're at the docks before sunrise, every day.</p>
+        <div className="section-eyebrow" style={{ marginBottom: '20px' }}>
+          Get in Touch
+        </div>
+        <h2 className="contact-title">
+          Let&apos;s Talk
+          <br />
+          <em>Fresh Fish</em>
+        </h2>
+        <p className="contact-sub" style={{ marginTop: '12px' }}>
+          We&apos;re at the docks before sunrise, every day.
+        </p>
       </div>
 
       <div className="contact-list">
@@ -24,12 +32,25 @@ export function ContactPage() {
           <div className="contact-item-arrow">{'\u203A'}</div>
         </a>
 
-        <div className="contact-item" onClick={() => window.open('https://wa.me/919876543210?text=' + encodeURIComponent("Hi! I'd like to know more about today's fresh catch \u{1F41F}"), '_blank')}>
+        <div
+          className="contact-item"
+          onClick={() =>
+            window.open(
+              'https://wa.me/919876543210?text=' +
+                encodeURIComponent("Hi! I'd like to know more about today's fresh catch \u{1F41F}"),
+              '_blank',
+            )
+          }
+        >
           <div className="contact-item-left">
-            <div className="contact-item-icon" style={{ background: '#dcfce7' }}>{'\u{1F4AC}'}</div>
+            <div className="contact-item-icon" style={{ background: '#dcfce7' }}>
+              {'\u{1F4AC}'}
+            </div>
             <div>
               <div className="contact-item-title">WhatsApp</div>
-              <div className="contact-item-value" style={{ color: '#25D366' }}>Chat now</div>
+              <div className="contact-item-value" style={{ color: '#25D366' }}>
+                Chat now
+              </div>
             </div>
           </div>
           <div className="contact-item-arrow">{'\u203A'}</div>
@@ -59,16 +80,18 @@ export function ContactPage() {
       </div>
 
       <div style={{ padding: '0 20px 32px' }}>
-        <div style={{
-          fontSize: '0.6rem',
-          letterSpacing: '0.24em',
-          textTransform: 'uppercase',
-          fontWeight: 600,
-          color: 'var(--muted)',
-          padding: '20px 0 16px',
-          borderBottom: '1px solid rgba(0,0,0,0.07)',
-          marginBottom: '16px',
-        }}>
+        <div
+          style={{
+            fontSize: '0.6rem',
+            letterSpacing: '0.24em',
+            textTransform: 'uppercase',
+            fontWeight: 600,
+            color: 'var(--muted)',
+            padding: '20px 0 16px',
+            borderBottom: '1px solid rgba(0,0,0,0.07)',
+            marginBottom: '16px',
+          }}
+        >
           Delivery Areas
         </div>
         <div className="area-chips">
@@ -82,22 +105,28 @@ export function ContactPage() {
           <span className="area-chip">Silda</span>
           <span className="area-chip">Gidhni</span>
           <span className="area-chip">Lodhasuli</span>
-          <span className="area-chip" style={{ background: 'var(--sand)', color: 'var(--muted)' }}>+ More</span>
+          <span className="area-chip" style={{ background: 'var(--sand)', color: 'var(--muted)' }}>
+            + More
+          </span>
         </div>
       </div>
 
       <div style={{ background: 'var(--deep)', padding: '32px 24px', textAlign: 'center' }}>
-        <div style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: '1.3rem',
-          fontWeight: 300,
-          color: 'var(--cream)',
-          letterSpacing: '0.1em',
-          marginBottom: '8px',
-        }}>
+        <div
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '1.3rem',
+            fontWeight: 300,
+            color: 'var(--cream)',
+            letterSpacing: '0.1em',
+            marginBottom: '8px',
+          }}
+        >
           OceanFresh
         </div>
-        <div style={{ fontSize: '0.65rem', color: 'rgba(245,240,232,0.3)', letterSpacing: '0.1em' }}>
+        <div
+          style={{ fontSize: '0.65rem', color: 'rgba(245,240,232,0.3)', letterSpacing: '0.1em' }}
+        >
           Fresh Seafood &middot; Jhargram, West Bengal &middot; Est. 2018
         </div>
       </div>

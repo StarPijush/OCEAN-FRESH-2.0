@@ -1,26 +1,27 @@
-import {
-  createLogger,
-  CartStatus,
-  CartSource,
-  CartEventType,
-  NotFoundError,
-  Quantity,
-  type Cart,
-  type CartItem,
-  type AddToCartInput,
-  type ProductSnapshot,
-  type Money,
-} from '@oceanfresh/shared';
 import type { IProductCatalog } from '@oceanfresh/product';
-import type { ICartRepository } from '../repository/index.js';
-import type { EventBus } from '../events/index.js';
-import { CartStateMachine } from './cart-state-machine.js';
-import { CartPricingService } from './cart-pricing.service.js';
-import { CartValidationService } from './cart-validation.service.js';
-import { CartMergeService } from './cart-merge.service.js';
-import { CartCheckoutFactory, type CartCheckoutContext } from './cart-checkout-context.interface.js';
+import {
+  type AddToCartInput,
+  type Cart,
+  CartEventType,
+  type CartItem,
+  CartSource,
+  CartStatus,
+  type Money,
+  NotFoundError,
+  type ProductSnapshot,
+  Quantity,
+} from '@oceanfresh/shared';
 
-const logger = createLogger('cart:service');
+import type { EventBus } from '../events/index.js';
+import type { ICartRepository } from '../repository/index.js';
+import {
+  type CartCheckoutContext,
+  CartCheckoutFactory,
+} from './cart-checkout-context.interface.js';
+import { CartMergeService } from './cart-merge.service.js';
+import { CartPricingService } from './cart-pricing.service.js';
+import { CartStateMachine } from './cart-state-machine.js';
+import { CartValidationService } from './cart-validation.service.js';
 
 export class CartService {
   constructor(
@@ -59,7 +60,12 @@ export class CartService {
     });
   }
 
-  async addItem(cartId: string, input: AddToCartInput, userId?: string | null, sessionId?: string | null): Promise<Cart> {
+  async addItem(
+    cartId: string,
+    input: AddToCartInput,
+    userId?: string | null,
+    sessionId?: string | null,
+  ): Promise<Cart> {
     let cart = await this.getOrCreateCart(userId ?? null, sessionId ?? null);
     cartId = cart.id;
 
@@ -149,7 +155,7 @@ export class CartService {
   }
 
   async removeItem(cartId: string, itemId: string): Promise<Cart> {
-    const cart = await this.getCart(cartId);
+    await this.getCart(cartId);
     let updated = await this.repository.removeItem(cartId, itemId);
     updated = await this.recaculateTotals(updated);
 
@@ -164,7 +170,7 @@ export class CartService {
   }
 
   async clearCart(cartId: string): Promise<Cart> {
-    const cart = await this.getCart(cartId);
+    await this.getCart(cartId);
     let updated = await this.repository.clearItems(cartId);
     updated = await this.recaculateTotals(updated);
 

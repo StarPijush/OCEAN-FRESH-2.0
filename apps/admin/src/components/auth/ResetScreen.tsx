@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface Props {
   onReset: (p1: string, p2: string) => Promise<boolean>;
@@ -13,7 +13,9 @@ export function ResetScreen({ onReset, error }: Props) {
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -23,7 +25,9 @@ export function ResetScreen({ onReset, error }: Props) {
 
   return (
     <div className="auth-screen auth-card">
-      <div className="auth-logo">Ocean<span>Fresh</span></div>
+      <div className="auth-logo">
+        Ocean<span>Fresh</span>
+      </div>
       <div className="auth-eyebrow">Set New Password</div>
       <h2 className="auth-title">New password</h2>
       <p className="auth-sub">Choose a strong password. Minimum 6 characters.</p>
@@ -38,14 +42,16 @@ export function ResetScreen({ onReset, error }: Props) {
             type={show1 ? 'text' : 'password'}
             placeholder="New password"
             value={pass1}
-            onChange={e => setPass1(e.target.value)}
+            onChange={(e) => setPass1(e.target.value)}
             ref={inputRef}
-            onKeyDown={e => { if (e.key === 'Enter') handleSubmit(); }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSubmit();
+            }}
           />
           <button
             type="button"
             className="btn-eye"
-            onClick={() => setShow1(p => !p)}
+            onClick={() => setShow1((p) => !p)}
             tabIndex={-1}
           >
             {show1 ? '🙈' : '👁️'}
@@ -61,13 +67,15 @@ export function ResetScreen({ onReset, error }: Props) {
             type={show2 ? 'text' : 'password'}
             placeholder="Confirm password"
             value={pass2}
-            onChange={e => setPass2(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') handleSubmit(); }}
+            onChange={(e) => setPass2(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSubmit();
+            }}
           />
           <button
             type="button"
             className="btn-eye"
-            onClick={() => setShow2(p => !p)}
+            onClick={() => setShow2((p) => !p)}
             tabIndex={-1}
           >
             {show2 ? '🙈' : '👁️'}

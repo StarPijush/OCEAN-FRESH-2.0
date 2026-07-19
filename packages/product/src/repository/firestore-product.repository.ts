@@ -1,22 +1,19 @@
-import { firestoreService, type FirestoreQuery, type FirestoreOptions } from '@oceanfresh/firebase';
-import { Timestamp } from 'firebase/firestore';
+import { type FirestoreOptions, type FirestoreQuery, firestoreService } from '@oceanfresh/firebase';
 import {
-  slugify,
-  NotFoundError,
-  RepositoryError,
-  ConcurrencyError,
-  type Product,
   type CreateProductInput,
-  type UpdateProductInput,
-  type ProductQuery,
+  NotFoundError,
   type PaginatedResult,
-  ProductStatus,
+  type Product,
+  type ProductQuery,
   ProductSortField,
+  ProductStatus,
+  RepositoryError,
+  slugify,
+  type UpdateProductInput,
 } from '@oceanfresh/shared';
-import type { IProductRepository } from './product.repository.js';
-import { createLogger } from '@oceanfresh/shared';
+import { Timestamp } from 'firebase/firestore';
 
-const logger = createLogger('product:repository');
+import type { IProductRepository } from './product.repository.js';
 
 const COLLECTION = 'products';
 
@@ -25,33 +22,47 @@ function docToProduct(id: string, data: Record<string, unknown>): Product {
 }
 
 function serializeProductData(data: Record<string, unknown>): Record<string, unknown> {
-  const { id: _id, ...rest } = data;
-  return rest;
+  const result = { ...data };
+  delete result.id;
+  return result;
 }
 
 export class FirestoreProductRepository implements IProductRepository {
   async findById(id: string): Promise<Product | null> {
     try {
-      const doc = await firestoreService.get<Record<string, unknown> & { id: string }>(COLLECTION, id);
+      const doc = await firestoreService.get<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        id,
+      );
       if (!doc) return null;
       const product = docToProduct(doc.id, doc);
       if (product.isDeleted) return null;
       return product;
     } catch (err) {
-      throw new RepositoryError('Failed to find product by ID', 'findById', COLLECTION, { id, error: err });
+      throw new RepositoryError('Failed to find product by ID', 'findById', COLLECTION, {
+        id,
+        error: err,
+      });
     }
   }
 
   async findBySlug(slug: string): Promise<Product | null> {
     try {
-      const results = await firestoreService.query<Record<string, unknown> & { id: string }>(COLLECTION, [
-        { field: 'slug', operator: '==', value: slug },
-        { field: 'isDeleted', operator: '==', value: false },
-      ], { limitCount: 1 });
+      const results = await firestoreService.query<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        [
+          { field: 'slug', operator: '==', value: slug },
+          { field: 'isDeleted', operator: '==', value: false },
+        ],
+        { limitCount: 1 },
+      );
       const doc = results[0];
       return doc ? docToProduct(doc.id, doc) : null;
     } catch (err) {
-      throw new RepositoryError('Failed to find product by slug', 'findBySlug', COLLECTION, { slug, error: err });
+      throw new RepositoryError('Failed to find product by slug', 'findBySlug', COLLECTION, {
+        slug,
+        error: err,
+      });
     }
   }
 
@@ -65,14 +76,20 @@ export class FirestoreProductRepository implements IProductRepository {
       }
       return results;
     } catch (err) {
-      throw new RepositoryError('Failed to find products by IDs', 'findByIds', COLLECTION, { ids, error: err });
+      throw new RepositoryError('Failed to find products by IDs', 'findByIds', COLLECTION, {
+        ids,
+        error: err,
+      });
     }
   }
 
   async findAll(query: ProductQuery): Promise<PaginatedResult<Product>> {
     try {
-      const constraints: FirestoreQuery[] = [{ field: 'isDeleted', operator: '==', value: query.includeDeleted ?? false }];
-      if (query.categoryId) constraints.push({ field: 'categoryId', operator: '==', value: query.categoryId });
+      const constraints: FirestoreQuery[] = [
+        { field: 'isDeleted', operator: '==', value: query.includeDeleted ?? false },
+      ];
+      if (query.categoryId)
+        constraints.push({ field: 'categoryId', operator: '==', value: query.categoryId });
       if (query.status) {
         if (Array.isArray(query.status)) {
           constraints.push({ field: 'status', operator: 'in', value: query.status });
@@ -80,11 +97,16 @@ export class FirestoreProductRepository implements IProductRepository {
           constraints.push({ field: 'status', operator: '==', value: query.status });
         }
       }
-      if (query.featured !== undefined) constraints.push({ field: 'featured', operator: '==', value: query.featured });
-      if (query.warehouseId) constraints.push({ field: 'warehouseId', operator: '==', value: query.warehouseId });
-      if (query.createdBy) constraints.push({ field: 'createdBy', operator: '==', value: query.createdBy });
-      if (query.priceMin !== undefined) constraints.push({ field: 'price', operator: '>=', value: query.priceMin });
-      if (query.priceMax !== undefined) constraints.push({ field: 'price', operator: '<=', value: query.priceMax });
+      if (query.featured !== undefined)
+        constraints.push({ field: 'featured', operator: '==', value: query.featured });
+      if (query.warehouseId)
+        constraints.push({ field: 'warehouseId', operator: '==', value: query.warehouseId });
+      if (query.createdBy)
+        constraints.push({ field: 'createdBy', operator: '==', value: query.createdBy });
+      if (query.priceMin !== undefined)
+        constraints.push({ field: 'price', operator: '>=', value: query.priceMin });
+      if (query.priceMax !== undefined)
+        constraints.push({ field: 'price', operator: '<=', value: query.priceMax });
 
       const options: FirestoreOptions = {
         orderByField: query.sort ?? ProductSortField.NAME,
@@ -92,37 +114,57 @@ export class FirestoreProductRepository implements IProductRepository {
         limitCount: query.limit ?? 20,
       };
 
-      const docs = await firestoreService.query<Record<string, unknown> & { id: string }>(COLLECTION, constraints, options);
+      const docs = await firestoreService.query<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        constraints,
+        options,
+      );
       const items = docs.map((d) => docToProduct(d.id, d));
 
       return {
         items,
         total: items.length,
         hasMore: items.length === (query.limit ?? 20),
-        lastDoc: items.length > 0 && items[items.length - 1] ? items[items.length - 1]!.id : null,
+        lastDoc: items.length > 0 ? (items[items.length - 1]?.id ?? null) : null,
       };
     } catch (err) {
-      throw new RepositoryError('Failed to query products', 'findAll', COLLECTION, { query, error: err });
+      throw new RepositoryError('Failed to query products', 'findAll', COLLECTION, {
+        query,
+        error: err,
+      });
     }
   }
 
   async findFeatured(limit = 10): Promise<Product[]> {
     try {
-      const docs = await firestoreService.query<Record<string, unknown> & { id: string }>(COLLECTION, [
-        { field: 'featured', operator: '==', value: true },
-        { field: 'isDeleted', operator: '==', value: false },
-      ], { orderByField: 'sortOrder', orderDirection: 'asc', limitCount: limit });
+      const docs = await firestoreService.query<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        [
+          { field: 'featured', operator: '==', value: true },
+          { field: 'isDeleted', operator: '==', value: false },
+        ],
+        { orderByField: 'sortOrder', orderDirection: 'asc', limitCount: limit },
+      );
       return docs.map((d) => docToProduct(d.id, d));
     } catch (err) {
-      throw new RepositoryError('Failed to find featured products', 'findFeatured', COLLECTION, { limit, error: err });
+      throw new RepositoryError('Failed to find featured products', 'findFeatured', COLLECTION, {
+        limit,
+        error: err,
+      });
     }
   }
 
-  async findByCategory(categoryId: string, query?: Partial<ProductQuery>): Promise<PaginatedResult<Product>> {
+  async findByCategory(
+    categoryId: string,
+    query?: Partial<ProductQuery>,
+  ): Promise<PaginatedResult<Product>> {
     return this.findAll({ ...query, categoryId } as ProductQuery);
   }
 
-  async findByStatus(status: string, query?: Partial<ProductQuery>): Promise<PaginatedResult<Product>> {
+  async findByStatus(
+    status: string,
+    query?: Partial<ProductQuery>,
+  ): Promise<PaginatedResult<Product>> {
     return this.findAll({ ...query, status: status as ProductStatus } as ProductQuery);
   }
 
@@ -133,9 +175,11 @@ export class FirestoreProductRepository implements IProductRepository {
         { field: 'isDeleted', operator: '==', value: false },
         { field: 'searchKeywords', operator: 'array-contains', value: lower },
       ];
-      if (query?.categoryId) constraints.push({ field: 'categoryId', operator: '==', value: query.categoryId });
+      if (query?.categoryId)
+        constraints.push({ field: 'categoryId', operator: '==', value: query.categoryId });
       if (query?.status) constraints.push({ field: 'status', operator: '==', value: query.status });
-      if (query?.featured !== undefined) constraints.push({ field: 'featured', operator: '==', value: query.featured });
+      if (query?.featured !== undefined)
+        constraints.push({ field: 'featured', operator: '==', value: query.featured });
 
       const options: FirestoreOptions = {
         orderByField: query?.sort ?? ProductSortField.NAME,
@@ -143,17 +187,24 @@ export class FirestoreProductRepository implements IProductRepository {
         limitCount: query?.limit ?? 20,
       };
 
-      const docs = await firestoreService.query<Record<string, unknown> & { id: string }>(COLLECTION, constraints, options);
+      const docs = await firestoreService.query<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        constraints,
+        options,
+      );
       const items = docs.map((d) => docToProduct(d.id, d));
 
       return {
         items,
         total: items.length,
         hasMore: items.length === (query?.limit ?? 20),
-        lastDoc: items.length > 0 && items[items.length - 1] ? items[items.length - 1]!.id : null,
+        lastDoc: items.length > 0 ? (items[items.length - 1]?.id ?? null) : null,
       };
     } catch (err) {
-      throw new RepositoryError('Failed to search products', 'search', COLLECTION, { term, error: err });
+      throw new RepositoryError('Failed to search products', 'search', COLLECTION, {
+        term,
+        error: err,
+      });
     }
   }
 
@@ -170,7 +221,8 @@ export class FirestoreProductRepository implements IProductRepository {
   async count(query?: Partial<ProductQuery>): Promise<number> {
     try {
       const constraints: FirestoreQuery[] = [{ field: 'isDeleted', operator: '==', value: false }];
-      if (query?.categoryId) constraints.push({ field: 'categoryId', operator: '==', value: query.categoryId });
+      if (query?.categoryId)
+        constraints.push({ field: 'categoryId', operator: '==', value: query.categoryId });
       if (query?.status) {
         if (Array.isArray(query.status)) {
           constraints.push({ field: 'status', operator: 'in', value: query.status });
@@ -178,10 +230,17 @@ export class FirestoreProductRepository implements IProductRepository {
           constraints.push({ field: 'status', operator: '==', value: query.status });
         }
       }
-      const docs = await firestoreService.query<Record<string, unknown> & { id: string }>(COLLECTION, constraints, {});
+      const docs = await firestoreService.query<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        constraints,
+        {},
+      );
       return docs.length;
     } catch (err) {
-      throw new RepositoryError('Failed to count products', 'count', COLLECTION, { query, error: err });
+      throw new RepositoryError('Failed to count products', 'count', COLLECTION, {
+        query,
+        error: err,
+      });
     }
   }
 
@@ -200,14 +259,23 @@ export class FirestoreProductRepository implements IProductRepository {
         updatedAt: now,
         deletedAt: null,
       };
-      const result = await firestoreService.add<Record<string, unknown>>(COLLECTION, docData as unknown as Record<string, unknown>);
+      const result = await firestoreService.add<Record<string, unknown>>(
+        COLLECTION,
+        docData as unknown as Record<string, unknown>,
+      );
       return docToProduct(result.id as string, { ...docData, id: result.id });
     } catch (err) {
-      throw new RepositoryError('Failed to create product', 'create', COLLECTION, { name: data.name, error: err });
+      throw new RepositoryError('Failed to create product', 'create', COLLECTION, {
+        name: data.name,
+        error: err,
+      });
     }
   }
 
-  async update(id: string, data: Partial<UpdateProductInput> & { updatedBy: string }): Promise<Product> {
+  async update(
+    id: string,
+    data: Partial<UpdateProductInput> & { updatedBy: string },
+  ): Promise<Product> {
     try {
       const existing = await this.findById(id);
       if (!existing) throw new NotFoundError('Product not found');
@@ -220,7 +288,10 @@ export class FirestoreProductRepository implements IProductRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to update product', 'update', COLLECTION, { id, error: err });
+      throw new RepositoryError('Failed to update product', 'update', COLLECTION, {
+        id,
+        error: err,
+      });
     }
   }
 
@@ -235,7 +306,10 @@ export class FirestoreProductRepository implements IProductRepository {
       } as unknown as Record<string, unknown>);
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to soft-delete product', 'softDelete', COLLECTION, { id, error: err });
+      throw new RepositoryError('Failed to soft-delete product', 'softDelete', COLLECTION, {
+        id,
+        error: err,
+      });
     }
   }
 
@@ -250,7 +324,10 @@ export class FirestoreProductRepository implements IProductRepository {
       } as unknown as Record<string, unknown>);
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to restore product', 'restore', COLLECTION, { id, error: err });
+      throw new RepositoryError('Failed to restore product', 'restore', COLLECTION, {
+        id,
+        error: err,
+      });
     }
   }
 
@@ -263,7 +340,10 @@ export class FirestoreProductRepository implements IProductRepository {
       } as unknown as Record<string, unknown>);
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to archive product', 'archive', COLLECTION, { id, error: err });
+      throw new RepositoryError('Failed to archive product', 'archive', COLLECTION, {
+        id,
+        error: err,
+      });
     }
   }
 
@@ -272,8 +352,13 @@ export class FirestoreProductRepository implements IProductRepository {
       const existing = await this.findById(id);
       if (!existing) throw new NotFoundError('Product not found');
 
-      const { id: _id, createdAt: _ca, updatedAt: _ua, deletedAt: _da, version: _v, ...rest } = existing;
-      const newSlug = await this.generateUniqueSlug(rest.name);
+      const rest = { ...existing } as Record<string, unknown>;
+      delete rest.id;
+      delete rest.createdAt;
+      delete rest.updatedAt;
+      delete rest.deletedAt;
+      delete rest.version;
+      const newSlug = await this.generateUniqueSlug(rest.name as string);
       const now = Timestamp.now();
       const docData = {
         ...rest,
@@ -285,11 +370,17 @@ export class FirestoreProductRepository implements IProductRepository {
         updatedAt: now,
         deletedAt: null,
       };
-      const result = await firestoreService.add<Record<string, unknown>>(COLLECTION, docData as unknown as Record<string, unknown>);
+      const result = await firestoreService.add<Record<string, unknown>>(
+        COLLECTION,
+        docData as unknown as Record<string, unknown>,
+      );
       return docToProduct(result.id as string, { ...docData, id: result.id });
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to duplicate product', 'duplicate', COLLECTION, { id, error: err });
+      throw new RepositoryError('Failed to duplicate product', 'duplicate', COLLECTION, {
+        id,
+        error: err,
+      });
     }
   }
 
@@ -300,7 +391,10 @@ export class FirestoreProductRepository implements IProductRepository {
         await firestoreService.update(COLLECTION, id, serialized);
       }
     } catch (err) {
-      throw new RepositoryError('Failed to bulk update products', 'bulkUpdate', COLLECTION, { ids, error: err });
+      throw new RepositoryError('Failed to bulk update products', 'bulkUpdate', COLLECTION, {
+        ids,
+        error: err,
+      });
     }
   }
 
@@ -314,7 +408,10 @@ export class FirestoreProductRepository implements IProductRepository {
         } as unknown as Record<string, unknown>);
       }
     } catch (err) {
-      throw new RepositoryError('Failed to bulk delete products', 'bulkDelete', COLLECTION, { ids, error: err });
+      throw new RepositoryError('Failed to bulk delete products', 'bulkDelete', COLLECTION, {
+        ids,
+        error: err,
+      });
     }
   }
 
@@ -326,19 +423,29 @@ export class FirestoreProductRepository implements IProductRepository {
         } as unknown as Record<string, unknown>);
       }
     } catch (err) {
-      throw new RepositoryError('Failed to bulk archive products', 'bulkArchive', COLLECTION, { ids, error: err });
+      throw new RepositoryError('Failed to bulk archive products', 'bulkArchive', COLLECTION, {
+        ids,
+        error: err,
+      });
     }
   }
 
   async getLowStock(threshold: number): Promise<Product[]> {
     try {
-      const docs = await firestoreService.query<Record<string, unknown> & { id: string }>(COLLECTION, [
-        { field: 'isDeleted', operator: '==', value: false },
-        { field: 'stock', operator: '<=', value: threshold },
-      ], { orderByField: 'stock', orderDirection: 'asc' });
+      const docs = await firestoreService.query<Record<string, unknown> & { id: string }>(
+        COLLECTION,
+        [
+          { field: 'isDeleted', operator: '==', value: false },
+          { field: 'stock', operator: '<=', value: threshold },
+        ],
+        { orderByField: 'stock', orderDirection: 'asc' },
+      );
       return docs.map((d) => docToProduct(d.id, d));
     } catch (err) {
-      throw new RepositoryError('Failed to get low stock products', 'getLowStock', COLLECTION, { threshold, error: err });
+      throw new RepositoryError('Failed to get low stock products', 'getLowStock', COLLECTION, {
+        threshold,
+        error: err,
+      });
     }
   }
 

@@ -1,13 +1,7 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { PermissionResolver } from '../permissions/permission.resolver.js';
-import { Role, Permission, IdentityType, AccountStatus, AuthProviderType } from '@oceanfresh/shared';
-import type { PermissionContext } from '@oceanfresh/shared';
+import { Permission, Role } from '@oceanfresh/shared';
+import { beforeEach, describe, expect, it } from 'vitest';
 
-const baseContext: PermissionContext = {
-  userId: 'user-1',
-  userRole: Role.GUEST,
-  action: Permission.PRODUCT_READ,
-};
+import { PermissionResolver } from '../permissions/permission.resolver.js';
 
 describe('PermissionResolver', () => {
   let resolver: PermissionResolver;

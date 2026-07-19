@@ -1,5 +1,6 @@
-import { useProduct, useProductBySlug, useProductSearch } from '../queries/index.js';
 import type { ProductQuery } from '@oceanfresh/shared';
+
+import { useProduct, useProductBySlug, useProductSearch } from '../queries/index.js';
 
 export function useGetProduct(id: string | undefined) {
   return useProduct(id);

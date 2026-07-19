@@ -1,18 +1,25 @@
 import { z } from 'zod';
-import { ProductUnit, ProductStatus, ProductSortField } from '../types/product.js';
 
-export const productDimensionsSchema = z.object({
-  length: z.number().positive(),
-  width: z.number().positive(),
-  height: z.number().positive(),
-  unit: z.enum(['cm', 'in']),
-}).nullable().optional();
+import { ProductSortField, ProductStatus, ProductUnit } from '../types/product.js';
 
-export const productSeoSchema = z.object({
-  title: z.string().max(200),
-  description: z.string().max(500),
-  canonicalUrl: z.string().url(),
-}).nullable().optional();
+export const productDimensionsSchema = z
+  .object({
+    length: z.number().positive(),
+    width: z.number().positive(),
+    height: z.number().positive(),
+    unit: z.enum(['cm', 'in']),
+  })
+  .nullable()
+  .optional();
+
+export const productSeoSchema = z
+  .object({
+    title: z.string().max(200),
+    description: z.string().max(500),
+    canonicalUrl: z.string().url(),
+  })
+  .nullable()
+  .optional();
 
 export const productVariantSchema = z.object({
   id: z.string().min(1),

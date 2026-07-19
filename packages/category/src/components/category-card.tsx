@@ -1,4 +1,5 @@
 import type { Category } from '@oceanfresh/shared';
+
 import { CategoryStatusBadge } from './category-status-badge.js';
 
 interface CategoryCardProps {
@@ -25,11 +26,21 @@ export function CategoryCard({ category, onSelect, className = '' }: CategoryCar
       <div className="flex items-center gap-3 mb-3">
         <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-md bg-gray-100">
           {category.thumbnail ? (
-            <img src={category.thumbnail} alt={category.name} className="h-full w-full object-cover" loading="lazy" />
+            <img
+              src={category.thumbnail}
+              alt={category.name}
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
           ) : (
             <div className="flex h-full items-center justify-center text-gray-400">
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </div>
           )}
@@ -46,9 +57,7 @@ export function CategoryCard({ category, onSelect, className = '' }: CategoryCar
         <CategoryStatusBadge status={category.status} />
         <div className="flex items-center gap-2 text-gray-400">
           <span>{category.productCount} products</span>
-          {category.featured && (
-            <span className="text-amber-600 font-medium">Featured</span>
-          )}
+          {category.featured && <span className="text-amber-600 font-medium">Featured</span>}
         </div>
       </div>
 

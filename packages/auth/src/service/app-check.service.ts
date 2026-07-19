@@ -1,4 +1,5 @@
-import { createLogger, AuthEventType } from '@oceanfresh/shared';
+import { AuthEventType, createLogger } from '@oceanfresh/shared';
+
 import type { EventBus } from '../events/index.js';
 
 const logger = createLogger('auth:service:app-check');
@@ -11,7 +12,7 @@ export class AppCheckService {
   async initialize(): Promise<void> {
     if (this.initialized) return;
     try {
-      const { initializeAppCheck, ReCaptchaV3Provider, getToken } = await import('firebase/app-check');
+      const { initializeAppCheck, ReCaptchaV3Provider } = await import('firebase/app-check');
       const { getApp } = await import('@oceanfresh/firebase');
       const app = getApp();
       initializeAppCheck(app, {

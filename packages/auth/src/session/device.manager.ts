@@ -1,6 +1,4 @@
-import { createLogger, type DeviceInfo } from '@oceanfresh/shared';
-
-const logger = createLogger('auth:session:device');
+import type { DeviceInfo } from '@oceanfresh/shared';
 
 export class DeviceManager {
   async fingerprint(): Promise<string> {
@@ -83,6 +81,6 @@ export class DeviceManager {
 
   private getDeviceName(ua: string): string {
     const brandMatch = ua.match(/\(([^)]+)\)/);
-    return brandMatch ? brandMatch[1]!.split(';')[0]!.trim() : 'Unknown Device';
+    return brandMatch ? ((brandMatch[1] as string).split(';')[0] as string) : 'Unknown Device';
   }
 }

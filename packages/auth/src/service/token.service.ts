@@ -1,4 +1,5 @@
-import { createLogger, TokenExpiredError, TokenRevokedError } from '@oceanfresh/shared';
+import { createLogger, TokenRevokedError } from '@oceanfresh/shared';
+
 import type { IAuthProvider } from '../providers/index.js';
 import type { SessionManager } from '../session/index.js';
 
@@ -79,11 +80,13 @@ export class TokenService {
     return newToken;
   }
 
-  private decodeToken(token: string): { exp?: number; sub?: string; [key: string]: unknown } | null {
+  private decodeToken(
+    token: string,
+  ): { exp?: number; sub?: string; [key: string]: unknown } | null {
     try {
       const parts = token.split('.');
       if (parts.length !== 3) return null;
-      const payload = parts[1]!;
+      const payload = parts[1] as string;
       const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
       return JSON.parse(decoded);
     } catch {

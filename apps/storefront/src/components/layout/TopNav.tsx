@@ -1,4 +1,5 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+
 import { useCartStore } from '../../stores/cart.js';
 
 interface TopNavProps {
@@ -19,11 +20,7 @@ export function TopNav({ onMenuToggle, isDrawerOpen }: TopNavProps) {
         OceanFresh
       </div>
       <div className="nav-right">
-        <button
-          className="nav-cart-btn"
-          onClick={() => navigate('/order')}
-          aria-label="Cart"
-        >
+        <button className="nav-cart-btn" onClick={() => navigate('/order')} aria-label="Cart">
           {'\u{1F6D2}'}
           <span className={`nav-cart-count ${count > 0 ? 'show' : ''}`} id="nav-cart-count">
             {count}
@@ -35,7 +32,9 @@ export function TopNav({ onMenuToggle, isDrawerOpen }: TopNavProps) {
           onClick={onMenuToggle}
           aria-label="Menu"
         >
-          <span></span><span></span><span></span>
+          <span></span>
+          <span></span>
+          <span></span>
         </button>
       </div>
     </header>

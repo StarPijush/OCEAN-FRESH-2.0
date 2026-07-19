@@ -1,4 +1,4 @@
-import { initSupabase, getClient } from './client.js';
+import { getClient } from './client.js';
 
 export interface AuthUser {
   uid: string;
@@ -8,7 +8,11 @@ export interface AuthUser {
   isAdmin: boolean;
 }
 
-function mapUser(user: { id: string; email?: string | null; user_metadata?: Record<string, unknown> }): AuthUser {
+function mapUser(user: {
+  id: string;
+  email?: string | null;
+  user_metadata?: Record<string, unknown>;
+}): AuthUser {
   return {
     uid: user.id,
     email: user.email ?? null,
@@ -38,7 +42,9 @@ export async function signOut(): Promise<void> {
 }
 
 export function onAuthChange(callback: (user: AuthUser | null) => void): () => void {
-  const { data: { subscription } } = getClient().auth.onAuthStateChange((_event, session) => {
+  const {
+    data: { subscription },
+  } = getClient().auth.onAuthStateChange((_event, session) => {
     callback(session?.user ? mapUser(session.user) : null);
   });
   return () => subscription.unsubscribe();

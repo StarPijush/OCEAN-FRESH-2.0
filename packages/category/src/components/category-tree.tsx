@@ -1,4 +1,5 @@
 import type { Category } from '@oceanfresh/shared';
+
 import { CategoryTreeNode } from './category-tree-node.js';
 
 export interface NestedCategoryItem extends Category {
@@ -31,12 +32,22 @@ function renderNodes(
   ));
 }
 
-export function CategoryTree({ categories, onSelect, defaultExpanded = false, className = '' }: CategoryTreeProps) {
+export function CategoryTree({
+  categories,
+  onSelect,
+  defaultExpanded = false,
+  className = '',
+}: CategoryTreeProps) {
   if (categories.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-gray-400">
         <svg className="h-12 w-12 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 6h16M4 12h16M4 18h16" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={1}
+            d="M4 6h16M4 12h16M4 18h16"
+          />
         </svg>
         <p className="text-sm font-medium">No categories found</p>
       </div>

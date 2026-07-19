@@ -1,20 +1,21 @@
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
 import type { Category, CategoryQuery, PaginatedResult } from '@oceanfresh/shared';
-import { categoryKeys } from './category.query-keys.js';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+
 import { getCategoryRepository } from '../repository/index.js';
+import { categoryKeys } from './category.query-keys.js';
 
 export function useCategory(id: string | undefined) {
   return useQuery({
-    queryKey: categoryKeys.detail(id!),
-    queryFn: () => getCategoryRepository().findById(id!),
+    queryKey: categoryKeys.detail(id as string),
+    queryFn: () => getCategoryRepository().findById(id as string),
     enabled: !!id,
   });
 }
 
 export function useCategoryBySlug(slug: string | undefined) {
   return useQuery({
-    queryKey: categoryKeys.slug(slug!),
-    queryFn: () => getCategoryRepository().findBySlug(slug!),
+    queryKey: categoryKeys.slug(slug as string),
+    queryFn: () => getCategoryRepository().findBySlug(slug as string),
     enabled: !!slug,
   });
 }
@@ -38,7 +39,7 @@ export function useInfiniteCategories(query: Omit<CategoryQuery, 'limit'> & { li
       return result;
     },
     getNextPageParam: (lastPage: PaginatedResult<Category>) =>
-      lastPage.hasMore ? lastPage.lastDoc as string | undefined : undefined,
+      lastPage.hasMore ? (lastPage.lastDoc as string | undefined) : undefined,
     initialPageParam: undefined as string | undefined,
   });
 }
@@ -52,16 +53,16 @@ export function useCategoryTree() {
 
 export function useCategoryChildren(parentId: string | undefined) {
   return useQuery({
-    queryKey: categoryKeys.children(parentId!),
-    queryFn: () => getCategoryRepository().findChildren(parentId!),
+    queryKey: categoryKeys.children(parentId as string),
+    queryFn: () => getCategoryRepository().findChildren(parentId as string),
     enabled: !!parentId,
   });
 }
 
 export function useCategoryBreadcrumb(id: string | undefined) {
   return useQuery({
-    queryKey: categoryKeys.breadcrumb(id!),
-    queryFn: () => getCategoryRepository().findAncestors(id!),
+    queryKey: categoryKeys.breadcrumb(id as string),
+    queryFn: () => getCategoryRepository().findAncestors(id as string),
     enabled: !!id,
   });
 }

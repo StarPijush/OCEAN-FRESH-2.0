@@ -1,9 +1,18 @@
-import { LogLevel, type Logger, type LogEntry, type LogMetadata, type ErrorInfo } from '../interface.js';
+import {
+  type ErrorInfo,
+  type LogEntry,
+  type Logger,
+  LogLevel,
+  type LogMetadata,
+} from '../interface.js';
 
 declare const gtag: ((cmd: string, ...args: unknown[]) => void) | undefined;
 declare const Sentry:
   | {
-      captureException: (err: unknown, opts?: { level?: string; extra?: Record<string, unknown> }) => void;
+      captureException: (
+        err: unknown,
+        opts?: { level?: string; extra?: Record<string, unknown> },
+      ) => void;
     }
   | undefined;
 
@@ -18,7 +27,12 @@ export class ProductionLogger implements Logger {
     return new ProductionLogger(`${this.module}:${module}`);
   }
 
-  private createEntry(level: LogLevel, message: string, error?: unknown, meta?: LogMetadata): LogEntry {
+  private createEntry(
+    level: LogLevel,
+    message: string,
+    error?: unknown,
+    meta?: LogMetadata,
+  ): LogEntry {
     const errInfo: ErrorInfo | null = error
       ? {
           name: (error as Error).name,
@@ -38,8 +52,7 @@ export class ProductionLogger implements Logger {
     };
   }
 
-  debug(_message: string, _meta?: LogMetadata): void {
-  }
+  debug(_message: string, _meta?: LogMetadata): void {}
 
   info(message: string, meta?: LogMetadata): void {
     const entry = this.createEntry(LogLevel.INFO, message, undefined, meta);

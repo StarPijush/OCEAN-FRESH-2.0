@@ -1,4 +1,4 @@
-import type { UserIdentity, AuthSession, LoginInput } from '@oceanfresh/shared';
+import type { AuthSession, LoginInput, UserIdentity } from '@oceanfresh/shared';
 
 export interface IAuthProvider {
   login(input: LoginInput): Promise<AuthSession>;

@@ -1,7 +1,10 @@
-import { createLogger, type Cart, type CartItem, type CartValidationResult, type CartValidationError, Quantity } from '@oceanfresh/shared';
 import type { IProductCatalog } from '@oceanfresh/product';
-
-const logger = createLogger('cart:validation');
+import {
+  type Cart,
+  type CartValidationError,
+  type CartValidationResult,
+  Quantity,
+} from '@oceanfresh/shared';
 
 export class CartValidationService {
   constructor(private readonly catalog: IProductCatalog) {}

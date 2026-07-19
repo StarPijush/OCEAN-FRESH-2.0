@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+
 import { authRepository } from '../repositories';
 
 export type AuthScreen = 'login' | 'forgot' | 'otp' | 'reset';
@@ -77,8 +78,14 @@ export function useAdminAuth() {
 
   const doResetPassword = useCallback(async (p1: string, p2: string): Promise<boolean> => {
     setError('');
-    if (p1.length < 6) { setError('Password must be at least 6 characters.'); return false; }
-    if (p1 !== p2) { setError('Passwords do not match.'); return false; }
+    if (p1.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return false;
+    }
+    if (p1 !== p2) {
+      setError('Passwords do not match.');
+      return false;
+    }
     try {
       await authRepository.updateAdmin({ password: p1 });
       setCurrentScreen('login');

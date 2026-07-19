@@ -1,9 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { ConcurrencyError, ProductEventType, ProductStatus } from '@oceanfresh/shared';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { InMemoryEventBus } from '../events/in-memory-event-bus.js';
+import { ProductInventoryService } from '../service/product-inventory.service.js';
 import { ProductReadService } from '../service/product-read.service.js';
 import { ProductWriteService } from '../service/product-write.service.js';
-import { ProductInventoryService } from '../service/product-inventory.service.js';
-import { InMemoryEventBus } from '../events/in-memory-event-bus.js';
-import { ProductStatus, NotFoundError, ConcurrencyError, ProductEventType } from '@oceanfresh/shared';
 
 function createMockRepository() {
   return {
@@ -37,7 +38,7 @@ describe('ProductReadService', () => {
 
   beforeEach(() => {
     repository = createMockRepository();
-    service = new ProductReadService(repository as any);
+    service = new ProductReadService(repository as unknown as Record<string, unknown>);
   });
 
   it('getById returns product for existing id', async () => {
@@ -53,7 +54,7 @@ describe('ProductReadService', () => {
 
   it('query delegates to repository', async () => {
     repository.findAll.mockResolvedValue({ items: [], total: 0, hasMore: false, lastDoc: null });
-    const result = await service.query({ status: ProductStatus.ACTIVE } as any);
+    const result = await service.query({ status: ProductStatus.ACTIVE } as Record<string, unknown>);
     expect(result.items).toEqual([]);
   });
 });
@@ -66,7 +67,7 @@ describe('ProductWriteService', () => {
   beforeEach(() => {
     repository = createMockRepository();
     eventBus = new InMemoryEventBus();
-    service = new ProductWriteService(repository as any, eventBus);
+    service = new ProductWriteService(repository as unknown as Record<string, unknown>, eventBus);
   });
 
   it('create creates and publishes event', async () => {
@@ -76,7 +77,13 @@ describe('ProductWriteService', () => {
     const handler = vi.fn();
     eventBus.subscribe(ProductEventType.CREATED, handler);
 
-    const result = await service.create({ name: 'New', description: 'A new product', price: 100, categoryId: 'cat-1', createdBy: 'user-1' });
+    const result = await service.create({
+      name: 'New',
+      description: 'A new product',
+      price: 100,
+      categoryId: 'cat-1',
+      createdBy: 'user-1',
+    });
 
     expect(result.name).toBe('New');
     expect(repository.create).toHaveBeenCalled();
@@ -113,7 +120,10 @@ describe('ProductInventoryService', () => {
   beforeEach(() => {
     repository = createMockRepository();
     eventBus = new InMemoryEventBus();
-    service = new ProductInventoryService(repository as any, eventBus);
+    service = new ProductInventoryService(
+      repository as unknown as Record<string, unknown>,
+      eventBus,
+    );
   });
 
   it('adjustStock increases stock', async () => {

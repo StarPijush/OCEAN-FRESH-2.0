@@ -1,18 +1,20 @@
-import { supabaseService, type SupabaseQuery, rowToCamelCase, objToSnakeCase, stripId } from '@oceanfresh/supabase';
 import {
-  createLogger,
-  NotFoundError,
-  RepositoryError,
-  CartStatus,
-  CartSource,
   type Cart,
   type CartItem,
   type CartQuery,
-  type Money,
+  CartSource,
+  CartStatus,
+  NotFoundError,
+  RepositoryError,
 } from '@oceanfresh/shared';
-import type { ICartRepository } from './cart.repository.js';
+import {
+  objToSnakeCase,
+  rowToCamelCase,
+  type SupabaseQuery,
+  supabaseService,
+} from '@oceanfresh/supabase';
 
-const logger = createLogger('cart:repository:supabase');
+import type { ICartRepository } from './cart.repository.js';
 
 const TABLE = 'carts';
 const TABLE_ITEMS = 'cart_items';
@@ -61,13 +63,22 @@ export class SupabaseCartRepository implements ICartRepository {
     try {
       const results = await supabaseService.query<Record<string, unknown>>(TABLE, [
         { field: 'user_id', operator: 'eq', value: userId },
-        { field: 'status', operator: 'in', value: [CartStatus.ACTIVE, CartStatus.READY_FOR_CHECKOUT] },
+        {
+          field: 'status',
+          operator: 'in',
+          value: [CartStatus.ACTIVE, CartStatus.READY_FOR_CHECKOUT],
+        },
       ]);
-      const active = results.find((r) => r.status === CartStatus.ACTIVE || r.status === CartStatus.READY_FOR_CHECKOUT);
+      const active = results.find(
+        (r) => r.status === CartStatus.ACTIVE || r.status === CartStatus.READY_FOR_CHECKOUT,
+      );
       if (!active) return null;
       return this.findById(active.id as string);
     } catch (err) {
-      throw new RepositoryError('Failed to find cart by user ID', 'findByUserId', TABLE, { userId, error: err });
+      throw new RepositoryError('Failed to find cart by user ID', 'findByUserId', TABLE, {
+        userId,
+        error: err,
+      });
     }
   }
 
@@ -77,9 +88,13 @@ export class SupabaseCartRepository implements ICartRepository {
         { field: 'session_id', operator: 'eq', value: sessionId },
       ]);
       if (results.length === 0) return null;
-      return this.findById(results[0]!.id as string);
+      const row = results[0] as Record<string, unknown>;
+      return this.findById(row.id as string);
     } catch (err) {
-      throw new RepositoryError('Failed to find cart by session ID', 'findBySessionId', TABLE, { sessionId, error: err });
+      throw new RepositoryError('Failed to find cart by session ID', 'findBySessionId', TABLE, {
+        sessionId,
+        error: err,
+      });
     }
   }
 
@@ -98,7 +113,8 @@ export class SupabaseCartRepository implements ICartRepository {
     try {
       const constraints: SupabaseQuery[] = [];
       if (query.userId) constraints.push({ field: 'user_id', operator: 'eq', value: query.userId });
-      if (query.sessionId) constraints.push({ field: 'session_id', operator: 'eq', value: query.sessionId });
+      if (query.sessionId)
+        constraints.push({ field: 'session_id', operator: 'eq', value: query.sessionId });
       if (query.status) constraints.push({ field: 'status', operator: 'eq', value: query.status });
       if (query.source) constraints.push({ field: 'source', operator: 'eq', value: query.source });
       const rows = await supabaseService.query<Record<string, unknown>>(TABLE, constraints);
@@ -121,7 +137,8 @@ export class SupabaseCartRepository implements ICartRepository {
   async count(query?: Partial<CartQuery>): Promise<number> {
     try {
       const constraints: SupabaseQuery[] = [];
-      if (query?.userId) constraints.push({ field: 'user_id', operator: 'eq', value: query.userId });
+      if (query?.userId)
+        constraints.push({ field: 'user_id', operator: 'eq', value: query.userId });
       if (query?.status) constraints.push({ field: 'status', operator: 'eq', value: query.status });
       const rows = await supabaseService.query<Record<string, unknown>>(TABLE, constraints);
       return rows.length;
@@ -130,11 +147,21 @@ export class SupabaseCartRepository implements ICartRepository {
     }
   }
 
-  async create(data: { userId: string | null; sessionId: string | null; source: CartSource }): Promise<Cart> {
+  async create(data: {
+    userId: string | null;
+    sessionId: string | null;
+    source: CartSource;
+  }): Promise<Cart> {
     try {
       const now = new Date().toISOString();
       const expiresAt = new Date(Date.now() + 7 * 86400000).toISOString();
-      const totals = { subtotal: { amount: 0, currency: 'INR' }, tax: { amount: 0, currency: 'INR' }, shipping: { amount: 0, currency: 'INR' }, discount: { amount: 0, currency: 'INR' }, grandTotal: { amount: 0, currency: 'INR' } };
+      const totals = {
+        subtotal: { amount: 0, currency: 'INR' },
+        tax: { amount: 0, currency: 'INR' },
+        shipping: { amount: 0, currency: 'INR' },
+        discount: { amount: 0, currency: 'INR' },
+        grandTotal: { amount: 0, currency: 'INR' },
+      };
       const docData = {
         userId: data.userId ?? null,
         sessionId: data.sessionId ?? null,
@@ -149,7 +176,10 @@ export class SupabaseCartRepository implements ICartRepository {
       const result = await supabaseService.add<Record<string, unknown>>(TABLE, snakeData);
       return toCart({ ...snakeData, id: result.id }, []);
     } catch (err) {
-      throw new RepositoryError('Failed to create cart', 'create', TABLE, { userId: data.userId, error: err });
+      throw new RepositoryError('Failed to create cart', 'create', TABLE, {
+        userId: data.userId,
+        error: err,
+      });
     }
   }
 
@@ -165,7 +195,8 @@ export class SupabaseCartRepository implements ICartRepository {
         quantity: item.quantity.value,
         subtotal_amount: item.subtotal.amount,
         subtotal_currency: item.subtotal.currency,
-        added_at: item.addedAt instanceof Date ? item.addedAt.toISOString() : new Date().toISOString(),
+        added_at:
+          item.addedAt instanceof Date ? item.addedAt.toISOString() : new Date().toISOString(),
       };
       await supabaseService.add(TABLE_ITEMS, itemSnake);
 
@@ -174,11 +205,20 @@ export class SupabaseCartRepository implements ICartRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to add item to cart', 'addItem', TABLE, { cartId, productId: item.productId, error: err });
+      throw new RepositoryError('Failed to add item to cart', 'addItem', TABLE, {
+        cartId,
+        productId: item.productId,
+        error: err,
+      });
     }
   }
 
-  async updateItem(cartId: string, itemId: string, quantity: number, subtotal: { amount: number; currency: string }): Promise<Cart> {
+  async updateItem(
+    cartId: string,
+    itemId: string,
+    quantity: number,
+    subtotal: { amount: number; currency: string },
+  ): Promise<Cart> {
     try {
       const existing = await this.findById(cartId);
       if (!existing) throw new NotFoundError('Cart not found');
@@ -194,7 +234,11 @@ export class SupabaseCartRepository implements ICartRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to update cart item', 'updateItem', TABLE, { cartId, itemId, error: err });
+      throw new RepositoryError('Failed to update cart item', 'updateItem', TABLE, {
+        cartId,
+        itemId,
+        error: err,
+      });
     }
   }
 
@@ -210,7 +254,11 @@ export class SupabaseCartRepository implements ICartRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to remove item from cart', 'removeItem', TABLE, { cartId, itemId, error: err });
+      throw new RepositoryError('Failed to remove item from cart', 'removeItem', TABLE, {
+        cartId,
+        itemId,
+        error: err,
+      });
     }
   }
 
@@ -222,19 +270,28 @@ export class SupabaseCartRepository implements ICartRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to update cart status', 'updateStatus', TABLE, { cartId, status, error: err });
+      throw new RepositoryError('Failed to update cart status', 'updateStatus', TABLE, {
+        cartId,
+        status,
+        error: err,
+      });
     }
   }
 
   async updateTotals(cartId: string, totals: Cart['totals']): Promise<Cart> {
     try {
-      await supabaseService.update(TABLE, cartId, { totals: totals as unknown as Record<string, unknown> });
+      await supabaseService.update(TABLE, cartId, {
+        totals: totals as unknown as Record<string, unknown>,
+      });
       const updated = await this.findById(cartId);
       if (!updated) throw new NotFoundError('Cart not found after totals update');
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to update cart totals', 'updateTotals', TABLE, { cartId, error: err });
+      throw new RepositoryError('Failed to update cart totals', 'updateTotals', TABLE, {
+        cartId,
+        error: err,
+      });
     }
   }
 
@@ -251,7 +308,13 @@ export class SupabaseCartRepository implements ICartRepository {
       }
 
       await supabaseService.update(TABLE, cartId, {
-        totals: { subtotal: { amount: 0, currency: 'INR' }, tax: { amount: 0, currency: 'INR' }, shipping: { amount: 0, currency: 'INR' }, discount: { amount: 0, currency: 'INR' }, grandTotal: { amount: 0, currency: 'INR' } },
+        totals: {
+          subtotal: { amount: 0, currency: 'INR' },
+          tax: { amount: 0, currency: 'INR' },
+          shipping: { amount: 0, currency: 'INR' },
+          discount: { amount: 0, currency: 'INR' },
+          grandTotal: { amount: 0, currency: 'INR' },
+        },
       });
 
       const updated = await this.findById(cartId);
@@ -259,7 +322,10 @@ export class SupabaseCartRepository implements ICartRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to clear cart items', 'clearItems', TABLE, { cartId, error: err });
+      throw new RepositoryError('Failed to clear cart items', 'clearItems', TABLE, {
+        cartId,
+        error: err,
+      });
     }
   }
 
@@ -295,7 +361,11 @@ export class SupabaseCartRepository implements ICartRepository {
       return updated;
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to merge carts', 'merge', TABLE, { destinationId, sourceId, error: err });
+      throw new RepositoryError('Failed to merge carts', 'merge', TABLE, {
+        destinationId,
+        sourceId,
+        error: err,
+      });
     }
   }
 

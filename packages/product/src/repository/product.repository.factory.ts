@@ -1,4 +1,5 @@
 import { container } from '@oceanfresh/shared';
+
 import type { IProductRepository } from './product.repository.js';
 import { SupabaseProductRepository } from './supabase-product.repository.js';
 

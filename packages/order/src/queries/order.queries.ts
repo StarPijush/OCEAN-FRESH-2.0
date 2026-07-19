@@ -1,20 +1,21 @@
+import type { OrderQuery, OrderStatus } from '@oceanfresh/shared';
 import { useQuery } from '@tanstack/react-query';
-import type { OrderQuery } from '@oceanfresh/shared';
-import { orderKeys } from './order.query-keys.js';
+
 import { getOrderRepository } from '../repository/index.js';
+import { orderKeys } from './order.query-keys.js';
 
 export function useOrder(id: string | undefined) {
   return useQuery({
-    queryKey: orderKeys.detail(id!),
-    queryFn: () => getOrderRepository().findById(id!),
+    queryKey: orderKeys.detail(id as string),
+    queryFn: () => getOrderRepository().findById(id as string),
     enabled: !!id,
   });
 }
 
 export function useOrderByNumber(orderNumber: string | undefined) {
   return useQuery({
-    queryKey: orderKeys.orderNumber(orderNumber!),
-    queryFn: () => getOrderRepository().findByOrderNumber(orderNumber!),
+    queryKey: orderKeys.orderNumber(orderNumber as string),
+    queryFn: () => getOrderRepository().findByOrderNumber(orderNumber as string),
     enabled: !!orderNumber,
   });
 }
@@ -28,16 +29,16 @@ export function useOrders(query: OrderQuery) {
 
 export function useCustomerOrders(userId: string | undefined) {
   return useQuery({
-    queryKey: orderKeys.user(userId!),
-    queryFn: () => getOrderRepository().findByUserId(userId!),
+    queryKey: orderKeys.user(userId as string),
+    queryFn: () => getOrderRepository().findByUserId(userId as string),
     enabled: !!userId,
   });
 }
 
 export function useOrderStatus(status: string | undefined) {
   return useQuery({
-    queryKey: orderKeys.status(status!),
-    queryFn: () => getOrderRepository().findByStatus(status as any),
+    queryKey: orderKeys.status(status as string),
+    queryFn: () => getOrderRepository().findByStatus(status as OrderStatus),
     enabled: !!status,
   });
 }

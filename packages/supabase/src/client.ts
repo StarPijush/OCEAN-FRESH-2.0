@@ -17,9 +17,12 @@ export function initSupabase(): SupabaseClient {
 
   // Dev-only: log environment values so the URL passed to createClient() is visible.
   if (import.meta.env.DEV) {
-    console.debug('[Supabase] MODE:', import.meta.env.MODE);
-    console.debug('[Supabase] VITE_SUPABASE_URL:', supabaseUrl || '(empty — check .env.development)');
-    console.debug('[Supabase] VITE_SUPABASE_ANON_KEY present:', !!supabaseAnonKey);
+    console.warn('[Supabase] MODE:', import.meta.env.MODE);
+    console.warn(
+      '[Supabase] VITE_SUPABASE_URL:',
+      supabaseUrl || '(empty — check .env.development)',
+    );
+    console.warn('[Supabase] VITE_SUPABASE_ANON_KEY present:', !!supabaseAnonKey);
   }
 
   if (!supabaseUrl || !supabaseAnonKey) {

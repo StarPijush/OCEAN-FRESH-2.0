@@ -1,6 +1,5 @@
-import { ProductStatus, ProductSortField } from '@oceanfresh/shared';
-import type { ProductQuery } from '@oceanfresh/shared';
-import { useState, useCallback } from 'react';
+import { type ProductQuery, ProductSortField, ProductStatus } from '@oceanfresh/shared';
+import { useCallback, useState } from 'react';
 
 interface ProductFiltersProps {
   onFilter: (filters: Partial<ProductQuery>) => void;
@@ -59,7 +58,9 @@ export function ProductFilters({ onFilter, categories = [], className = '' }: Pr
           >
             <option value="">All Categories</option>
             {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
             ))}
           </select>
         </div>

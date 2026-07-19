@@ -1,5 +1,4 @@
-import type { CategoryEventType } from '@oceanfresh/shared';
-import type { Category } from '@oceanfresh/shared';
+import type { Category, CategoryEventType } from '@oceanfresh/shared';
 
 export interface CategoryEvent {
   type: CategoryEventType;

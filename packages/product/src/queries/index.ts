@@ -1,20 +1,20 @@
-export { productKeys } from './product.query-keys.js';
 export {
+  useBulkDeleteProducts,
+  useBulkUpdateProducts,
+  useCreateProduct,
+  useDeleteProduct,
+  useDuplicateProduct,
+  useRestoreProduct,
+  useUpdateProduct,
+} from './product.mutations.js';
+export {
+  useCategoryProducts,
+  useFeaturedProducts,
+  useInfiniteProducts,
+  useLowStockProducts,
   useProduct,
   useProductBySlug,
   useProducts,
-  useInfiniteProducts,
-  useFeaturedProducts,
-  useCategoryProducts,
   useProductSearch,
-  useLowStockProducts,
 } from './product.queries.js';
-export {
-  useCreateProduct,
-  useUpdateProduct,
-  useDeleteProduct,
-  useRestoreProduct,
-  useDuplicateProduct,
-  useBulkUpdateProducts,
-  useBulkDeleteProducts,
-} from './product.mutations.js';
+export { productKeys } from './product.query-keys.js';

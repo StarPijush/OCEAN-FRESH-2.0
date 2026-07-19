@@ -1,4 +1,4 @@
-import type { CartEventType, Cart, CartItem } from '@oceanfresh/shared';
+import type { Cart, CartEventType, CartItem } from '@oceanfresh/shared';
 
 export interface CartEvent {
   type: CartEventType;

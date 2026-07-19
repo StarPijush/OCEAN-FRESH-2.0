@@ -1,9 +1,9 @@
-export { CartSummary } from './cart-summary.js';
-export { CartItemCard } from './cart-item-card.js';
 export { AddToCartButton } from './add-to-cart-button.js';
-export { CartIcon } from './cart-icon.js';
 export { CartDrawer } from './cart-drawer.js';
-export { CheckoutButton } from './checkout-button.js';
-export { CartErrorBoundary } from './cart-error-boundary.js';
-export { CartLoading } from './cart-loading.js';
 export { CartEmpty } from './cart-empty.js';
+export { CartErrorBoundary } from './cart-error-boundary.js';
+export { CartIcon } from './cart-icon.js';
+export { CartItemCard } from './cart-item-card.js';
+export { CartLoading } from './cart-loading.js';
+export { CartSummary } from './cart-summary.js';
+export { CheckoutButton } from './checkout-button.js';

@@ -1,9 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { CategoryReadService } from '../service/category-read.service.js';
-import { CategoryWriteService } from '../service/category-write.service.js';
-import { CategoryTreeService } from '../service/category-tree.service.js';
+import { CategoryEventType, type CategoryQuery, CategoryStatus } from '@oceanfresh/shared';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { InMemoryEventBus } from '../events/in-memory-event-bus.js';
-import { CategoryStatus, NotFoundError, CategoryEventType } from '@oceanfresh/shared';
+import type { ICategoryRepository } from '../repository/index.js';
+import { CategoryReadService } from '../service/category-read.service.js';
+import { CategoryTreeService } from '../service/category-tree.service.js';
+import { CategoryWriteService } from '../service/category-write.service.js';
 
 function createMockRepository() {
   return {
@@ -40,7 +42,7 @@ describe('CategoryReadService', () => {
 
   beforeEach(() => {
     repository = createMockRepository();
-    service = new CategoryReadService(repository as any);
+    service = new CategoryReadService(repository as unknown as ICategoryRepository);
   });
 
   it('getById returns category for existing id', async () => {
@@ -56,7 +58,9 @@ describe('CategoryReadService', () => {
 
   it('query delegates to repository', async () => {
     repository.findAll.mockResolvedValue({ items: [], total: 0, hasMore: false, lastDoc: null });
-    const result = await service.query({ status: CategoryStatus.ACTIVE } as any);
+    const result = await service.query({
+      status: CategoryStatus.ACTIVE,
+    } as unknown as CategoryQuery);
     expect(result.items).toEqual([]);
   });
 
@@ -75,7 +79,7 @@ describe('CategoryWriteService', () => {
   beforeEach(() => {
     repository = createMockRepository();
     eventBus = new InMemoryEventBus();
-    service = new CategoryWriteService(repository as any, eventBus);
+    service = new CategoryWriteService(repository as unknown as ICategoryRepository, eventBus);
   });
 
   it('create creates and publishes event', async () => {
@@ -130,11 +134,27 @@ describe('CategoryWriteService', () => {
 
   it('move prevents circular hierarchy', async () => {
     repository.findById.mockImplementation((id: string) => {
-      if (id === '1') return Promise.resolve({ id: '1', name: 'Parent', path: '', level: 0, productCount: 0 } as any);
-      if (id === '2') return Promise.resolve({ id: '2', name: 'Child', path: '1/2', level: 1, productCount: 0 } as any);
+      if (id === '1')
+        return Promise.resolve({
+          id: '1',
+          name: 'Parent',
+          path: '',
+          level: 0,
+          productCount: 0,
+        } as Record<string, unknown>);
+      if (id === '2')
+        return Promise.resolve({
+          id: '2',
+          name: 'Child',
+          path: '1/2',
+          level: 1,
+          productCount: 0,
+        } as Record<string, unknown>);
       return Promise.resolve(null);
     });
-    repository.findDescendants.mockResolvedValue([{ id: '3', path: '1/2/3' } as any]);
+    repository.findDescendants.mockResolvedValue([
+      { id: '3', path: '1/2/3' } as Record<string, unknown>,
+    ]);
 
     await expect(service.move('1', '2')).rejects.toThrow();
   });
@@ -166,14 +186,17 @@ describe('CategoryTreeService', () => {
 
   beforeEach(() => {
     repository = createMockRepository();
-    service = new CategoryTreeService(repository as any);
+    service = new CategoryTreeService(repository as unknown as ICategoryRepository);
   });
 
   it('buildNestedTree converts flat list to nested', () => {
     const categories = [
-      { id: '1', name: 'Root', parentId: null, level: 0, path: '' } as any,
-      { id: '2', name: 'Child', parentId: '1', level: 1, path: '1/2' } as any,
-      { id: '3', name: 'Grandchild', parentId: '2', level: 2, path: '1/2/3' } as any,
+      { id: '1', name: 'Root', parentId: null, level: 0, path: '' } as Record<string, unknown>,
+      { id: '2', name: 'Child', parentId: '1', level: 1, path: '1/2' } as Record<string, unknown>,
+      { id: '3', name: 'Grandchild', parentId: '2', level: 2, path: '1/2/3' } as Record<
+        string,
+        unknown
+      >,
     ];
 
     const tree = service.buildNestedTree(categories);
@@ -184,8 +207,8 @@ describe('CategoryTreeService', () => {
 
   it('buildNestedTree handles multiple roots', () => {
     const categories = [
-      { id: '1', name: 'Root A', parentId: null } as any,
-      { id: '2', name: 'Root B', parentId: null } as any,
+      { id: '1', name: 'Root A', parentId: null } as Record<string, unknown>,
+      { id: '2', name: 'Root B', parentId: null } as Record<string, unknown>,
     ];
 
     const tree = service.buildNestedTree(categories);

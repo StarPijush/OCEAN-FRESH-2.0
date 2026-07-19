@@ -1,5 +1,5 @@
-import { getDatabase, ref, get, set, update, remove, push, onValue, off, type DatabaseReference } from 'firebase/database';
 import { getApp } from '@oceanfresh/firebase';
+import { get, getDatabase, off, onValue, push, ref, remove, set, update } from 'firebase/database';
 
 let _db: ReturnType<typeof getDatabase> | null = null;
 
@@ -30,13 +30,10 @@ export async function rtdbRemove(path: string): Promise<void> {
 export async function rtdbPush(path: string, data: unknown): Promise<string> {
   const newRef = push(ref(db(), path));
   await set(newRef, data);
-  return newRef.key!;
+  return newRef.key as string;
 }
 
-export function rtdbSubscribe<T>(
-  path: string,
-  callback: (data: T) => void,
-): () => void {
+export function rtdbSubscribe<T>(path: string, callback: (data: T) => void): () => void {
   const dbRef = ref(db(), path);
   const handler = (snap: { val: () => unknown }) => {
     callback((snap.val() ?? {}) as T);
@@ -48,5 +45,7 @@ export function rtdbSubscribe<T>(
 export async function rtdbList<T>(path: string): Promise<T[]> {
   const snap = await get(ref(db(), path));
   const data = snap.val() ?? {};
-  return Object.entries(data).map(([id, val]) => ({ id, ...(val as Record<string, unknown>) } as unknown as T));
+  return Object.entries(data).map(
+    ([id, val]) => ({ id, ...(val as Record<string, unknown>) }) as unknown as T,
+  );
 }

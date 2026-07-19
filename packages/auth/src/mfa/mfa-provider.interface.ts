@@ -1,4 +1,4 @@
-import { MfaFactorType } from '@oceanfresh/shared';
+import type { MfaFactorType } from '@oceanfresh/shared';
 
 export interface MfaEnrollment {
   id: string;

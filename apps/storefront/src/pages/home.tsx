@@ -1,15 +1,16 @@
 import { useEffect } from 'react';
-import { useReveal } from '../hooks/useReveal.js';
-import { Hero } from '../components/home/Hero.js';
-import { Ticker } from '../components/home/Ticker.js';
+
+import { AboutSection } from '../components/home/AboutSection.js';
+import { CTASection } from '../components/home/CTASection.js';
+import { DeliveryChecker } from '../components/home/DeliveryChecker.js';
 import { FeaturedCards } from '../components/home/FeaturedCards.js';
 import { FreshCatch } from '../components/home/FreshCatch.js';
-import { WhyUs } from '../components/home/WhyUs.js';
-import { DeliveryChecker } from '../components/home/DeliveryChecker.js';
-import { CTASection } from '../components/home/CTASection.js';
-import { AboutSection } from '../components/home/AboutSection.js';
+import { Hero } from '../components/home/Hero.js';
 import { ReviewsSection } from '../components/home/ReviewsSection.js';
+import { Ticker } from '../components/home/Ticker.js';
+import { WhyUs } from '../components/home/WhyUs.js';
 import { Footer } from '../components/layout/Footer.js';
+import { useReveal } from '../hooks/useReveal.js';
 
 export function HomePage() {
   useReveal();

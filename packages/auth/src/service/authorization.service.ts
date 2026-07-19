@@ -1,8 +1,17 @@
-import { createLogger, AuthEventType, Role, Permission, AuthorizationError, type Claims, type UserIdentity, type PermissionContext } from '@oceanfresh/shared';
-import { PermissionResolver } from '../permissions/index.js';
+import {
+  AuthEventType,
+  AuthorizationError,
+  createLogger,
+  Permission,
+  type PermissionContext,
+  Role,
+  type UserIdentity,
+} from '@oceanfresh/shared';
+
+import type { EventBus } from '../events/index.js';
+import type { PermissionResolver } from '../permissions/index.js';
 import type { IAuthRepository } from '../repository/index.js';
 import type { ICloudFunctionsRepository } from './cloud-functions.repository.js';
-import type { EventBus } from '../events/index.js';
 
 const logger = createLogger('auth:service:authorization');
 
@@ -14,7 +23,11 @@ export class AuthorizationService {
     private readonly eventBus: EventBus,
   ) {}
 
-  async hasPermission(user: UserIdentity, permission: Permission, resource?: PermissionContext['resource']): Promise<boolean> {
+  async hasPermission(
+    user: UserIdentity,
+    permission: Permission,
+    resource?: PermissionContext['resource'],
+  ): Promise<boolean> {
     const context: PermissionContext = {
       userId: user.id,
       userRole: user.identityType === 'service_account' ? Role.SYSTEM : Role.CUSTOMER,
@@ -24,7 +37,11 @@ export class AuthorizationService {
     return this.resolver.hasPermission(context, permission);
   }
 
-  async requirePermission(user: UserIdentity, permission: Permission, resource?: PermissionContext['resource']): Promise<void> {
+  async requirePermission(
+    user: UserIdentity,
+    permission: Permission,
+    resource?: PermissionContext['resource'],
+  ): Promise<void> {
     const has = await this.hasPermission(user, permission, resource);
     if (!has) {
       throw new AuthorizationError(`Missing required permission: ${permission}`);
@@ -43,7 +60,7 @@ export class AuthorizationService {
     });
   }
 
-  async getEffectivePermissions(user: UserIdentity): Promise<Permission[]> {
+  async getEffectivePermissions(_user: UserIdentity): Promise<Permission[]> {
     const role = Role.CUSTOMER;
     return this.resolver.getEffectivePermissions(role);
   }

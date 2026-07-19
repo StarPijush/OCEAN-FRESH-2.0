@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { formatCurrency, generateOrderNumber, slugify, clamp } from '../utils/index.js';
+import { describe, expect, it } from 'vitest';
+
+import { clamp, formatCurrency, generateOrderNumber, slugify } from '../utils/index.js';
 
 describe('utils', () => {
   it('formatCurrency should format INR', () => {

@@ -1,5 +1,6 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
 import type { Product } from '@oceanfresh/shared';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { ProductCard } from './product-card.js';
 
 interface ProductCarouselProps {
@@ -9,7 +10,12 @@ interface ProductCarouselProps {
   className?: string;
 }
 
-export function ProductCarousel({ products, title, onSelect, className = '' }: ProductCarouselProps) {
+export function ProductCarousel({
+  products,
+  title,
+  onSelect,
+  className = '',
+}: ProductCarouselProps) {
   const [scrollPosition, setScrollPosition] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -40,9 +46,7 @@ export function ProductCarousel({ products, title, onSelect, className = '' }: P
 
   return (
     <div className={`relative ${className}`}>
-      {title && (
-        <h2 className="text-xl font-bold text-gray-900 mb-4">{title}</h2>
-      )}
+      {title && <h2 className="text-xl font-bold text-gray-900 mb-4">{title}</h2>}
 
       <div className="relative group">
         {canScrollLeft && (
@@ -53,7 +57,12 @@ export function ProductCarousel({ products, title, onSelect, className = '' }: P
             aria-label="Scroll left"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </button>
         )}

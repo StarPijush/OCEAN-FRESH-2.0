@@ -1,7 +1,13 @@
-import { createLogger, NotFoundError, ConcurrencyError, type Product, ProductStatus } from '@oceanfresh/shared';
+import {
+  ConcurrencyError,
+  createLogger,
+  NotFoundError,
+  type Product,
+  ProductStatus,
+} from '@oceanfresh/shared';
+
+import { type EventBus, ProductEventType } from '../events/index.js';
 import type { IProductRepository } from '../repository/index.js';
-import type { EventBus } from '../events/index.js';
-import { ProductEventType } from '../events/index.js';
 
 const logger = createLogger('product:service:inventory');
 
@@ -19,7 +25,10 @@ export class ProductInventoryService {
 
     const newStock = (product.stock ?? 0) + quantity;
     if (newStock < 0) {
-      throw new ConcurrencyError('Insufficient stock', { productId: id, currentVersion: product.version });
+      throw new ConcurrencyError('Insufficient stock', {
+        productId: id,
+        currentVersion: product.version,
+      });
     }
 
     const updated = await this.repository.update(id, {

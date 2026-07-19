@@ -1,9 +1,16 @@
-import { createLogger, OrderStatus, OrderValidationException, type Order } from '@oceanfresh/shared';
-import type { IOrderRepository } from '../repository/index.js';
+import {
+  createLogger,
+  type Order,
+  OrderEventType,
+  OrderStatus,
+  OrderValidationException,
+} from '@oceanfresh/shared';
+
 import type { EventBus } from '../events/index.js';
+import type { IOrderRepository } from '../repository/index.js';
+import type { OrderHistoryService } from './order-history.service.js';
 import { OrderStateMachine } from './order-state-machine.js';
-import { OrderHistoryService } from './order-history.service.js';
-import { IPaymentGateway } from './payment-gateway.interface.js';
+import type { IPaymentGateway } from './payment-gateway.interface.js';
 
 const logger = createLogger('order:cancellation');
 
@@ -25,10 +32,15 @@ export class OrderCancellationService {
     }
 
     OrderStateMachine.transition(order.status, OrderStatus.CANCELLED);
-    const updated = await this.repository.updateStatus(order.id, OrderStatus.CANCELLED, changedBy, reason);
+    const updated = await this.repository.updateStatus(
+      order.id,
+      OrderStatus.CANCELLED,
+      changedBy,
+      reason,
+    );
 
     await this.eventBus.publish({
-      type: 'order:cancelled' as any,
+      type: OrderEventType.CANCELLED,
       orderId: order.id,
       order: updated,
       metadata: { source: 'OrderCancellationService' },
@@ -47,7 +59,12 @@ export class OrderCancellationService {
     }
 
     OrderStateMachine.transition(order.status, OrderStatus.REFUND_REQUESTED);
-    const updated = await this.repository.updateStatus(order.id, OrderStatus.REFUND_REQUESTED, 'system', reason);
+    const updated = await this.repository.updateStatus(
+      order.id,
+      OrderStatus.REFUND_REQUESTED,
+      'system',
+      reason,
+    );
 
     if (this.paymentGateway && order.payment.transactionId) {
       try {
@@ -58,7 +75,7 @@ export class OrderCancellationService {
     }
 
     await this.eventBus.publish({
-      type: 'order:refund_requested' as any,
+      type: OrderEventType.REFUND_REQUESTED,
       orderId: order.id,
       order: updated,
       metadata: { source: 'OrderCancellationService' },
@@ -72,10 +89,15 @@ export class OrderCancellationService {
     if (!order) throw new Error('Order not found');
 
     OrderStateMachine.transition(order.status, OrderStatus.REFUNDED);
-    const updated = await this.repository.updateStatus(orderId, OrderStatus.REFUNDED, changedBy, 'Refund completed');
+    const updated = await this.repository.updateStatus(
+      orderId,
+      OrderStatus.REFUNDED,
+      changedBy,
+      'Refund completed',
+    );
 
     await this.eventBus.publish({
-      type: 'order:refund_completed' as any,
+      type: OrderEventType.REFUND_COMPLETED,
       orderId,
       order: updated,
       metadata: { source: 'OrderCancellationService' },

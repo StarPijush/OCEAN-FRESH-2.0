@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useCartStore } from '../stores/cart.js';
-import { getProducts } from '../services/products.js';
+
 import { showToast } from '../components/ui/Toast.js';
+import { getProducts } from '../services/products.js';
+import { useCartStore } from '../stores/cart.js';
 
 export function OrderPage() {
   const cart = useCartStore((s) => s.items);
@@ -19,10 +20,7 @@ export function OrderPage() {
 
   const products = getProducts();
 
-  const cartEntries = useMemo(
-    () => Object.entries(cart).filter(([, q]) => q > 0),
-    [cart]
-  );
+  const cartEntries = useMemo(() => Object.entries(cart).filter(([, q]) => q > 0), [cart]);
 
   const subtotal = useMemo(
     () =>
@@ -30,7 +28,7 @@ export function OrderPage() {
         const p = products.find((x) => x.id === id);
         return sum + (p?.price ?? 0) * qty;
       }, 0),
-    [cartEntries, products]
+    [cartEntries, products],
   );
 
   const deliveryAmt = subtotal >= 500 ? 0 : 40;
@@ -47,7 +45,9 @@ export function OrderPage() {
         const { latitude: lat, longitude: lng } = pos.coords;
         setLocation({ lat, lng });
         const url = `https://www.google.com/maps?q=${lat},${lng}`;
-        setLocStatus(`Location captured &middot; <a href="${url}" target="_blank" style="color:var(--aqua);font-weight:600;">Open in Maps &rarr;</a>`);
+        setLocStatus(
+          `Location captured &middot; <a href="${url}" target="_blank" style="color:var(--aqua);font-weight:600;">Open in Maps &rarr;</a>`,
+        );
         setMapHtml(`
           <a href="${url}" target="_blank" class="map-card" style="text-decoration:none;">
             <span style="font-size:1.6rem;">\u{1F4CD}</span>
@@ -61,15 +61,27 @@ export function OrderPage() {
       },
       () => {
         setLocStatus('Unable to access location. Please allow permission.');
-      }
+      },
     );
   }
 
   async function placeOrder() {
-    if (!name.trim()) { showToast('Enter your name'); return; }
-    if (!phone.trim()) { showToast('Enter phone number'); return; }
-    if (!address.trim()) { showToast('Enter delivery address'); return; }
-    if (!cartEntries.length) { showToast('Cart is empty'); return; }
+    if (!name.trim()) {
+      showToast('Enter your name');
+      return;
+    }
+    if (!phone.trim()) {
+      showToast('Enter phone number');
+      return;
+    }
+    if (!address.trim()) {
+      showToast('Enter delivery address');
+      return;
+    }
+    if (!cartEntries.length) {
+      showToast('Cart is empty');
+      return;
+    }
 
     const lines = cartEntries
       .map(([id, qty]) => {
@@ -79,7 +91,8 @@ export function OrderPage() {
       })
       .join('\n');
 
-    const deliveryLine = deliveryAmt > 0 ? `\u{1F69A} *Delivery: \u20B9${deliveryAmt}*` : '\u{1F69A} *Delivery: Free*';
+    const deliveryLine =
+      deliveryAmt > 0 ? `\u{1F69A} *Delivery: \u20B9${deliveryAmt}*` : '\u{1F69A} *Delivery: Free*';
 
     const locLine = location
       ? `\u{1F4CD} Location:\nhttps://www.google.com/maps?q=${location.lat},${location.lng}`
@@ -124,7 +137,9 @@ export function OrderPage() {
             <div className="empty-icon">{'\u{1F6D2}'}</div>
             <div className="empty-title">Your cart is empty</div>
             <div className="empty-sub">Browse our fresh catch and add something delicious.</div>
-            <button className="btn btn-dark" onClick={() => navigate('/products')}>Browse Products</button>
+            <button className="btn btn-dark" onClick={() => navigate('/products')}>
+              Browse Products
+            </button>
           </div>
         ) : (
           <>
@@ -141,17 +156,24 @@ export function OrderPage() {
                 <div className="order-item-row" key={id}>
                   <div className="order-item-thumb-wrap">
                     {hasPhoto ? (
-                      <img src={p.image!} alt={p.name} className="order-item-thumb" />
+                      <img src={p.image ?? ''} alt={p.name} className="order-item-thumb" />
                     ) : (
                       <div className="order-item-emoji">{p.emoji}</div>
                     )}
                   </div>
                   <div className="order-item-info">
                     <div className="order-item-name">{p.name}</div>
-                    <div className="order-item-meta">{qty} kg &middot; \u20B9{p.price} / kg</div>
+                    <div className="order-item-meta">
+                      {qty} kg &middot; \u20B9{p.price} / kg
+                    </div>
                   </div>
-                  <div className="order-item-price">{'\u20B9'}{sub}</div>
-                  <button className="order-item-remove" onClick={() => removeAll(id)}>{'\u2715'}</button>
+                  <div className="order-item-price">
+                    {'\u20B9'}
+                    {sub}
+                  </div>
+                  <button className="order-item-remove" onClick={() => removeAll(id)}>
+                    {'\u2715'}
+                  </button>
                 </div>
               );
             })}
@@ -160,20 +182,29 @@ export function OrderPage() {
               <div className="price-summary">
                 <div className="price-row">
                   <span>Subtotal</span>
-                  <span id="subtotal-val">{'\u20B9'}{subtotal}</span>
+                  <span id="subtotal-val">
+                    {'\u20B9'}
+                    {subtotal}
+                  </span>
                 </div>
                 <div className="price-row">
                   <span>Delivery</span>
                   <span id="delivery-val" className="free">
                     {deliveryAmt > 0 ? `\u20B9${deliveryAmt}` : 'Free'}
                     {deliveryAmt > 0 && subtotal < 500 ? (
-                      <span style={{ fontSize: '0.6rem', color: 'var(--muted)' }}> (free above \u20B9500)</span>
+                      <span style={{ fontSize: '0.6rem', color: 'var(--muted)' }}>
+                        {' '}
+                        (free above \u20B9500)
+                      </span>
                     ) : null}
                   </span>
                 </div>
                 <div className="price-row total">
                   <span>Total</span>
-                  <span id="total-val">{'\u20B9'}{total}</span>
+                  <span id="total-val">
+                    {'\u20B9'}
+                    {total}
+                  </span>
                 </div>
               </div>
 
@@ -217,10 +248,7 @@ export function OrderPage() {
                 <button className="location-btn" onClick={getLocation}>
                   {'\u{1F4CD}'} &nbsp;Use My Current Location
                 </button>
-                <div
-                  id="location-status"
-                  dangerouslySetInnerHTML={{ __html: locStatus }}
-                />
+                <div id="location-status" dangerouslySetInnerHTML={{ __html: locStatus }} />
                 {mapHtml && (
                   <div id="map-preview" style={{ display: 'block' }}>
                     <div className="map-card">
@@ -245,7 +273,15 @@ export function OrderPage() {
                   </svg>
                   Send Order via WhatsApp
                 </button>
-                <div style={{ textAlign: 'center', fontSize: '0.65rem', color: 'var(--muted)', marginTop: '8px', letterSpacing: '0.06em' }}>
+                <div
+                  style={{
+                    textAlign: 'center',
+                    fontSize: '0.65rem',
+                    color: 'var(--muted)',
+                    marginTop: '8px',
+                    letterSpacing: '0.06em',
+                  }}
+                >
                   Your order is sent securely to our shop WhatsApp
                 </div>
               </div>

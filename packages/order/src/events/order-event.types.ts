@@ -1,4 +1,4 @@
-import type { OrderEventType, Order } from '@oceanfresh/shared';
+import type { Order, OrderEventType } from '@oceanfresh/shared';
 
 export interface OrderEvent {
   type: OrderEventType;

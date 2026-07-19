@@ -1,6 +1,5 @@
+import { type AddToCartInput, addToCartSchema, updateCartItemSchema } from '@oceanfresh/shared';
 import { useCallback, useState } from 'react';
-import { addToCartSchema, updateCartItemSchema } from '@oceanfresh/shared';
-import type { AddToCartInput } from '@oceanfresh/shared';
 
 interface FormState {
   productId: string;

@@ -1,22 +1,36 @@
 import { z } from 'zod';
-import { AuthProviderType, AccountStatus, MfaFactorType, Role, Permission } from '../types/index.js';
+
+import {
+  AccountStatus,
+  AuthProviderType,
+  MfaFactorType,
+  Permission,
+  Role,
+} from '../types/index.js';
 
 export const loginSchema = z.object({
   email: z.string().email().optional(),
-  phone: z.string().regex(/^[0-9]{10}$/).optional(),
+  phone: z
+    .string()
+    .regex(/^[0-9]{10}$/)
+    .optional(),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   rememberMe: z.boolean().optional().default(false),
 });
 
 export const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string()
+  password: z
+    .string()
     .min(8, 'Password must be at least 8 characters')
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
     .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
     .regex(/[0-9]/, 'Password must contain at least one number'),
   displayName: z.string().min(1, 'Display name is required').max(100),
-  phone: z.string().regex(/^[0-9]{10}$/).optional(),
+  phone: z
+    .string()
+    .regex(/^[0-9]{10}$/)
+    .optional(),
 });
 
 export const resetPasswordSchema = z.object({
@@ -26,7 +40,11 @@ export const resetPasswordSchema = z.object({
 export const updateProfileSchema = z.object({
   displayName: z.string().min(1).max(100).optional(),
   photoURL: z.string().url().optional().nullable(),
-  phone: z.string().regex(/^[0-9]{10}$/).optional().nullable(),
+  phone: z
+    .string()
+    .regex(/^[0-9]{10}$/)
+    .optional()
+    .nullable(),
 });
 
 export const reauthenticateSchema = z.object({

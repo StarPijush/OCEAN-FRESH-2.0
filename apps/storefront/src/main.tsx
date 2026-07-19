@@ -1,11 +1,13 @@
+import './index.css';
+
+import { logger } from '@oceanfresh/shared';
+import { initSupabase } from '@oceanfresh/supabase';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
-import { initSupabase } from '@oceanfresh/supabase';
-import { logger } from '@oceanfresh/shared';
+
 import App from './app.js';
-import './index.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,11 +28,12 @@ async function bootstrap() {
     // Do NOT continue — surface the error and stop startup.
     const root = document.getElementById('root');
     if (root) {
-      cs
       root.innerHTML =
         '<div style="padding:2rem;font-family:monospace;color:#c00">' +
         '<h2>Supabase initialization failed</h2>' +
-        '<pre>' + String(err) + '</pre>' +
+        '<pre>' +
+        String(err) +
+        '</pre>' +
         '<p>Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.</p>' +
         '</div>';
     }

@@ -1,4 +1,4 @@
-import type { AuthSession, DeviceInfo, UserIdentity, Claims } from '@oceanfresh/shared';
+import type { AuthSession, DeviceInfo, UserIdentity } from '@oceanfresh/shared';
 
 export interface IAuthRepository {
   findSessionById(sessionId: string): Promise<AuthSession | null>;

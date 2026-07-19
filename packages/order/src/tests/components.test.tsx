@@ -1,10 +1,11 @@
-import { describe, it, expect, vi } from 'vitest';
+import { OrderStatus } from '@oceanfresh/shared';
 import { render, screen } from '@testing-library/react';
-import { OrderStatusBadge } from '../components/order-status-badge.js';
-import { OrderSummary } from '../components/order-summary.js';
+import { describe, expect, it } from 'vitest';
+
 import { OrderEmpty } from '../components/order-empty.js';
 import { OrderLoading } from '../components/order-loading.js';
-import { OrderStatus } from '@oceanfresh/shared';
+import { OrderStatusBadge } from '../components/order-status-badge.js';
+import { OrderSummary } from '../components/order-summary.js';
 
 describe('OrderStatusBadge', () => {
   it('renders with formatted status text', () => {

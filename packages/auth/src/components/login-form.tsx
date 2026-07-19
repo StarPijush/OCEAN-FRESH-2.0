@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
 import type { LoginInput } from '@oceanfresh/shared';
+import { type FormEvent, useState } from 'react';
 
 interface LoginFormProps {
   onSubmit: (data: LoginInput) => void;
@@ -8,7 +8,12 @@ interface LoginFormProps {
   className?: string;
 }
 
-export function LoginForm({ onSubmit, isSubmitting = false, error = null, className = '' }: LoginFormProps) {
+export function LoginForm({
+  onSubmit,
+  isSubmitting = false,
+  error = null,
+  className = '',
+}: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -21,7 +26,10 @@ export function LoginForm({ onSubmit, isSubmitting = false, error = null, classN
   return (
     <form onSubmit={handleSubmit} className={`space-y-4 ${className}`}>
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700" role="alert">
+        <div
+          className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700"
+          role="alert"
+        >
           {error}
         </div>
       )}

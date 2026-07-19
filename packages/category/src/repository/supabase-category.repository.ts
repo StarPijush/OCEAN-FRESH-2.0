@@ -1,23 +1,26 @@
-import { supabaseService, type SupabaseQuery, type SupabaseOptions, rowToCamelCase, objToSnakeCase, rowsToCamelCase, stripId } from '@oceanfresh/supabase';
 import {
-  slugify,
-  NotFoundError,
-  RepositoryError,
-  createLogger,
   type Category,
-  type CreateCategoryInput,
-  type UpdateCategoryInput,
   type CategoryQuery,
-  type PaginatedResult,
-  CategoryStatus,
   CategorySortField,
+  CategoryStatus,
+  type CreateCategoryInput,
+  NotFoundError,
+  type PaginatedResult,
+  RepositoryError,
+  type UpdateCategoryInput,
 } from '@oceanfresh/shared';
+import {
+  objToSnakeCase,
+  rowToCamelCase,
+  stripId,
+  type SupabaseOptions,
+  type SupabaseQuery,
+  supabaseService,
+} from '@oceanfresh/supabase';
+
 import type { ICategoryRepository } from './category.repository.js';
 
-const logger = createLogger('category:repository:supabase');
-
 const TABLE = 'categories';
-const MAX_DEPTH = 5;
 
 function toCategory(row: Record<string, unknown>): Category {
   return rowToCamelCase<Category>(row);
@@ -32,20 +35,30 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
       if (category.isDeleted) return null;
       return category;
     } catch (err) {
-      throw new RepositoryError('Failed to find category by ID', 'findById', TABLE, { id, error: err });
+      throw new RepositoryError('Failed to find category by ID', 'findById', TABLE, {
+        id,
+        error: err,
+      });
     }
   }
 
   async findBySlug(slug: string): Promise<Category | null> {
     try {
-      const docs = await supabaseService.query<Record<string, unknown>>(TABLE, [
-        { field: 'slug', operator: 'eq', value: slug },
-        { field: 'is_deleted', operator: 'eq', value: false },
-      ], { limitCount: 1 });
+      const docs = await supabaseService.query<Record<string, unknown>>(
+        TABLE,
+        [
+          { field: 'slug', operator: 'eq', value: slug },
+          { field: 'is_deleted', operator: 'eq', value: false },
+        ],
+        { limitCount: 1 },
+      );
       const row = docs[0];
       return row ? toCategory(row) : null;
     } catch (err) {
-      throw new RepositoryError('Failed to find category by slug', 'findBySlug', TABLE, { slug, error: err });
+      throw new RepositoryError('Failed to find category by slug', 'findBySlug', TABLE, {
+        slug,
+        error: err,
+      });
     }
   }
 
@@ -59,14 +72,20 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
       }
       return results;
     } catch (err) {
-      throw new RepositoryError('Failed to find categories by IDs', 'findByIds', TABLE, { ids, error: err });
+      throw new RepositoryError('Failed to find categories by IDs', 'findByIds', TABLE, {
+        ids,
+        error: err,
+      });
     }
   }
 
   async findAll(query: CategoryQuery): Promise<PaginatedResult<Category>> {
     try {
-      const constraints: SupabaseQuery[] = [{ field: 'is_deleted', operator: 'eq', value: query.includeDeleted ?? false }];
-      if (query.parentId !== undefined) constraints.push({ field: 'parent_id', operator: 'eq', value: query.parentId });
+      const constraints: SupabaseQuery[] = [
+        { field: 'is_deleted', operator: 'eq', value: query.includeDeleted ?? false },
+      ];
+      if (query.parentId !== undefined)
+        constraints.push({ field: 'parent_id', operator: 'eq', value: query.parentId });
       if (query.status) {
         if (Array.isArray(query.status)) {
           constraints.push({ field: 'status', operator: 'in', value: query.status });
@@ -74,11 +93,15 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
           constraints.push({ field: 'status', operator: 'eq', value: query.status });
         }
       }
-      if (query.visibility && query.visibility !== 'all') constraints.push({ field: 'visibility', operator: 'eq', value: query.visibility });
-      if (query.featured !== undefined) constraints.push({ field: 'featured', operator: 'eq', value: query.featured });
-      if (query.level !== undefined) constraints.push({ field: 'level', operator: 'eq', value: query.level });
+      if (query.visibility && query.visibility !== 'all')
+        constraints.push({ field: 'visibility', operator: 'eq', value: query.visibility });
+      if (query.featured !== undefined)
+        constraints.push({ field: 'featured', operator: 'eq', value: query.featured });
+      if (query.level !== undefined)
+        constraints.push({ field: 'level', operator: 'eq', value: query.level });
 
-      const sortField = query.sort === CategorySortField.SORT_ORDER ? 'sort_order' : query.sort ?? 'sort_order';
+      const sortField =
+        query.sort === CategorySortField.SORT_ORDER ? 'sort_order' : (query.sort ?? 'sort_order');
 
       const options: SupabaseOptions = {
         orderByField: sortField,
@@ -86,41 +109,61 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
         limitCount: query.limit ?? 20,
       };
 
-      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, constraints, options);
+      const rows = await supabaseService.query<Record<string, unknown>>(
+        TABLE,
+        constraints,
+        options,
+      );
       const items = rows.map(toCategory);
 
       return {
         items,
         total: items.length,
         hasMore: items.length === (query.limit ?? 20),
-        lastDoc: items.length > 0 && items[items.length - 1] ? items[items.length - 1]!.id : null,
+        lastDoc: items[items.length - 1]?.id ?? null,
       };
     } catch (err) {
-      throw new RepositoryError('Failed to query categories', 'findAll', TABLE, { query, error: err });
+      throw new RepositoryError('Failed to query categories', 'findAll', TABLE, {
+        query,
+        error: err,
+      });
     }
   }
 
   async findRootCategories(): Promise<Category[]> {
     try {
-      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, [
-        { field: 'parent_id', operator: 'eq', value: null },
-        { field: 'is_deleted', operator: 'eq', value: false },
-      ], { orderByField: 'sort_order', orderDirection: 'asc' });
+      const rows = await supabaseService.query<Record<string, unknown>>(
+        TABLE,
+        [
+          { field: 'parent_id', operator: 'eq', value: null },
+          { field: 'is_deleted', operator: 'eq', value: false },
+        ],
+        { orderByField: 'sort_order', orderDirection: 'asc' },
+      );
       return rows.map(toCategory);
     } catch (err) {
-      throw new RepositoryError('Failed to find root categories', 'findRootCategories', TABLE, { error: err });
+      throw new RepositoryError('Failed to find root categories', 'findRootCategories', TABLE, {
+        error: err,
+      });
     }
   }
 
   async findChildren(parentId: string): Promise<Category[]> {
     try {
-      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, [
-        { field: 'parent_id', operator: 'eq', value: parentId },
-        { field: 'is_deleted', operator: 'eq', value: false },
-      ], { orderByField: 'sort_order', orderDirection: 'asc' });
+      const rows = await supabaseService.query<Record<string, unknown>>(
+        TABLE,
+        [
+          { field: 'parent_id', operator: 'eq', value: parentId },
+          { field: 'is_deleted', operator: 'eq', value: false },
+        ],
+        { orderByField: 'sort_order', orderDirection: 'asc' },
+      );
       return rows.map(toCategory);
     } catch (err) {
-      throw new RepositoryError('Failed to find children', 'findChildren', TABLE, { parentId, error: err });
+      throw new RepositoryError('Failed to find children', 'findChildren', TABLE, {
+        parentId,
+        error: err,
+      });
     }
   }
 
@@ -137,7 +180,10 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
       ]);
       return rows.map(toCategory);
     } catch (err) {
-      throw new RepositoryError('Failed to find descendants', 'findDescendants', TABLE, { categoryId, error: err });
+      throw new RepositoryError('Failed to find descendants', 'findDescendants', TABLE, {
+        categoryId,
+        error: err,
+      });
     }
   }
 
@@ -154,19 +200,29 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
       }
       return ancestors;
     } catch (err) {
-      throw new RepositoryError('Failed to find ancestors', 'findAncestors', TABLE, { categoryId, error: err });
+      throw new RepositoryError('Failed to find ancestors', 'findAncestors', TABLE, {
+        categoryId,
+        error: err,
+      });
     }
   }
 
   async findFeatured(limit = 10): Promise<Category[]> {
     try {
-      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, [
-        { field: 'featured', operator: 'eq', value: true },
-        { field: 'is_deleted', operator: 'eq', value: false },
-      ], { orderByField: 'sort_order', orderDirection: 'asc', limitCount: limit });
+      const rows = await supabaseService.query<Record<string, unknown>>(
+        TABLE,
+        [
+          { field: 'featured', operator: 'eq', value: true },
+          { field: 'is_deleted', operator: 'eq', value: false },
+        ],
+        { orderByField: 'sort_order', orderDirection: 'asc', limitCount: limit },
+      );
       return rows.map(toCategory);
     } catch (err) {
-      throw new RepositoryError('Failed to find featured categories', 'findFeatured', TABLE, { limit, error: err });
+      throw new RepositoryError('Failed to find featured categories', 'findFeatured', TABLE, {
+        limit,
+        error: err,
+      });
     }
   }
 
@@ -191,25 +247,28 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
   async search(term: string, query?: Partial<CategoryQuery>): Promise<PaginatedResult<Category>> {
     try {
       const lower = term.toLowerCase();
-      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, [
-        { field: 'is_deleted', operator: 'eq', value: false },
-      ], {
-        orderByField: 'name',
-        orderDirection: 'asc',
-        limitCount: query?.limit ?? 20,
-      });
-      const items = rows
-        .map(toCategory)
-        .filter((c) => c.name.toLowerCase().includes(lower));
+      const rows = await supabaseService.query<Record<string, unknown>>(
+        TABLE,
+        [{ field: 'is_deleted', operator: 'eq', value: false }],
+        {
+          orderByField: 'name',
+          orderDirection: 'asc',
+          limitCount: query?.limit ?? 20,
+        },
+      );
+      const items = rows.map(toCategory).filter((c) => c.name.toLowerCase().includes(lower));
 
       return {
         items,
         total: items.length,
         hasMore: items.length === (query?.limit ?? 20),
-        lastDoc: items.length > 0 && items[items.length - 1] ? items[items.length - 1]!.id : null,
+        lastDoc: items[items.length - 1]?.id ?? null,
       };
     } catch (err) {
-      throw new RepositoryError('Failed to search categories', 'search', TABLE, { term, error: err });
+      throw new RepositoryError('Failed to search categories', 'search', TABLE, {
+        term,
+        error: err,
+      });
     }
   }
 
@@ -233,15 +292,21 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
           constraints.push({ field: 'status', operator: 'eq', value: query.status });
         }
       }
-      if (query?.parentId !== undefined) constraints.push({ field: 'parent_id', operator: 'eq', value: query.parentId });
+      if (query?.parentId !== undefined)
+        constraints.push({ field: 'parent_id', operator: 'eq', value: query.parentId });
       const rows = await supabaseService.query<Record<string, unknown>>(TABLE, constraints);
       return rows.length;
     } catch (err) {
-      throw new RepositoryError('Failed to count categories', 'count', TABLE, { query, error: err });
+      throw new RepositoryError('Failed to count categories', 'count', TABLE, {
+        query,
+        error: err,
+      });
     }
   }
 
-  async create(data: CreateCategoryInput & { createdBy: string; slug: string; path: string; level: number }): Promise<Category> {
+  async create(
+    data: CreateCategoryInput & { createdBy: string; slug: string; path: string; level: number },
+  ): Promise<Category> {
     try {
       const now = new Date().toISOString();
       const docData = {
@@ -265,11 +330,17 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
       const result = await supabaseService.add<Record<string, unknown>>(TABLE, snakeData);
       return toCategory({ ...snakeData, id: result.id });
     } catch (err) {
-      throw new RepositoryError('Failed to create category', 'create', TABLE, { name: data.name, error: err });
+      throw new RepositoryError('Failed to create category', 'create', TABLE, {
+        name: data.name,
+        error: err,
+      });
     }
   }
 
-  async update(id: string, data: Partial<UpdateCategoryInput> & { updatedBy: string }): Promise<Category> {
+  async update(
+    id: string,
+    data: Partial<UpdateCategoryInput> & { updatedBy: string },
+  ): Promise<Category> {
     try {
       const existing = await this.findById(id);
       if (!existing) throw new NotFoundError('Category not found');
@@ -286,7 +357,10 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
     }
   }
 
-  async move(id: string, data: { parentId: string | null; path: string; level: number }): Promise<Category> {
+  async move(
+    id: string,
+    data: { parentId: string | null; path: string; level: number },
+  ): Promise<Category> {
     try {
       await supabaseService.update(TABLE, id, {
         parent_id: data.parentId,
@@ -298,7 +372,11 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
       if (!updated) throw new NotFoundError('Category not found after move');
       return updated;
     } catch (err) {
-      throw new RepositoryError('Failed to move category', 'move', TABLE, { id, newParentId: data.parentId, error: err });
+      throw new RepositoryError('Failed to move category', 'move', TABLE, {
+        id,
+        newParentId: data.parentId,
+        error: err,
+      });
     }
   }
 
@@ -313,7 +391,10 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
       });
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to soft-delete category', 'softDelete', TABLE, { id, error: err });
+      throw new RepositoryError('Failed to soft-delete category', 'softDelete', TABLE, {
+        id,
+        error: err,
+      });
     }
   }
 
@@ -350,7 +431,10 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
         await supabaseService.update(TABLE, id, snakeData);
       }
     } catch (err) {
-      throw new RepositoryError('Failed to bulk update categories', 'bulkUpdate', TABLE, { ids, error: err });
+      throw new RepositoryError('Failed to bulk update categories', 'bulkUpdate', TABLE, {
+        ids,
+        error: err,
+      });
     }
   }
 
@@ -360,7 +444,10 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
         await supabaseService.update(TABLE, id, { status: CategoryStatus.ARCHIVED });
       }
     } catch (err) {
-      throw new RepositoryError('Failed to bulk archive categories', 'bulkArchive', TABLE, { ids, error: err });
+      throw new RepositoryError('Failed to bulk archive categories', 'bulkArchive', TABLE, {
+        ids,
+        error: err,
+      });
     }
   }
 
@@ -368,7 +455,11 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
     try {
       await supabaseService.update(TABLE, id, { product_count: count });
     } catch (err) {
-      throw new RepositoryError('Failed to refresh product count', 'refreshProductCount', TABLE, { id, count, error: err });
+      throw new RepositoryError('Failed to refresh product count', 'refreshProductCount', TABLE, {
+        id,
+        count,
+        error: err,
+      });
     }
   }
 }

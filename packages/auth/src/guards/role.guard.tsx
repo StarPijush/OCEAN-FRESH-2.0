@@ -1,5 +1,6 @@
-import type React from 'react';
 import { Role } from '@oceanfresh/shared';
+import type React from 'react';
+
 import { useRole } from '../queries/index.js';
 
 interface RoleGateProps {

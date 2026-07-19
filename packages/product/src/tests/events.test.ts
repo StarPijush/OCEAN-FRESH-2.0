@@ -1,6 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
-import { InMemoryEventBus } from '../events/in-memory-event-bus.js';
 import { ProductEventType } from '@oceanfresh/shared';
+import { describe, expect, it, vi } from 'vitest';
+
+import { InMemoryEventBus } from '../events/in-memory-event-bus.js';
 
 describe('InMemoryEventBus', () => {
   it('publishes event to subscribed handlers', async () => {
@@ -69,9 +70,7 @@ describe('InMemoryEventBus', () => {
     bus.subscribe(ProductEventType.CREATED, throwingHandler);
     bus.subscribe(ProductEventType.CREATED, normalHandler);
 
-    await expect(
-      bus.publish({ type: ProductEventType.CREATED, productId: '1' }),
-    ).rejects.toThrow();
+    await expect(bus.publish({ type: ProductEventType.CREATED, productId: '1' })).rejects.toThrow();
 
     expect(normalHandler).toHaveBeenCalled();
   });

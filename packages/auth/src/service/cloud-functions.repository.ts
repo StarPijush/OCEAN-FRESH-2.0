@@ -1,4 +1,4 @@
-import type { Role, Claims } from '@oceanfresh/shared';
+import type { Claims, Role } from '@oceanfresh/shared';
 
 export interface ICloudFunctionsRepository {
   assignRole(uid: string, role: Role): Promise<void>;

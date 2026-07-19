@@ -1,6 +1,6 @@
-import type { Category } from '@oceanfresh/shared';
+import { type Category, createLogger } from '@oceanfresh/shared';
+
 import type { ICategoryRepository } from '../repository/index.js';
-import { createLogger } from '@oceanfresh/shared';
 
 const logger = createLogger('category:service:tree');
 
@@ -48,7 +48,7 @@ export class CategoryTreeService {
 
     for (const cat of map.values()) {
       if (cat.parentId && map.has(cat.parentId)) {
-        map.get(cat.parentId)!.children.push(cat);
+        map.get(cat.parentId)?.children.push(cat);
       } else if (!cat.parentId) {
         roots.push(cat);
       }

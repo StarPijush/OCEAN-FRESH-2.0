@@ -1,4 +1,11 @@
-import type { Order, OrderStatus, OrderQuery, OrderTimelineEntry, PaymentSummary, PaginatedResult } from '@oceanfresh/shared';
+import type {
+  Order,
+  OrderQuery,
+  OrderStatus,
+  OrderTimelineEntry,
+  PaginatedResult,
+  PaymentSummary,
+} from '@oceanfresh/shared';
 
 export interface IOrderRepository {
   findById(id: string): Promise<Order | null>;

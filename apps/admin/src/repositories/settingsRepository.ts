@@ -1,4 +1,4 @@
-import { rtdbGet, rtdbSet, rtdbUpdate } from './rtdb';
+import { rtdbGet, rtdbSet } from './rtdb';
 import type { DeliveryCharge } from './types';
 
 export const settingsRepository = {

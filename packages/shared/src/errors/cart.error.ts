@@ -1,5 +1,5 @@
-import { AppError } from './base.error.js';
 import type { CartStatus } from '../types/cart.js';
+import { AppError } from './base.error.js';
 
 export class IllegalCartStateTransitionError extends AppError {
   readonly code = 'ILLEGAL_CART_STATE_TRANSITION';

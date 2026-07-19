@@ -1,6 +1,11 @@
-import type { Product, ProductQuery, PaginatedResult } from '@oceanfresh/shared';
+import {
+  createLogger,
+  type PaginatedResult,
+  type Product,
+  type ProductQuery,
+} from '@oceanfresh/shared';
+
 import type { IProductRepository } from '../repository/index.js';
-import { createLogger } from '@oceanfresh/shared';
 
 const logger = createLogger('product:service:read');
 
@@ -33,7 +38,10 @@ export class ProductReadService {
     return this.repository.findFeatured(limit);
   }
 
-  async getByCategory(categoryId: string, query?: Partial<ProductQuery>): Promise<PaginatedResult<Product>> {
+  async getByCategory(
+    categoryId: string,
+    query?: Partial<ProductQuery>,
+  ): Promise<PaginatedResult<Product>> {
     logger.debug('getByCategory', { categoryId });
     return this.repository.findByCategory(categoryId, query);
   }

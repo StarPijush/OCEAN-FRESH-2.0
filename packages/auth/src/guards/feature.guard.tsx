@@ -6,7 +6,7 @@ interface FeatureGateProps {
   fallback?: React.ReactNode;
 }
 
-export function FeatureGate({ children, feature, fallback = null }: FeatureGateProps) {
+export function FeatureGate({ children, feature: _feature, fallback = null }: FeatureGateProps) {
   const isEnabled = true;
   if (!isEnabled) return <>{fallback}</>;
   return <>{children}</>;

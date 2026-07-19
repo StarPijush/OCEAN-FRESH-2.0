@@ -1,9 +1,10 @@
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { CartSummary } from '../components/cart-summary.js';
-import { CartEmpty } from '../components/cart-empty.js';
+import { describe, expect, it, vi } from 'vitest';
+
 import { AddToCartButton } from '../components/add-to-cart-button.js';
+import { CartEmpty } from '../components/cart-empty.js';
 import { CartLoading } from '../components/cart-loading.js';
+import { CartSummary } from '../components/cart-summary.js';
 
 describe('CartSummary', () => {
   const sampleTotals = {

@@ -1,4 +1,5 @@
 import type { Product } from '@oceanfresh/shared';
+
 import { ProductPriceDisplay } from './product-price.js';
 import { ProductStatusBadge } from './product-status-badge.js';
 
@@ -24,7 +25,12 @@ export function ProductDetail({ product, className = '' }: ProductDetailProps) {
           <div className="grid grid-cols-2 gap-2">
             {product.gallery.slice(0, 4).map((img, i) => (
               <div key={i} className="aspect-square overflow-hidden rounded-md bg-gray-100">
-                <img src={img} alt={`${product.name} ${i + 1}`} className="h-full w-full object-cover" loading="lazy" />
+                <img
+                  src={img}
+                  alt={`${product.name} ${i + 1}`}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
               </div>
             ))}
           </div>
@@ -43,9 +49,7 @@ export function ProductDetail({ product, className = '' }: ProductDetailProps) {
 
         <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
 
-        {product.description && (
-          <p className="text-gray-600">{product.description}</p>
-        )}
+        {product.description && <p className="text-gray-600">{product.description}</p>}
 
         <ProductPriceDisplay product={product} />
       </div>
@@ -79,7 +83,9 @@ export function ProductDetail({ product, className = '' }: ProductDetailProps) {
         {product.stock !== undefined && (
           <div>
             <span className="text-gray-500">Stock:</span>{' '}
-            <span className={`font-medium ${product.stock <= 0 ? 'text-red-600' : 'text-gray-900'}`}>
+            <span
+              className={`font-medium ${product.stock <= 0 ? 'text-red-600' : 'text-gray-900'}`}
+            >
               {product.stock}
             </span>
           </div>
@@ -100,7 +106,8 @@ export function ProductDetail({ product, className = '' }: ProductDetailProps) {
           <div className="col-span-2">
             <span className="text-gray-500">Dimensions:</span>{' '}
             <span className="text-gray-900">
-              {product.dimensions.length} x {product.dimensions.width} x {product.dimensions.height} {product.dimensions.unit ?? 'cm'}
+              {product.dimensions.length} x {product.dimensions.width} x {product.dimensions.height}{' '}
+              {product.dimensions.unit ?? 'cm'}
             </span>
           </div>
         )}
@@ -134,7 +141,11 @@ export function ProductDetail({ product, className = '' }: ProductDetailProps) {
                 </div>
                 <div className="text-right">
                   <p className="font-medium text-gray-900">
-                    {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(variant.price)}
+                    {new Intl.NumberFormat('en-IN', {
+                      style: 'currency',
+                      currency: 'INR',
+                      maximumFractionDigits: 0,
+                    }).format(variant.price)}
                   </p>
                   {variant.stock !== undefined && (
                     <p className="text-sm text-gray-500">{variant.stock} in stock</p>
