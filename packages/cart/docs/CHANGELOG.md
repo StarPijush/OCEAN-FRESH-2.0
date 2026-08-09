@@ -3,6 +3,7 @@
 ## v0.0.1 — Initial Implementation (2026-07-16)
 
 ### Added
+
 - **CartStateMachine** with 8 states and 3 terminal states; enforced VALID_TRANSITIONS
 - **CartPricingService** — subtotal, tax (default 5% GST), shipping (free above ₹500), discount (stub), grand total
 - **CartValidationService** — validates products via `IProductCatalog`, checks stock, availability, price
@@ -16,6 +17,7 @@
 - **Zod schemas** — addToCart, updateItem, cartQuery
 
 ### Architecture Upgrades (per Review Addendum)
+
 - `IProductCatalog` contract in Product domain → Cart depends on interface, not implementation
 - Session ownership boundary — Cart never manages/creates `sessionId`
 - `ProductSnapshot` stores frozen copy at add-time

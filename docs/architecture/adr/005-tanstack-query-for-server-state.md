@@ -1,7 +1,7 @@
 # ADR 005: TanStack Query for Server State
 
 **Status:** Accepted  
-**Date:** 2026-07-16  
+**Date:** 2026-07-16
 
 ## Context
 
@@ -23,13 +23,13 @@ Use TanStack Query (React Query v5) for all server state management.
 
 ## State Management Strategy
 
-| State Type | Tool |
-|---|---|
-| Server state (products, orders) | TanStack Query |
-| Client state (form inputs) | React Hook Form |
-| UI state (modals, toasts) | React local state |
-| Cross-component UI state (cart) | Zustand (minimal) |
-| Auth state | React Context + TanStack Query |
+| State Type                      | Tool                           |
+| ------------------------------- | ------------------------------ |
+| Server state (products, orders) | TanStack Query                 |
+| Client state (form inputs)      | React Hook Form                |
+| UI state (modals, toasts)       | React local state              |
+| Cross-component UI state (cart) | Zustand (minimal)              |
+| Auth state                      | React Context + TanStack Query |
 
 ## Alternatives Considered
 

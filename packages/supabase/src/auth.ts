@@ -5,7 +5,6 @@ export interface AuthUser {
   email: string | null;
   displayName: string | null;
   phoneNumber: string | null;
-  isAdmin: boolean;
 }
 
 function mapUser(user: {
@@ -18,7 +17,6 @@ function mapUser(user: {
     email: user.email ?? null,
     displayName: (user.user_metadata?.display_name as string) ?? null,
     phoneNumber: (user.user_metadata?.phone_number as string) ?? null,
-    isAdmin: false,
   };
 }
 

@@ -1,9 +1,12 @@
-const WA_NUMBER = '919876543210';
+import { useSettings } from '../../context/settings-context.js';
+
 const WA_MSG = encodeURIComponent("Hi! I'd like to know more about today's fresh catch \u{1F41F}");
 
 export function FloatingWhatsApp() {
+  const settings = useSettings();
+
   function openWhatsAppSupport() {
-    window.open(`https://wa.me/${WA_NUMBER}?text=${WA_MSG}`, '_blank');
+    window.open(`https://wa.me/${settings.whatsapp}?text=${WA_MSG}`, '_blank');
   }
 
   return (

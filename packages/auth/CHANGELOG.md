@@ -3,6 +3,7 @@
 ## [0.0.0] — 2026-07-16
 
 ### Added
+
 - **Architecture**: Clean Architecture with 10 layers (guards, queries, hooks, components, services, providers, repository, session, events, permissions, mfa)
 - **State Machine**: AuthStateMachine with 9 AuthenticationState values and enforced transitions
 - **Permissions**: RBAC matrix with 6 roles (GUEST, CUSTOMER, MODERATOR, ADMIN, SUPER_ADMIN, SYSTEM) and 40+ Permission enums

@@ -1,38 +1,52 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { showToast } from '../components/ui/Toast.js';
-import { getProducts } from '../services/products.js';
-import { useCartStore } from '../stores/cart.js';
+import { showToast } from '../components/ui/toast.js';
+import { useSettings } from '../context/settings-context.js';
+import {
+  type OrderCartEntry,
+  orderService,
+  persistOrder,
+  productService,
+  type ProductVM,
+  useCartStore,
+} from '../services/index.js';
 
 export function OrderPage() {
   const cart = useCartStore((s) => s.items);
   const removeAll = useCartStore((s) => s.removeAll);
   const clear = useCartStore((s) => s.clear);
   const navigate = useNavigate();
+  const settings = useSettings();
 
+  const [products, setProducts] = useState<ProductVM[]>([]);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locStatus, setLocStatus] = useState('');
-  const [mapHtml, setMapHtml] = useState('');
 
-  const products = getProducts();
+  useEffect(() => {
+    productService.getAll().then(setProducts);
+  }, []);
 
   const cartEntries = useMemo(() => Object.entries(cart).filter(([, q]) => q > 0), [cart]);
 
-  const subtotal = useMemo(
-    () =>
-      cartEntries.reduce((sum, [id, qty]) => {
-        const p = products.find((x) => x.id === id);
-        return sum + (p?.price ?? 0) * qty;
-      }, 0),
-    [cartEntries, products],
+  const entries = useMemo(() => {
+    return cartEntries.flatMap(([id, qty]): OrderCartEntry[] => {
+      const p = products.find((x) => x.id === id);
+      return p ? [{ product: p, quantity: qty }] : [];
+    });
+  }, [cartEntries, products]);
+
+  const pricing = useMemo(
+    () => orderService.calculatePricing(entries, settings.freeDeliveryAbove, settings.deliveryFee),
+    [entries, settings.freeDeliveryAbove, settings.deliveryFee],
   );
 
-  const deliveryAmt = subtotal >= 500 ? 0 : 40;
-  const total = subtotal + deliveryAmt;
+  const subtotal = pricing.subtotal;
+  const deliveryAmt = pricing.deliveryCharge;
+  const total = pricing.total;
 
   async function getLocation() {
     if (!navigator.geolocation) {
@@ -48,16 +62,6 @@ export function OrderPage() {
         setLocStatus(
           `Location captured &middot; <a href="${url}" target="_blank" style="color:var(--aqua);font-weight:600;">Open in Maps &rarr;</a>`,
         );
-        setMapHtml(`
-          <a href="${url}" target="_blank" class="map-card" style="text-decoration:none;">
-            <span style="font-size:1.6rem;">\u{1F4CD}</span>
-            <div class="map-card-text">
-              <div class="name">Location Confirmed</div>
-              <div class="coord">${lat.toFixed(5)}, ${lng.toFixed(5)}</div>
-              <div class="hint">Tap to open in Google Maps</div>
-            </div>
-          </a>
-        `);
       },
       () => {
         setLocStatus('Unable to access location. Please allow permission.');
@@ -66,60 +70,38 @@ export function OrderPage() {
   }
 
   async function placeOrder() {
-    if (!name.trim()) {
-      showToast('Enter your name');
-      return;
-    }
-    if (!phone.trim()) {
-      showToast('Enter phone number');
-      return;
-    }
-    if (!address.trim()) {
-      showToast('Enter delivery address');
-      return;
-    }
-    if (!cartEntries.length) {
-      showToast('Cart is empty');
+    const entries = cartEntries.flatMap(([id, qty]): OrderCartEntry[] => {
+      const p = products.find((x) => x.id === id);
+      return p ? [{ product: p, quantity: qty }] : [];
+    });
+
+    const err = orderService.validateForm({ name, phone, address }, entries);
+    if (err) {
+      showToast(err);
       return;
     }
 
-    const lines = cartEntries
-      .map(([id, qty]) => {
-        const p = products.find((x) => x.id === id);
-        const s = (p?.price ?? 0) * qty;
-        return `\u2022 ${p?.name} \u2014 ${qty}kg \u2014 \u20B9${s}`;
-      })
-      .join('\n');
+    const orderPricing = orderService.calculatePricing(
+      entries,
+      settings.freeDeliveryAbove,
+      settings.deliveryFee,
+    );
 
-    const deliveryLine =
-      deliveryAmt > 0 ? `\u{1F69A} *Delivery: \u20B9${deliveryAmt}*` : '\u{1F69A} *Delivery: Free*';
+    try {
+      await persistOrder({ name, phone, address }, entries, orderPricing, location);
+    } catch (err) {
+      console.error('Order could not be saved to the database.', err);
+      showToast('Order failed to save. Please try again.');
+      return;
+    }
 
-    const locLine = location
-      ? `\u{1F4CD} Location:\nhttps://www.google.com/maps?q=${location.lat},${location.lng}`
-      : '\u{1F4CD} Location: not shared';
-
-    const msg = [
-      '\u{1F41F} *New Order \u2014 OceanFresh*',
-      '',
-      `\u{1F464} *Name:* ${name}`,
-      `\u{1F4F1} *Phone:* ${phone}`,
-      '',
-      '*Order:*',
-      lines,
-      '',
-      `\u{1F4B0} *Subtotal: \u20B9${subtotal}*`,
-      deliveryLine,
-      `\u{1F4B0} *Total: \u20B9${total}*`,
-      '',
-      `\u{1F3E0} *Address:*\n${address}`,
-      '',
-      locLine,
-      '',
-      '_via OceanFresh_',
-    ].join('\n');
-
-    const waNum = '919876543210';
-    window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`, '_blank');
+    const msg = orderService.buildWhatsAppMessage(
+      { name, phone, address },
+      entries,
+      orderPricing,
+      location ?? undefined,
+    );
+    orderService.sendViaWhatsApp(msg, settings.orderWhatsApp);
 
     clear();
     navigate('/');
@@ -191,10 +173,10 @@ export function OrderPage() {
                   <span>Delivery</span>
                   <span id="delivery-val" className="free">
                     {deliveryAmt > 0 ? `\u20B9${deliveryAmt}` : 'Free'}
-                    {deliveryAmt > 0 && subtotal < 500 ? (
+                    {deliveryAmt > 0 && subtotal < settings.freeDeliveryAbove ? (
                       <span style={{ fontSize: '0.6rem', color: 'var(--muted)' }}>
                         {' '}
-                        (free above \u20B9500)
+                        (free above \u20B9{settings.freeDeliveryAbove})
                       </span>
                     ) : null}
                   </span>
@@ -249,20 +231,6 @@ export function OrderPage() {
                   {'\u{1F4CD}'} &nbsp;Use My Current Location
                 </button>
                 <div id="location-status" dangerouslySetInnerHTML={{ __html: locStatus }} />
-                {mapHtml && (
-                  <div id="map-preview" style={{ display: 'block' }}>
-                    <div className="map-card">
-                      <span style={{ fontSize: '1.6rem' }}>{'\u{1F4CD}'}</span>
-                      <div className="map-card-text">
-                        <div className="name">Location Confirmed</div>
-                        <div className="coord">
-                          {location?.lat.toFixed(5)}, {location?.lng.toFixed(5)}
-                        </div>
-                        <div className="hint">Tap to open in Google Maps</div>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="order-section-label">Place Order</div>

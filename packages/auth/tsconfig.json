@@ -7,11 +7,5 @@
     "types": ["vite/client", "node"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": [
-    "src/repository/firebase-auth.repository.ts",
-    "src/service/app-check.service.ts",
-    "src/service/firebase-cloud-functions.repository.ts",
-    "src/providers/firebase-auth.provider.ts",
-    "src/tests/"
-  ]
+  "exclude": ["src/tests/"]
 }

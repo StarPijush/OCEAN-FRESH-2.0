@@ -7,7 +7,6 @@
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": [
-    "src/repository/firestore-order.repository.ts",
     "src/service/order-number-generator.ts",
     "src/service/order-validation.service.ts",
     "src/service/order-pricing.service.ts",

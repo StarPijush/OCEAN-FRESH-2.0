@@ -1,6 +1,7 @@
 # TODO
 
 ## Sprint 3 (Current)
+
 - [x] Shared types (auth.ts, permission.ts, validators, errors)
 - [x] Auth package scaffolding (package.json, tsconfig, vitest.config)
 - [x] Providers layer (IAuthProvider, FirebaseAuthProvider, factory)
@@ -18,6 +19,7 @@
 - [x] Documentation (ARCHITECTURE, CHANGELOG, DECISIONS, SECURITY_MODEL, TODO)
 
 ## Sprint 4+ (Future)
+
 - [ ] MFA implementation (TOTP, SMS, Email OTP, Passkeys)
 - [ ] Recovery Codes implementation
 - [ ] Trusted Devices with remember-me

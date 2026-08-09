@@ -1,13 +1,17 @@
 interface Props {
   status: string;
+  label?: string;
 }
 
 const map: Record<string, string> = {
-  delivered: 'badge-green',
-  pending: 'badge-gold',
-  preparing: 'badge-aqua',
+  VALIDATING: 'badge-gold',
+  CONFIRMED: 'badge-aqua',
+  PROCESSING: 'badge-aqua',
+  OUT_FOR_DELIVERY: 'badge-aqua',
+  DELIVERED: 'badge-green',
+  CANCELLED: 'badge-muted',
 };
 
-export function Badge({ status }: Props) {
-  return <span className={`badge ${map[status] || 'badge-muted'}`}>{status}</span>;
+export function Badge({ status, label }: Props) {
+  return <span className={`badge ${map[status] || 'badge-muted'}`}>{label ?? status}</span>;
 }

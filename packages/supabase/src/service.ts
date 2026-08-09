@@ -1,5 +1,7 @@
 import { getClient, initSupabase } from './client.js';
 
+type QueryBuilder = ReturnType<ReturnType<typeof getTable>['select']>;
+
 export interface SupabaseQuery {
   field: string;
   operator:
@@ -23,11 +25,48 @@ export interface SupabaseOptions {
   orderByField?: string;
   orderDirection?: 'asc' | 'desc';
   limitCount?: number;
+  offset?: number;
 }
 
 function getTable(name: string) {
   initSupabase();
   return getClient().from(name);
+}
+
+function applyQueries(query: QueryBuilder, queries: SupabaseQuery[]): QueryBuilder {
+  for (const q of queries) {
+    if (q.operator === 'eq') query = query.eq(q.field, q.value);
+    else if (q.operator === 'neq') query = query.neq(q.field, q.value);
+    else if (q.operator === 'gt') query = query.gt(q.field, q.value);
+    else if (q.operator === 'gte') query = query.gte(q.field, q.value);
+    else if (q.operator === 'lt') query = query.lt(q.field, q.value);
+    else if (q.operator === 'lte') query = query.lte(q.field, q.value);
+    else if (q.operator === 'in') query = query.in(q.field, q.value as unknown[]);
+    else if (q.operator === 'notIn') query = query.not(q.field, 'in', q.value as unknown[]);
+    else if (q.operator === 'contains')
+      query = query.contains(q.field, q.value as Record<string, unknown>);
+    else if (q.operator === 'containedBy')
+      query = query.containedBy(q.field, q.value as Record<string, unknown>);
+    else if (q.operator === 'overlaps') query = query.overlaps(q.field, q.value as unknown[]);
+    else if (q.operator === 'ilike') query = query.ilike(q.field, q.value as string);
+    else if (q.operator === 'like') query = query.like(q.field, q.value as string);
+  }
+  return query;
+}
+
+function applyOptions(query: QueryBuilder, options?: SupabaseOptions): QueryBuilder {
+  if (options?.orderByField) {
+    query = query.order(options.orderByField, {
+      ascending: (options.orderDirection ?? 'asc') === 'asc',
+    });
+  }
+  if (options?.limitCount) {
+    query = query.limit(options.limitCount);
+  }
+  if (options?.offset) {
+    query = query.range(options.offset, options.offset + (options.limitCount ?? 100) - 1);
+  }
+  return query;
 }
 
 export const supabaseService = {
@@ -48,34 +87,22 @@ export const supabaseService = {
     queries: SupabaseQuery[],
     options?: SupabaseOptions,
   ): Promise<T[]> {
-    let query = getTable(tableName).select('*');
+    let qry: QueryBuilder = getTable(tableName).select('*');
+    qry = applyQueries(qry, queries);
+    qry = applyOptions(qry, options);
 
-    for (const q of queries) {
-      if (q.operator === 'eq') query = query.eq(q.field, q.value);
-      else if (q.operator === 'neq') query = query.neq(q.field, q.value);
-      else if (q.operator === 'gt') query = query.gt(q.field, q.value);
-      else if (q.operator === 'gte') query = query.gte(q.field, q.value);
-      else if (q.operator === 'lt') query = query.lt(q.field, q.value);
-      else if (q.operator === 'lte') query = query.lte(q.field, q.value);
-      else if (q.operator === 'in') query = query.in(q.field, q.value as unknown[]);
-      else if (q.operator === 'notIn') query = query.not(q.field, 'in', q.value as unknown[]);
-      else if (q.operator === 'contains')
-        query = query.contains(q.field, q.value as Record<string, unknown>);
-      else if (q.operator === 'ilike') query = query.ilike(q.field, q.value as string);
-    }
-
-    if (options?.orderByField) {
-      query = query.order(options.orderByField, {
-        ascending: (options.orderDirection ?? 'asc') === 'asc',
-      });
-    }
-    if (options?.limitCount) {
-      query = query.limit(options.limitCount);
-    }
-
-    const { data, error } = await query;
+    const { data, error } = await qry;
     if (error) throw error;
     return (data ?? []) as T[];
+  },
+
+  async count(tableName: string, queries: SupabaseQuery[]): Promise<number> {
+    let qry: QueryBuilder = getTable(tableName).select('*', { count: 'exact', head: true });
+    qry = applyQueries(qry, queries);
+
+    const { count, error } = await qry;
+    if (error) throw error;
+    return count ?? 0;
   },
 
   async add<T>(tableName: string, data: Record<string, unknown>): Promise<T> {
@@ -120,5 +147,12 @@ export const supabaseService = {
       .maybeSingle();
     if (error) throw error;
     return result as T;
+  },
+
+  async rpc<T>(fn: string, params: Record<string, unknown>): Promise<T> {
+    initSupabase();
+    const { data, error } = await getClient().rpc(fn, params);
+    if (error) throw error;
+    return data as T;
   },
 };

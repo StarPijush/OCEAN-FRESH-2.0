@@ -31,7 +31,9 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
   return (
     <div className="mt-2">
       <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-        <div className={`h-full ${strength.color} ${strength.width} transition-all duration-300 rounded-full`} />
+        <div
+          className={`h-full ${strength.color} ${strength.width} transition-all duration-300 rounded-full`}
+        />
       </div>
       <p className="text-xs text-gray-500 mt-1">Password strength: {strength.label}</p>
     </div>

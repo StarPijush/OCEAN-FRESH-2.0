@@ -1,14 +1,6 @@
-import { createContext, type ReactNode, useCallback, useContext, useRef, useState } from 'react';
+import { type ReactNode, useCallback, useRef, useState } from 'react';
 
-interface ToastContextValue {
-  toast: (msg: string, type?: '' | 'success' | 'error') => void;
-}
-
-const ToastContext = createContext<ToastContextValue>({ toast: () => {} });
-
-export function useAdminToast() {
-  return useContext(ToastContext);
-}
+import { ToastContext } from './toast-context.js';
 
 export function AdminToastProvider({ children }: { children: ReactNode }) {
   const [msg, setMsg] = useState('');

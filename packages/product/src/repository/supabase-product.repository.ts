@@ -66,12 +66,11 @@ export class SupabaseProductRepository implements IProductRepository {
   async findByIds(ids: string[]): Promise<Product[]> {
     if (ids.length === 0) return [];
     try {
-      const results: Product[] = [];
-      for (const id of ids) {
-        const product = await this.findById(id);
-        if (product) results.push(product);
-      }
-      return results;
+      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, [
+        { field: 'id', operator: 'in', value: ids },
+        { field: 'is_deleted', operator: 'eq', value: false },
+      ]);
+      return rows.map(toProduct);
     } catch (err) {
       throw new RepositoryError('Failed to find products by IDs', 'findByIds', TABLE, {
         ids,
@@ -105,6 +104,8 @@ export class SupabaseProductRepository implements IProductRepository {
       if (query.priceMax !== undefined)
         constraints.push({ field: 'price', operator: 'lte', value: query.priceMax });
 
+      const total = await supabaseService.count(TABLE, constraints);
+
       const sortField =
         query.sort === ProductSortField.CREATED_AT
           ? 'created_at'
@@ -113,10 +114,14 @@ export class SupabaseProductRepository implements IProductRepository {
             : query.sort === ProductSortField.DISPLAY_ORDER
               ? 'sort_order'
               : (query.sort ?? 'name');
+      const limit = query.limit ?? 20;
+      const page = query.page ?? 1;
+      const offset = (page - 1) * limit;
       const options: SupabaseOptions = {
         orderByField: sortField,
         orderDirection: query.sortDirection ?? 'asc',
-        limitCount: query.limit ?? 20,
+        limitCount: limit,
+        offset,
       };
 
       const rows = await supabaseService.query<Record<string, unknown>>(
@@ -128,8 +133,8 @@ export class SupabaseProductRepository implements IProductRepository {
 
       return {
         items,
-        total: items.length,
-        hasMore: items.length === (query.limit ?? 20),
+        total,
+        hasMore: offset + limit < total,
         lastDoc: items.length > 0 ? (items[items.length - 1]?.id ?? null) : null,
       };
     } catch (err) {
@@ -183,26 +188,22 @@ export class SupabaseProductRepository implements IProductRepository {
       if (query?.featured !== undefined)
         constraints.push({ field: 'featured', operator: 'eq', value: query.featured });
 
-      const options: SupabaseOptions = {
-        orderByField: query?.sort ?? 'name',
-        orderDirection: query?.sortDirection ?? 'asc',
-        limitCount: query?.limit ?? 20,
-      };
-
-      const rows = await supabaseService.query<Record<string, unknown>>(
-        TABLE,
-        constraints,
-        options,
-      );
-      const items = rows.map(toProduct).filter((p) => {
+      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, constraints);
+      const allItems = rows.map(toProduct).filter((p) => {
         const kw = p.searchKeywords ?? [];
         return Array.isArray(kw) && kw.some((k: string) => k.toLowerCase().includes(lower));
       });
 
+      const total = allItems.length;
+      const limit = query?.limit ?? 20;
+      const page = query?.page ?? 1;
+      const offset = (page - 1) * limit;
+      const items = allItems.slice(offset, offset + limit);
+
       return {
         items,
-        total: items.length,
-        hasMore: items.length === (query?.limit ?? 20),
+        total,
+        hasMore: offset + limit < total,
         lastDoc: items.length > 0 ? (items[items.length - 1]?.id ?? null) : null,
       };
     } catch (err) {
@@ -232,20 +233,23 @@ export class SupabaseProductRepository implements IProductRepository {
           constraints.push({ field: 'status', operator: 'eq', value: query.status });
         }
       }
-      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, constraints);
-      return rows.length;
+      return supabaseService.count(TABLE, constraints);
     } catch (err) {
       throw new RepositoryError('Failed to count products', 'count', TABLE, { query, error: err });
     }
   }
 
-  async create(data: CreateProductInput & { createdBy: string; slug: string }): Promise<Product> {
+  async create(data: CreateProductInput & { createdBy: string; slug?: string }): Promise<Product> {
     try {
       const now = new Date().toISOString();
+      const finalSlug = data.slug ?? (await this.generateUniqueSlug(data.name));
+      const { id, thumbnail, gallery, ...rest } = data;
       const docData = {
-        ...data,
-        thumbnail: '',
-        gallery: [],
+        ...rest,
+        ...(id ? { id } : {}),
+        slug: finalSlug,
+        thumbnail: thumbnail ?? '',
+        gallery: gallery ?? [],
         variants: data.variants ?? null,
         metadata: data.metadata ?? {},
         version: 1,
@@ -427,7 +431,7 @@ export class SupabaseProductRepository implements IProductRepository {
     }
   }
 
-  private async generateUniqueSlug(name: string): Promise<string> {
+  async generateUniqueSlug(name: string): Promise<string> {
     const base = slugify(name);
     let slug = base;
     let counter = 1;

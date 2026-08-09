@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { useCartStore } from '../../stores/cart.js';
+import { useCartStore } from '../../services/cart.service.js';
 
 interface TopNavProps {
   onMenuToggle: () => void;

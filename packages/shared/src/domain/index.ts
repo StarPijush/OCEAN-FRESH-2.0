@@ -1,0 +1,14 @@
+export type { DomainEvent } from './base/aggregate-root.js';
+export { AggregateRoot } from './base/aggregate-root.js';
+export { Entity } from './base/entity.js';
+export { ValueObject } from './base/value-object.js';
+export type { Specification } from './rules/specification.js';
+export { CompositeSpecification } from './rules/specification.js';
+export { AndSpecification, NotSpecification, OrSpecification } from './rules/specification.js';
+export type { AddressData } from './value-objects/address.js';
+export { Address } from './value-objects/address.js';
+export { Email } from './value-objects/email.js';
+export { CurrencyCode, Money } from './value-objects/money.js';
+export type { PhoneData } from './value-objects/phone.js';
+export { Phone } from './value-objects/phone.js';
+export { Quantity, Unit } from './value-objects/quantity.js';

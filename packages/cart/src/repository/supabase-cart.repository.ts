@@ -140,8 +140,7 @@ export class SupabaseCartRepository implements ICartRepository {
       if (query?.userId)
         constraints.push({ field: 'user_id', operator: 'eq', value: query.userId });
       if (query?.status) constraints.push({ field: 'status', operator: 'eq', value: query.status });
-      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, constraints);
-      return rows.length;
+      return supabaseService.count(TABLE, constraints);
     } catch (err) {
       throw new RepositoryError('Failed to count carts', 'count', TABLE, { query, error: err });
     }

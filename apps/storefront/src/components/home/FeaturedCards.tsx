@@ -1,12 +1,17 @@
-import { getFeaturedProducts } from '../../services/products.js';
-import { useCartStore } from '../../stores/cart.js';
-import { showToast } from '../ui/Toast.js';
+import { useEffect, useState } from 'react';
+
+import { productService, type ProductVM, useCartStore } from '../../services/index.js';
+import { showToast } from '../ui/toast.js';
 
 export function FeaturedCards() {
-  const featured = getFeaturedProducts(6);
+  const [featured, setFeatured] = useState<ProductVM[]>([]);
   const cart = useCartStore((s) => s.items);
   const addItem = useCartStore((s) => s.addItem);
   const updateQty = useCartStore((s) => s.updateQty);
+
+  useEffect(() => {
+    productService.getFeatured(6).then(setFeatured);
+  }, []);
 
   return (
     <section className="section section-alt">

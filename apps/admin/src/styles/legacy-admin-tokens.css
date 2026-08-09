@@ -1,24 +1,24 @@
 :root {
-  --bg:        #0d0f12;
-  --surface:   #141720;
-  --surface2:  #1c2030;
-  --border:    rgba(255,255,255,0.07);
-  --border2:   rgba(255,255,255,0.12);
-  --cream:     #f0ebe0;
-  --muted:     #6b7280;
-  --muted2:    #9ca3af;
-  --aqua:      #4ab8c1;
-  --aqua-dim:  rgba(74,184,193,0.12);
-  --warn:      #e07a65;
-  --warn-dim:  rgba(224,122,101,0.12);
-  --green:     #4ade80;
-  --green-dim: rgba(74,222,128,0.12);
-  --gold:      #f0b429;
-  --gold-dim:  rgba(240,180,41,0.12);
-  --white:     #ffffff;
+  --bg: #0d0f12;
+  --surface: #141720;
+  --surface2: #1c2030;
+  --border: rgba(255, 255, 255, 0.07);
+  --border2: rgba(255, 255, 255, 0.12);
+  --cream: #f0ebe0;
+  --muted: #6b7280;
+  --muted2: #9ca3af;
+  --aqua: #4ab8c1;
+  --aqua-dim: rgba(74, 184, 193, 0.12);
+  --warn: #e07a65;
+  --warn-dim: rgba(224, 122, 101, 0.12);
+  --green: #4ade80;
+  --green-dim: rgba(74, 222, 128, 0.12);
+  --gold: #f0b429;
+  --gold-dim: rgba(240, 180, 41, 0.12);
+  --white: #ffffff;
 
   --font-d: 'Cormorant Garamond', Georgia, serif;
   --font-b: 'Instrument Sans', sans-serif;
-  --ease:   cubic-bezier(0.16,1,0.3,1);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --sidebar-w: 220px;
 }

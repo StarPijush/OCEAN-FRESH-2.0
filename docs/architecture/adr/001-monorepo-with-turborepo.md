@@ -2,7 +2,7 @@
 
 **Status:** Accepted  
 **Date:** 2026-07-16  
-**Author:** Principal Software Architect  
+**Author:** Principal Software Architect
 
 ## Context
 

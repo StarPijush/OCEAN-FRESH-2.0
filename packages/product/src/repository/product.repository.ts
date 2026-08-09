@@ -21,7 +21,8 @@ export interface IProductRepository {
   exists(id: string): Promise<boolean>;
   existsBySlug(slug: string): Promise<boolean>;
   count(query?: Partial<ProductQuery>): Promise<number>;
-  create(data: CreateProductInput & { createdBy: string; slug: string }): Promise<Product>;
+  create(data: CreateProductInput & { createdBy: string; slug?: string }): Promise<Product>;
+  generateUniqueSlug(name: string): Promise<string>;
   update(id: string, data: Partial<UpdateProductInput> & { updatedBy: string }): Promise<Product>;
   softDelete(id: string): Promise<void>;
   restore(id: string): Promise<void>;

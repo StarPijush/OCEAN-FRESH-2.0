@@ -11,7 +11,11 @@ export class ValidationError extends AppError {
   readonly statusCode = 400;
   readonly severity = 'warning' as const;
 
-  constructor(message: string, public readonly fields?: ValidationField[], context?: Record<string, unknown>) {
+  constructor(
+    message: string,
+    public readonly fields?: ValidationField[],
+    context?: Record<string, unknown>,
+  ) {
     super(message, context);
   }
 }

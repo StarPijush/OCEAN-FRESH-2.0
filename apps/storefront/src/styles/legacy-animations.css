@@ -1,22 +1,46 @@
 @keyframes bar-slide {
-  to { left: 100%; }
+  to {
+    left: 100%;
+  }
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fade-in {
-  from { opacity: 0; } to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scroll-pulse {
-  0%,100% { transform: scaleY(1); opacity: 0.3; }
-  50%      { transform: scaleY(0.5); opacity: 0.8; }
+  0%,
+  100% {
+    transform: scaleY(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scaleY(0.5);
+    opacity: 0.8;
+  }
 }
 
 @keyframes ticker {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }

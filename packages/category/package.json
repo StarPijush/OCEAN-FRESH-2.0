@@ -2,18 +2,13 @@
   "name": "@oceanfresh/category",
   "version": "0.0.0",
   "private": true,
-  "description": "OceanFresh Category Domain — Clean Architecture repository, services, hooks, queries, mutations, and components for hierarchical category management",
+  "description": "OceanFresh Category Domain — repository for the categories table",
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./repository": "./src/repository/index.ts",
-    "./service": "./src/service/index.ts",
-    "./events": "./src/events/index.ts",
-    "./queries": "./src/queries/index.ts",
-    "./hooks": "./src/hooks/index.ts",
-    "./components": "./src/components/index.ts"
+    "./repository": "./src/repository/index.ts"
   },
   "scripts": {
     "build": "tsc",
@@ -25,25 +20,11 @@
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
-    "@oceanfresh/supabase": "workspace:*",
     "@oceanfresh/shared": "workspace:*",
-    "@tanstack/react-query": "^5.51.0",
-    "zod": "^3.23.8"
+    "@oceanfresh/supabase": "workspace:*"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.4.6",
-    "@testing-library/react": "^16.0.0",
-    "@types/node": "^26.1.1",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "jsdom": "^24.1.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
     "typescript": "^5.5.3",
     "vitest": "^2.0.3"
-  },
-  "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
   }
 }

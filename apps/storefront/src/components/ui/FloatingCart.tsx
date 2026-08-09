@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
-import { useCartStore } from '../../stores/cart.js';
+import { useCartStore } from '../../services/cart.service.js';
 
 export function FloatingCart() {
   const navigate = useNavigate();

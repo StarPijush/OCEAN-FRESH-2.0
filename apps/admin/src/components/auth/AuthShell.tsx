@@ -1,8 +1,7 @@
 import { useAdminAuth } from '../../hooks/useAdminAuth';
-import { useAdminToast } from '../shared/AdminToast';
+import { useAdminToast } from '../shared/use-admin-toast.js';
 import { ForgotScreen } from './ForgotScreen';
 import { LoginScreen } from './LoginScreen';
-import { OTPScreen } from './OTPScreen';
 import { ResetScreen } from './ResetScreen';
 
 interface Props {
@@ -10,21 +9,12 @@ interface Props {
 }
 
 export function AuthShell({ onLoggedIn }: Props) {
-  const {
-    currentScreen,
-    loading,
-    error,
-    otpMobile,
-    showScreen,
-    doLogin,
-    doForgotSendOTP,
-    doVerifyOTP,
-    doResetPassword,
-  } = useAdminAuth();
+  const { currentScreen, loading, error, showScreen, doLogin, doForgotSendEmail, doResetPassword } =
+    useAdminAuth();
   const { toast } = useAdminToast();
 
-  const handleLogin = async (mobile: string, password: string) => {
-    const ok = await doLogin(mobile, password);
+  const handleLogin = async (email: string, password: string) => {
+    const ok = await doLogin(email, password);
     if (ok) {
       toast('Login successful!', 'success');
       setTimeout(onLoggedIn, 500);
@@ -34,16 +24,12 @@ export function AuthShell({ onLoggedIn }: Props) {
     return ok;
   };
 
-  const handleSendOTP = async (mobile: string) => {
-    const ok = await doForgotSendOTP(mobile);
-    if (!ok) toast('Mobile number not found', 'error');
-    return ok;
-  };
-
-  const handleVerifyOTP = (val: string) => {
-    const ok = doVerifyOTP(val);
-    if (!ok) {
-      toast('Incorrect OTP', 'error');
+  const handleSendResetEmail = async (email: string) => {
+    const ok = await doForgotSendEmail(email);
+    if (ok) {
+      toast('Password reset link sent to your email', 'success');
+    } else {
+      toast('Failed to send reset email', 'error');
     }
     return ok;
   };
@@ -70,27 +56,16 @@ export function AuthShell({ onLoggedIn }: Props) {
 
       {currentScreen === 'forgot' && (
         <ForgotScreen
-          onSendOTP={handleSendOTP}
+          onSendResetEmail={handleSendResetEmail}
           onBack={() => showScreen('login')}
           error={error}
           loading={loading}
         />
       )}
 
-      {currentScreen === 'otp' && (
-        <OTPScreen
-          mobile={otpMobile}
-          onVerify={handleVerifyOTP}
-          onResend={() => {
-            const m = document.querySelector<HTMLInputElement>('#forgot-mobile')?.value ?? '';
-            if (m) handleSendOTP(m);
-          }}
-          onBack={() => showScreen('login')}
-          error={error}
-        />
+      {currentScreen === 'reset' && (
+        <ResetScreen onReset={handleReset} onBack={() => showScreen('login')} error={error} />
       )}
-
-      {currentScreen === 'reset' && <ResetScreen onReset={handleReset} error={error} />}
     </div>
   );
 }

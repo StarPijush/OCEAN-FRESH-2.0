@@ -6,5 +6,5 @@
     "jsx": "react-jsx"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["src/repository/firestore-cart.repository.ts", "src/tests/"]
+  "exclude": ["src/tests/"]
 }

@@ -3,6 +3,7 @@
 ## v0.0.1 — Initial Implementation (2026-07-16)
 
 ### Added
+
 - **OrderStateMachine** with 15 states, 2 terminal (REFUNDED, ARCHIVED); enforced VALID_TRANSITIONS
 - **OrderNumberGenerator** — produces `OF-{year}-{6-digit}` format via atomic Firestore counter
 - **OrderValidationService** — validates checkout context, creation input, status transitions, cancellation rules, refund rules
@@ -19,6 +20,7 @@
 - **Zod schemas** — createOrderFromCheckout, orderQuery
 
 ### Architecture Decisions
+
 - Client-provided IdempotencyKey prevents duplicate orders
 - PAID → REFUND_REQUESTED → REFUNDED path (no direct cancellation of paid orders)
 - Dedicated `OrderNumberGenerator` service with Firestore atomic counter

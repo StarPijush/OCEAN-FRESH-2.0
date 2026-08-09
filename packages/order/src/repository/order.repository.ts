@@ -4,7 +4,6 @@ import type {
   OrderStatus,
   OrderTimelineEntry,
   PaginatedResult,
-  PaymentSummary,
 } from '@oceanfresh/shared';
 
 export interface IOrderRepository {
@@ -20,7 +19,6 @@ export interface IOrderRepository {
   create(data: Order): Promise<Order>;
   updateStatus(id: string, status: OrderStatus, changedBy: string, note?: string): Promise<Order>;
   appendTimeline(id: string, entry: OrderTimelineEntry): Promise<Order>;
-  updatePayment(id: string, payment: PaymentSummary): Promise<Order>;
   archive(id: string): Promise<Order>;
   delete(id: string): Promise<void>;
 }

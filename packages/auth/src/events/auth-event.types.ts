@@ -1,4 +1,4 @@
-import type { AuthEventType } from '@oceanfresh/shared';
+import type { AuthEventType, EventBus as GenericEventBus } from '@oceanfresh/shared';
 
 export interface AuthEvent {
   type: AuthEventType;
@@ -12,10 +12,6 @@ export interface AuthEvent {
   };
 }
 
-export interface EventBus {
-  publish(event: AuthEvent): Promise<void>;
-  subscribe(eventType: AuthEventType, handler: (event: AuthEvent) => void): () => void;
-  clear(): void;
-}
+export type EventBus = GenericEventBus<AuthEvent, AuthEventType>;
 
 export { AuthEventType } from '@oceanfresh/shared';

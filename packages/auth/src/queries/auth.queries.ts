@@ -2,7 +2,6 @@ import { AuthenticationState, type Permission } from '@oceanfresh/shared';
 import { useQuery } from '@tanstack/react-query';
 
 import { SupabaseAuthProvider } from '../providers/index.js';
-import { getAuthRepository } from '../repository/index.js';
 import { authKeys } from './auth.query-keys.js';
 
 const authProvider = new SupabaseAuthProvider();
@@ -29,7 +28,12 @@ export function useAuthState() {
 export function useSession() {
   return useQuery({
     queryKey: authKeys.session(),
-    queryFn: () => getAuthRepository().findSessionsByUserId('current'),
+    queryFn: async () => {
+      const user = await authProvider.getCurrentUser();
+      if (!user) return null;
+      const accessToken = await authProvider.getIdToken();
+      return { user, accessToken };
+    },
   });
 }
 

@@ -39,7 +39,10 @@ export class MfaRequiredError extends AuthError {
   readonly code = 'MFA_REQUIRED' as const;
   readonly statusCode = 401;
 
-  constructor(public readonly mfaFactors: string[], context?: Record<string, unknown>) {
+  constructor(
+    public readonly mfaFactors: string[],
+    context?: Record<string, unknown>,
+  ) {
     super('Multi-factor authentication required', context);
   }
 }
@@ -66,7 +69,10 @@ export class TooManyAttemptsError extends AuthError {
   readonly code = 'TOO_MANY_ATTEMPTS' as const;
   readonly statusCode = 429;
 
-  constructor(public readonly retryAfterSeconds: number, context?: Record<string, unknown>) {
+  constructor(
+    public readonly retryAfterSeconds: number,
+    context?: Record<string, unknown>,
+  ) {
     super(`Too many attempts. Try again after ${retryAfterSeconds} seconds.`, context);
   }
 }

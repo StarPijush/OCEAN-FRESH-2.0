@@ -1,89 +1,86 @@
+import { type Cart, CartSource, CartStatus } from '@oceanfresh/shared';
+import { supabaseService } from '@oceanfresh/supabase';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@oceanfresh/firebase', () => ({
-  firestoreService: {
-    get: vi.fn(),
-    query: vi.fn(),
-    add: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
-  },
-}));
+import { SupabaseCartRepository } from '../repository/supabase-cart.repository.js';
 
-vi.mock('firebase/firestore', () => {
-  class MockTimestamp {
-    seconds: number;
-    nanoseconds: number;
-    constructor(seconds: number, nanoseconds: number) {
-      this.seconds = seconds;
-      this.nanoseconds = nanoseconds;
-    }
-    static now() {
-      return new MockTimestamp(1000, 0);
-    }
-    static fromMillis(ms: number) {
-      return new MockTimestamp(Math.floor(ms / 1000), 0);
-    }
-  }
-  return { Timestamp: MockTimestamp };
+vi.mock('@oceanfresh/supabase', async (importOriginal) => {
+  const mod = await importOriginal<typeof supabaseService>();
+  return {
+    ...mod,
+    supabaseService: {
+      get: vi.fn(),
+      query: vi.fn(),
+      add: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+      upsert: vi.fn(),
+    },
+  };
 });
 
-import { firestoreService } from '@oceanfresh/firebase';
-import { type Cart, CartSource, CartStatus } from '@oceanfresh/shared';
-
-import { FirestoreCartRepository } from '../repository/firestore-cart.repository.js';
-
-describe('FirestoreCartRepository', () => {
-  let repo: FirestoreCartRepository;
+describe('SupabaseCartRepository', () => {
+  let repo: SupabaseCartRepository;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    repo = new FirestoreCartRepository();
+    vi.resetAllMocks();
+    repo = new SupabaseCartRepository();
   });
 
   it('findById returns null when document not found', async () => {
-    vi.mocked(firestoreService.get).mockResolvedValue(null);
+    vi.mocked(supabaseService.get).mockResolvedValue(null);
     const result = await repo.findById('missing');
     expect(result).toBeNull();
   });
 
   it('findById returns cart when document exists', async () => {
-    vi.mocked(firestoreService.get).mockResolvedValue({
+    vi.mocked(supabaseService.get).mockResolvedValue({
       id: 'cart-1',
       userId: 'user-1',
       status: CartStatus.ACTIVE,
     });
+    vi.mocked(supabaseService.query).mockResolvedValue([]);
     const result = await repo.findById('cart-1');
     expect(result).not.toBeNull();
     expect((result as Cart).id).toBe('cart-1');
   });
 
   it('findBySessionId returns cart', async () => {
-    vi.mocked(firestoreService.query).mockResolvedValue([
+    vi.mocked(supabaseService.query).mockResolvedValue([
       { id: 'cart-1', sessionId: 'sess-1', status: CartStatus.ACTIVE },
     ]);
+    vi.mocked(supabaseService.get).mockResolvedValue({
+      id: 'cart-1',
+      sessionId: 'sess-1',
+      status: CartStatus.ACTIVE,
+    });
     const result = await repo.findBySessionId('sess-1');
     expect(result).not.toBeNull();
     expect((result as Cart).id).toBe('cart-1');
   });
 
   it('findBySessionId returns null when no results', async () => {
-    vi.mocked(firestoreService.query).mockResolvedValue([]);
+    vi.mocked(supabaseService.query).mockResolvedValue([]);
     const result = await repo.findBySessionId('sess-1');
     expect(result).toBeNull();
   });
 
   it('findByUserOrSession tries userId first', async () => {
-    vi.mocked(firestoreService.query).mockResolvedValue([
+    vi.mocked(supabaseService.query).mockResolvedValue([
       { id: 'cart-1', userId: 'user-1', status: CartStatus.ACTIVE },
     ]);
+    vi.mocked(supabaseService.get).mockResolvedValue({
+      id: 'cart-1',
+      userId: 'user-1',
+      status: CartStatus.ACTIVE,
+    });
     const result = await repo.findByUserOrSession('user-1', 'sess-1');
     expect(result).not.toBeNull();
     expect((result as Cart).id).toBe('cart-1');
   });
 
   it('create persists a new cart', async () => {
-    vi.mocked(firestoreService.add).mockResolvedValue({ id: 'new-cart' });
+    vi.mocked(supabaseService.add).mockResolvedValue({ id: 'new-cart' });
     const result = await repo.create({
       userId: 'user-1',
       sessionId: null,
@@ -95,12 +92,13 @@ describe('FirestoreCartRepository', () => {
   });
 
   it('clearItems removes all items', async () => {
-    vi.mocked(firestoreService.get).mockResolvedValueOnce({
+    vi.mocked(supabaseService.get).mockResolvedValueOnce({
       id: 'cart-1',
       items: [{ id: 'item-1', productId: 'p1' }] as Array<Record<string, unknown>>,
     });
-    vi.mocked(firestoreService.update).mockResolvedValue(undefined);
-    vi.mocked(firestoreService.get).mockResolvedValueOnce({ id: 'cart-1', items: [] } as Record<
+    vi.mocked(supabaseService.query).mockResolvedValue([]);
+    vi.mocked(supabaseService.update).mockResolvedValue(undefined);
+    vi.mocked(supabaseService.get).mockResolvedValueOnce({ id: 'cart-1', items: [] } as Record<
       string,
       unknown
     >);
@@ -110,7 +108,7 @@ describe('FirestoreCartRepository', () => {
   });
 
   it('delete throws NotFoundError for missing cart', async () => {
-    vi.mocked(firestoreService.get).mockResolvedValue(null);
+    vi.mocked(supabaseService.get).mockResolvedValue(null);
     await expect(repo.delete('missing')).rejects.toThrow();
   });
 });

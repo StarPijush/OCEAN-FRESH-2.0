@@ -19,9 +19,13 @@
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
+    "@oceanfresh/cart": "workspace:*",
+    "@oceanfresh/category": "workspace:*",
+    "@oceanfresh/order": "workspace:*",
+    "@oceanfresh/product": "workspace:*",
+    "@oceanfresh/settings": "workspace:*",
     "@oceanfresh/supabase": "workspace:*",
     "@oceanfresh/shared": "workspace:*",
-    "@oceanfresh/ui": "workspace:*",
     "@tanstack/react-query": "^5.51.0",
     "@tanstack/react-query-devtools": "^5.51.0",
     "framer-motion": "^11.3.0",

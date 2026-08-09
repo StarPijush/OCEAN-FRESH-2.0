@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export function useReveal(deps: unknown[] = []) {
+export function useReveal() {
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export function useReveal(deps: unknown[] = []) {
           }
         });
       },
-      { threshold: 0.12 }
+      { threshold: 0.12 },
     );
 
     els.forEach((el) => observerRef.current?.observe(el));
@@ -24,5 +24,5 @@ export function useReveal(deps: unknown[] = []) {
     return () => {
       observerRef.current?.disconnect();
     };
-  }, deps);
+  }, []);
 }

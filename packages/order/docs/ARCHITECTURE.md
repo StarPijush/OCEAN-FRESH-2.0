@@ -48,6 +48,7 @@
 ```
 
 ## Dependency Rules
+
 1. Components → Hooks → Queries → Services → Repository
 2. Services never reference components, hooks, or queries
 3. Repository is the only layer that touches Firestore
@@ -80,6 +81,7 @@ DRAFT ──► VALIDATING ──► PENDING_PAYMENT ──► PAID ──► CO
 ```
 
 ## Checkout Flow (createFromCheckout)
+
 1. Receive `CartCheckoutContext` + `CreateOrderFromCheckoutInput`
 2. **Idempotency check** via `repository.findByIdempotencyKey()`
 3. Generate order number via `OrderNumberGenerator` (atomic Firestore counter)
@@ -91,6 +93,7 @@ DRAFT ──► VALIDATING ──► PENDING_PAYMENT ──► PAID ──► CO
 9. Return order
 
 ## Snapshot Design
+
 - `OrderProductSnapshot` — frozen at creation time from CartCheckoutContext
 - `OrderCustomerSnapshot` — frozen customer details at order time
 - `OrderShippingSnapshot` — frozen shipping method and cost

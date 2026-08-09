@@ -1,20 +1,20 @@
 import type { Timestamp } from './common.js';
 
 export enum ProductUnit {
-  KG = 'kg',
-  PIECE = 'piece',
-  DOZEN = 'dozen',
+  KG = 'KG',
+  PIECE = 'PIECE',
+  DOZEN = 'DOZEN',
 }
 
 export enum ProductStatus {
-  ACTIVE = 'active',
-  OUT_OF_STOCK = 'out_of_stock',
-  COMING_SOON = 'coming_soon',
-  DISCONTINUED = 'discontinued',
-  ARCHIVED = 'archived',
-  HIDDEN = 'hidden',
-  PREORDER = 'preorder',
-  DRAFT = 'draft',
+  DRAFT = 'DRAFT',
+  ACTIVE = 'ACTIVE',
+  OUT_OF_STOCK = 'OUT_OF_STOCK',
+  COMING_SOON = 'COMING_SOON',
+  DISCONTINUED = 'DISCONTINUED',
+  ARCHIVED = 'ARCHIVED',
+  HIDDEN = 'HIDDEN',
+  PREORDER = 'PREORDER',
 }
 
 export enum ProductSortField {
@@ -114,6 +114,7 @@ export interface Product {
 }
 
 export interface CreateProductInput {
+  id?: string;
   name: string;
   description: string;
   price: number;
@@ -129,6 +130,8 @@ export interface CreateProductInput {
   dimensions?: ProductDimensions;
   sku?: string;
   barcode?: string;
+  thumbnail?: string;
+  gallery?: string[];
   seo?: ProductSeo;
   metadata?: Record<string, unknown>;
   sortOrder?: number;
@@ -155,6 +158,7 @@ export interface ProductQuery {
   sort?: ProductSortField;
   sortDirection?: 'asc' | 'desc';
   cursor?: string;
+  page?: number;
   limit?: number;
   includeDeleted?: boolean;
 }

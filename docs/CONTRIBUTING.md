@@ -18,15 +18,15 @@ pnpm dev
 
 ## Branch Strategy
 
-| Branch | Purpose | Protected | Deploys To |
-|---|---|---|---|
-| `main` | Production | ✅ | Vercel production |
-| `staging` | Pre-production | ✅ | Vercel staging |
-| `develop` | Integration | ✅ | — |
-| `feat/*` | Features | ❌ | Vercel preview |
-| `fix/*` | Bug fixes | ❌ | Vercel preview |
-| `release/*` | Release prep | ❌ | — |
-| `hotfix/*` | Emergency | ❌ | Direct to staging |
+| Branch      | Purpose        | Protected | Deploys To        |
+| ----------- | -------------- | --------- | ----------------- |
+| `main`      | Production     | ✅        | Vercel production |
+| `staging`   | Pre-production | ✅        | Vercel staging    |
+| `develop`   | Integration    | ✅        | —                 |
+| `feat/*`    | Features       | ❌        | Vercel preview    |
+| `fix/*`     | Bug fixes      | ❌        | Vercel preview    |
+| `release/*` | Release prep   | ❌        | —                 |
+| `hotfix/*`  | Emergency      | ❌        | Direct to staging |
 
 ## Commit Convention
 
@@ -99,6 +99,7 @@ pnpm --filter @oceanfresh/storefront test
 ## Code Review Expectations
 
 Reviews focus on:
+
 1. **Correctness** — Does it solve the problem?
 2. **Security** — Any vulnerabilities?
 3. **Maintainability** — Will another developer understand this in 6 months?

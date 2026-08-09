@@ -195,18 +195,16 @@ export class SupabaseAuthProvider implements IAuthProvider {
     if (error) throw new AuthError('Reauthentication failed');
   }
 
-  async deleteAccount(): Promise<void> {
-    initSupabase();
-    const { error } = await getClient().auth.admin.deleteUser(
-      (await getClient().auth.getUser()).data.user?.id ?? '',
-    );
-    if (error) throw new AuthError('Failed to delete account');
-  }
-
   async sendPasswordReset(email: string): Promise<void> {
     initSupabase();
     const { error } = await getClient().auth.resetPasswordForEmail(email);
     if (error) throw new AuthError('Failed to send password reset email');
+  }
+
+  async updatePassword(newPassword: string): Promise<void> {
+    initSupabase();
+    const { error } = await getClient().auth.updateUser({ password: newPassword });
+    if (error) throw new AuthError('Failed to update password');
   }
 
   async verifyEmail(): Promise<void> {

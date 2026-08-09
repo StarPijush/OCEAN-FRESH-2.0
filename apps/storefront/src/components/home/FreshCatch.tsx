@@ -1,10 +1,15 @@
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { getProducts } from '../../services/products.js';
+import { productService, type ProductVM } from '../../services/index.js';
 
 export function FreshCatch() {
-  const products = getProducts().filter((p) => p.available);
+  const [products, setProducts] = useState<ProductVM[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    productService.getAll().then((all) => setProducts(all.filter((p) => p.available)));
+  }, []);
 
   return (
     <section className="section">

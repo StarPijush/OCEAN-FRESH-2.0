@@ -1,10 +1,10 @@
 import type { Timestamp } from './common.js';
 
 export enum CategoryStatus {
-  ACTIVE = 'active',
-  DRAFT = 'draft',
-  HIDDEN = 'hidden',
-  ARCHIVED = 'archived',
+  ACTIVE = 'ACTIVE',
+  DRAFT = 'DRAFT',
+  HIDDEN = 'HIDDEN',
+  ARCHIVED = 'ARCHIVED',
 }
 
 export enum CategorySortField {
@@ -89,6 +89,7 @@ export interface CategoryQuery {
   sort?: CategorySortField;
   sortDirection?: 'asc' | 'desc';
   cursor?: string;
+  page?: number;
   limit?: number;
   includeDeleted?: boolean;
 }

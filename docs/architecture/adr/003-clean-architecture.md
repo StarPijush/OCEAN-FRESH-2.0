@@ -1,7 +1,7 @@
 # ADR 003: Clean Architecture with Domain-Driven Design
 
 **Status:** Accepted  
-**Date:** 2026-07-16  
+**Date:** 2026-07-16
 
 ## Context
 
@@ -15,7 +15,7 @@ Use Clean Architecture with Domain-Driven Design principles.
 
 - **Separation of concerns:** UI, business logic, and data access in separate layers
 - **Testability:** Each layer can be tested independently
-- **Swapability:** Repository pattern allows swapping Firestore for another DB
+- **Swapability:** Repository pattern allows swapping Supabase for another DB
 - **Team scaling:** Multiple developers can work on different domains simultaneously
 - **Future-proof:** Adding features doesn't require rewriting existing code
 
@@ -23,10 +23,11 @@ Use Clean Architecture with Domain-Driven Design principles.
 
 ```
 Presentation  →  Application  →  Domain  →  Infrastructure
-    (React)        (Hooks)      (Services)    (Firebase)
+    (React)        (Hooks)      (Services)    (Supabase)
 ```
 
 Each domain (auth, products, orders) owns its:
+
 - Components
 - Hooks
 - Services

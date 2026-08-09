@@ -1,28 +1,62 @@
-import { useMemo, useState } from 'react';
+import { getCategoryRepository } from '@oceanfresh/category/repository';
+import type { Category } from '@oceanfresh/shared';
+import { useEffect, useMemo, useState } from 'react';
 
-import { showToast } from '../components/ui/Toast.js';
+import { showToast } from '../components/ui/toast.js';
 import { useReveal } from '../hooks/useReveal.js';
-import { getProducts } from '../services/products.js';
-import { useCartStore } from '../stores/cart.js';
+import { productService, type ProductVM, useCartStore } from '../services/index.js';
 
-const FILTERS = [
-  { key: 'all', label: 'All' },
-  { key: 'fresh', label: 'Fresh Fish' },
-  { key: 'sea', label: 'Sea Fish' },
-  { key: 'prawns', label: 'Prawns' },
-  { key: 'crabs', label: 'Crabs' },
-];
+const ALL_FILTER = { key: 'all', label: 'All' };
 
 export function ProductsPage() {
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
+  const [products, setProducts] = useState<ProductVM[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const cart = useCartStore((s) => s.items);
   const updateQty = useCartStore((s) => s.updateQty);
   const addItem = useCartStore((s) => s.addItem);
   useReveal();
 
-  const products = useMemo(() => {
-    let list = getProducts();
+  useEffect(() => {
+    let cancelled = false;
+
+    Promise.all([
+      productService.getAll(),
+      getCategoryRepository()
+        .findAll()
+        .catch((err) => {
+          console.warn('Failed to load categories; showing All only.', err);
+          return [] as Category[];
+        }),
+    ])
+      .then(([list, cats]) => {
+        if (cancelled) return;
+        setProducts(list);
+        setCategories(cats);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setError(err instanceof Error ? err.message : 'Failed to load products');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const filters = useMemo(() => {
+    const dynamic = categories.map((c) => ({ key: c.id, label: c.name }));
+    return [ALL_FILTER, ...dynamic];
+  }, [categories]);
+
+  const filtered = useMemo(() => {
+    let list = products;
     if (filter !== 'all') list = list.filter((p) => p.category === filter);
     if (search) {
       const q = search.toLowerCase();
@@ -31,13 +65,13 @@ export function ProductsPage() {
       );
     }
     return list;
-  }, [filter, search]);
+  }, [filter, search, products]);
 
   return (
     <div id="page-products" className="page active">
       <div className="page-header" style={{ top: '56px' }}>
         <div className="filter-scroll">
-          {FILTERS.map((f) => (
+          {filters.map((f) => (
             <div
               key={f.key}
               className={`filter-chip${filter === f.key ? ' active' : ''}`}
@@ -68,18 +102,36 @@ export function ProductsPage() {
           textTransform: 'uppercase',
         }}
       >
-        {products.length} Product{products.length !== 1 ? 's' : ''} Available
+        {filtered.length} Product{filtered.length !== 1 ? 's' : ''} Available
       </div>
 
       <div id="product-list" className="prod-list">
-        {products.length === 0 ? (
+        {loading ? (
+          <div className="empty-state">
+            <div className="spinner" aria-label="Loading products" />
+            <div className="empty-sub">Loading products…</div>
+          </div>
+        ) : error ? (
+          <div className="empty-state">
+            <div className="empty-icon">⚠️</div>
+            <div className="empty-title">Could not load products</div>
+            <div className="empty-sub">{error}</div>
+            <button
+              className="btn btn-aqua btn-sm"
+              onClick={() => window.location.reload()}
+              type="button"
+            >
+              Retry
+            </button>
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">{'\u{1F50D}'}</div>
             <div className="empty-title">Nothing found</div>
             <div className="empty-sub">Try a different filter or search term.</div>
           </div>
         ) : (
-          products.map((p) => {
+          filtered.map((p) => {
             const qty = cart[p.id] ?? 0;
             const hasPhoto = p.image && !p.image.startsWith('data:image/svg');
             return (

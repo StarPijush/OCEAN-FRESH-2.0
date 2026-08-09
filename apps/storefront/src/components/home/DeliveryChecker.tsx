@@ -1,25 +1,21 @@
 import { useRef, useState } from 'react';
 
-import { servicePincodes } from '../../types/legacy.js';
+import { useSettings } from '../../context/settings-context.js';
+import { pincodeService } from '../../services/pincode.service.js';
 
 export function DeliveryChecker() {
+  const settings = useSettings();
   const [result, setResult] = useState<{ type: string; msg: string } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   function checkDelivery() {
     const pin = inputRef.current?.value.trim() ?? '';
-    if (pin.length !== 6) {
-      setResult({ type: 'warn', msg: 'Please enter a valid 6-digit PIN code.' });
+    const check = pincodeService.validate(pin, settings.pincodes);
+    if (!check.isValid || !check.isServiceable) {
+      setResult({ type: check.isValid ? 'err' : 'warn', msg: check.message });
       return;
     }
-    if (servicePincodes.includes(pin)) {
-      setResult({ type: 'ok', msg: '\u2713 Delivery available \u00B7 Expected 2\u20133 hours' });
-    } else {
-      setResult({
-        type: 'err',
-        msg: '\u2715 Not delivering to this area yet \u2014 expanding soon.',
-      });
-    }
+    setResult({ type: 'ok', msg: check.message });
   }
 
   return (

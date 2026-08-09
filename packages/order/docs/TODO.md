@@ -1,6 +1,7 @@
 # Order Domain TODO
 
 ## High Priority
+
 - [x] Domain analysis and architectural decisions
 - [x] Domain model (types, errors, schemas)
 - [x] Order state machine (15 states)
@@ -14,6 +15,7 @@
 - [x] Documentation (6 files)
 
 ## Medium Priority
+
 - [ ] Add coupon/discount support to OrderPricingService
 - [ ] Add Firestore composite indexes for order queries
 - [ ] Add Cloud Functions for order expiry/abandonment
@@ -22,6 +24,7 @@
 - [ ] Add partial refund support
 
 ## Integration
+
 - [ ] Integrate with Payment Domain (IPaymentGateway implementation)
 - [ ] Integrate with Cart Domain's checkout flow (consume CartCheckoutContext)
 - [ ] Integrate with Inventory reservation (deduct stock on order creation)
@@ -29,6 +32,7 @@
 - [ ] Wire `registerOrderRepository()` in app bootstrap
 
 ## Low Priority
+
 - [ ] Add multi-currency support
 - [ ] Add order split/partial fulfillment
 - [ ] Add order scheduling (pre-order, subscription)

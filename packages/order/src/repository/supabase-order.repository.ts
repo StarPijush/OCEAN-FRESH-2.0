@@ -5,7 +5,6 @@ import {
   OrderStatus,
   type OrderTimelineEntry,
   type PaginatedResult,
-  type PaymentSummary,
   RepositoryError,
 } from '@oceanfresh/shared';
 import {
@@ -26,6 +25,72 @@ function toOrder(row: Record<string, unknown>): Order {
   return rowToCamelCase<Order>(row);
 }
 
+function toItems(rows: Record<string, unknown>[]): Order['items'] {
+  return rows.map((i: Record<string, unknown>) => {
+    const camel = rowToCamelCase<Record<string, unknown>>(i);
+    return {
+      id: camel.id,
+      productId: camel.productId,
+      snapshot: camel.snapshot,
+      quantity: camel.quantity,
+      unitPrice: { amount: camel.unitPriceAmount, currency: camel.unitPriceCurrency },
+      subtotal: { amount: camel.subtotalAmount, currency: camel.subtotalCurrency },
+    };
+  }) as unknown as Order['items'];
+}
+
+function toTimeline(rows: Record<string, unknown>[]): OrderTimelineEntry[] {
+  return rows.map((t: Record<string, unknown>) => rowToCamelCase<OrderTimelineEntry>(t));
+}
+
+/**
+ * Hydrates a batch of order rows with their items and timeline entries using
+ * only TWO extra queries (order_items WHERE order_id IN (...) and
+ * order_timeline_entries WHERE order_id IN (...)), grouped in memory.
+ *
+ * This eliminates the previous N+1 pattern (2 extra queries PER order), which
+ * turned findAll({limit:500}) into ~1,501 database round trips.
+ */
+async function hydrateRows(rows: Record<string, unknown>[]): Promise<Order[]> {
+  if (rows.length === 0) return [];
+
+  const ids = rows.map((row) => String(row.id));
+
+  const [itemRows, timelineRows] = await Promise.all([
+    supabaseService.query<Record<string, unknown>>(TABLE_ITEMS, [
+      { field: 'order_id', operator: 'in', value: ids },
+    ]),
+    supabaseService.query<Record<string, unknown>>(
+      TABLE_TIMELINE,
+      [{ field: 'order_id', operator: 'in', value: ids }],
+      { orderByField: 'created_at', orderDirection: 'asc' },
+    ),
+  ]);
+
+  const itemsByOrder = new Map<string, Record<string, unknown>[]>();
+  for (const item of itemRows) {
+    const orderId = String(item.order_id);
+    const list = itemsByOrder.get(orderId);
+    if (list) list.push(item);
+    else itemsByOrder.set(orderId, [item]);
+  }
+
+  const timelineByOrder = new Map<string, Record<string, unknown>[]>();
+  for (const entry of timelineRows) {
+    const orderId = String(entry.order_id);
+    const list = timelineByOrder.get(orderId);
+    if (list) list.push(entry);
+    else timelineByOrder.set(orderId, [entry]);
+  }
+
+  return rows.map((row) => {
+    const order = toOrder(row);
+    order.items = toItems(itemsByOrder.get(order.id) ?? []);
+    order.timeline = toTimeline(timelineByOrder.get(order.id) ?? []);
+    return order;
+  });
+}
+
 export class SupabaseOrderRepository implements IOrderRepository {
   async findById(id: string): Promise<Order | null> {
     try {
@@ -42,21 +107,8 @@ export class SupabaseOrderRepository implements IOrderRepository {
         { orderByField: 'created_at', orderDirection: 'asc' },
       );
 
-      order.items = items.map((i: Record<string, unknown>) => {
-        const camel = rowToCamelCase<Record<string, unknown>>(i);
-        return {
-          id: camel.id,
-          productId: camel.productId,
-          snapshot: camel.snapshot,
-          quantity: camel.quantity,
-          unitPrice: { amount: camel.unitPriceAmount, currency: camel.unitPriceCurrency },
-          subtotal: { amount: camel.subtotalAmount, currency: camel.subtotalCurrency },
-        };
-      }) as unknown as Order['items'];
-
-      order.timeline = timeline.map((t: Record<string, unknown>) =>
-        rowToCamelCase<OrderTimelineEntry>(t),
-      );
+      order.items = toItems(items);
+      order.timeline = toTimeline(timeline);
 
       return order;
     } catch (err) {
@@ -104,12 +156,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
       const rows = await supabaseService.query<Record<string, unknown>>(TABLE, [
         { field: 'user_id', operator: 'eq', value: userId },
       ]);
-      const orders: Order[] = [];
-      for (const row of rows) {
-        const order = await this.findById(row.id as string);
-        if (order) orders.push(order);
-      }
-      return orders;
+      return hydrateRows(rows);
     } catch (err) {
       throw new RepositoryError('Failed to find orders by user', 'findByUserId', TABLE, {
         userId,
@@ -132,40 +179,42 @@ export class SupabaseOrderRepository implements IOrderRepository {
         }
       }
 
-      const options: SupabaseOptions = {};
-      if (query.sort)
-        options.orderByField =
-          query.sort === 'createdAt'
-            ? 'created_at'
-            : query.sort === 'updatedAt'
-              ? 'updated_at'
-              : query.sort === 'orderNumber'
-                ? 'order_number'
-                : query.sort === 'grandTotal'
-                  ? 'grand_total'
-                  : query.sort;
-      if (query.sortDirection) options.orderDirection = query.sortDirection;
-      if (query.limit) options.limitCount = query.limit;
+      const total = await supabaseService.count(TABLE, constraints);
+
+      const sortField =
+        query.sort === 'createdAt'
+          ? 'created_at'
+          : query.sort === 'updatedAt'
+            ? 'updated_at'
+            : query.sort === 'orderNumber'
+              ? 'order_number'
+              : query.sort === 'grandTotal'
+                ? 'grand_total'
+                : 'created_at';
+
+      const limit = query.limit ?? 20;
+      const page = query.page ?? 1;
+      const offset = (page - 1) * limit;
+
+      const options: SupabaseOptions = {
+        orderByField: sortField,
+        orderDirection: query.sortDirection ?? 'desc',
+        limitCount: limit,
+        offset,
+      };
 
       const rows = await supabaseService.query<Record<string, unknown>>(
         TABLE,
         constraints,
         options,
       );
-      const items: Order[] = [];
-      for (const row of rows) {
-        const order = await this.findById(row.id as string);
-        if (order) items.push(order);
-      }
+      const items = await hydrateRows(rows);
 
       return {
         items,
-        total: items.length,
-        hasMore: items.length === (query.limit ?? 20),
-        lastDoc:
-          items.length > 0 && items[items.length - 1]
-            ? (items[items.length - 1] as Order).id
-            : null,
+        total,
+        hasMore: offset + limit < total,
+        lastDoc: items.length > 0 ? (items[items.length - 1]?.id ?? null) : null,
       };
     } catch (err) {
       throw new RepositoryError('Failed to query orders', 'findAll', TABLE, { query, error: err });
@@ -177,12 +226,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
       const rows = await supabaseService.query<Record<string, unknown>>(TABLE, [
         { field: 'status', operator: 'eq', value: status },
       ]);
-      const orders: Order[] = [];
-      for (const row of rows) {
-        const order = await this.findById(row.id as string);
-        if (order) orders.push(order);
-      }
-      return orders;
+      return hydrateRows(rows);
     } catch (err) {
       throw new RepositoryError('Failed to find orders by status', 'findByStatus', TABLE, {
         status,
@@ -213,8 +257,7 @@ export class SupabaseOrderRepository implements IOrderRepository {
           constraints.push({ field: 'status', operator: 'eq', value: query.status });
         }
       }
-      const rows = await supabaseService.query<Record<string, unknown>>(TABLE, constraints);
-      return rows.length;
+      return supabaseService.count(TABLE, constraints);
     } catch (err) {
       throw new RepositoryError('Failed to count orders', 'count', TABLE, { query, error: err });
     }
@@ -222,6 +265,10 @@ export class SupabaseOrderRepository implements IOrderRepository {
 
   async create(data: Order): Promise<Order> {
     try {
+      if (!data.userId) {
+        return await this.createGuestOrder(data);
+      }
+
       const now = new Date().toISOString();
       const { items, timeline, ...orderFields } = data;
       const orderData = {
@@ -268,6 +315,42 @@ export class SupabaseOrderRepository implements IOrderRepository {
         error: err,
       });
     }
+  }
+
+  private async createGuestOrder(data: Order): Promise<Order> {
+    const { items, timeline, ...orderFields } = data;
+    const orderPayload = objToSnakeCase(orderFields as unknown as Record<string, unknown>);
+    delete orderPayload.user_id;
+
+    const payload = {
+      order: orderPayload,
+      items: items.map((item) => ({
+        id: item.id,
+        product_id: item.productId,
+        snapshot: item.snapshot,
+        quantity: item.quantity,
+        unit_price_amount: item.unitPrice.amount,
+        unit_price_currency: item.unitPrice.currency,
+        subtotal_amount: item.subtotal.amount,
+        subtotal_currency: item.subtotal.currency,
+      })),
+      timeline: timeline.map((entry) => ({
+        status: entry.status,
+        changed_by: entry.changedBy,
+        note: entry.note,
+      })),
+    };
+
+    const result = await supabaseService.rpc<{
+      order: Record<string, unknown>;
+      items: Record<string, unknown>[];
+      timeline: Record<string, unknown>[];
+    }>('place_cod_order', { payload });
+
+    const order = toOrder(result.order);
+    order.items = toItems(result.items);
+    order.timeline = toTimeline(result.timeline);
+    return order;
   }
 
   async updateStatus(
@@ -326,27 +409,6 @@ export class SupabaseOrderRepository implements IOrderRepository {
     } catch (err) {
       if (err instanceof NotFoundError) throw err;
       throw new RepositoryError('Failed to append order timeline', 'appendTimeline', TABLE, {
-        id,
-        error: err,
-      });
-    }
-  }
-
-  async updatePayment(id: string, payment: PaymentSummary): Promise<Order> {
-    try {
-      const existing = await this.findById(id);
-      if (!existing) throw new NotFoundError('Order not found');
-
-      await supabaseService.update(TABLE, id, {
-        payment: payment as unknown as Record<string, unknown>,
-      });
-
-      const updated = await this.findById(id);
-      if (!updated) throw new NotFoundError('Order not found after payment update');
-      return updated;
-    } catch (err) {
-      if (err instanceof NotFoundError) throw err;
-      throw new RepositoryError('Failed to update order payment', 'updatePayment', TABLE, {
         id,
         error: err,
       });

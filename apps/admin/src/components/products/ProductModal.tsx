@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { imageRepository, productRepository } from '../../repositories';
-import type { ProductData } from '../../repositories/types';
-import { useAdminToast } from '../shared/AdminToast';
+import { productService } from '../../services';
+import type { ProductData } from '../../types.js';
+import { imageUtils } from '../../utils/image.js';
+import { useAdminToast } from '../shared/use-admin-toast.js';
 
 interface Props {
   product: ProductData | null;
@@ -19,7 +20,7 @@ export function ProductModal({ product, onClose, onSaved }: Props) {
   const [cat, setCat] = useState(product?.category ?? 'fresh');
   const [available, setAvailable] = useState(product?.available ?? true);
   const [featured, setFeatured] = useState(product?.featured ?? false);
-  const [emoji, setEmoji] = useState(imageRepository.extractEmoji(product?.image ?? '') || '🐟');
+  const [emoji, setEmoji] = useState(imageUtils.extractEmoji(product?.image ?? '') || '🐟');
   const [imageData, setImageData] = useState<string | null>(product?.image ?? null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
@@ -35,7 +36,7 @@ export function ProductModal({ product, onClose, onSaved }: Props) {
       setCat(product.category ?? 'fresh');
       setAvailable(product.available ?? true);
       setFeatured(product.featured ?? false);
-      setEmoji(imageRepository.extractEmoji(product.image ?? '') || '🐟');
+      setEmoji(imageUtils.extractEmoji(product.image ?? '') || '🐟');
       setImageData(product.image ?? null);
     }
   }, [product]);
@@ -70,14 +71,6 @@ export function ProductModal({ product, onClose, onSaved }: Props) {
 
     setSaving(true);
     try {
-      let finalImage = imageData;
-
-      if (imageFile && imageData) {
-        finalImage = await imageRepository.compressImage(imageData, 600, 0.7);
-      } else if (!finalImage || finalImage.startsWith('data:image/svg')) {
-        finalImage = imageRepository.generateEmojiImage(emoji);
-      }
-
       const data = {
         name: name.trim(),
         sub: sub.trim(),
@@ -85,20 +78,25 @@ export function ProductModal({ product, onClose, onSaved }: Props) {
         category: cat,
         available,
         featured,
-        image: finalImage,
+        image: imageData ?? undefined,
         emoji,
         updated_at: Date.now(),
       };
 
+      let result;
       if (isEdit && product?.id) {
-        await productRepository.update(product.id, data);
-        toast(`✓ ${name} updated successfully`, 'success');
+        result = await productService.update(product.id, data, imageFile ?? undefined);
       } else {
-        await productRepository.create(data);
-        toast(`✓ ${name} added successfully`, 'success');
+        result = await productService.create(data, imageFile ?? undefined);
       }
-      onSaved();
-      onClose();
+
+      if (result.success) {
+        toast(`✓ ${name} ${isEdit ? 'updated' : 'added'} successfully`, 'success');
+        onSaved();
+        onClose();
+      } else {
+        toast(result.error || 'Save failed', 'error');
+      }
     } catch (err) {
       toast(`Save failed: ${err instanceof Error ? err.message : 'Unknown error'}`, 'error');
     } finally {

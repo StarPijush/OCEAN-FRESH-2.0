@@ -1,7 +1,22 @@
 const fish = [
-  'Rohu','Katla','Pomfret','King Fish','Tiger Prawns','Live Crab',
-  'Hilsa','Bombil','Rawas','Rohu','Katla','Pomfret','King Fish',
-  'Tiger Prawns','Live Crab','Hilsa','Bombil','Rawas'
+  'Rohu',
+  'Katla',
+  'Pomfret',
+  'King Fish',
+  'Tiger Prawns',
+  'Live Crab',
+  'Hilsa',
+  'Bombil',
+  'Rawas',
+  'Rohu',
+  'Katla',
+  'Pomfret',
+  'King Fish',
+  'Tiger Prawns',
+  'Live Crab',
+  'Hilsa',
+  'Bombil',
+  'Rawas',
 ];
 
 export function Ticker() {

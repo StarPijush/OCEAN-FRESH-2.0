@@ -93,24 +93,23 @@ export class AuthService {
     });
   }
 
+  async updatePassword(newPassword: string): Promise<void> {
+    logger.info('updatePassword');
+    await this.authProvider.updatePassword(newPassword);
+    const user = await this.authProvider.getCurrentUser();
+    await this.eventBus.publish({
+      type: AuthEventType.PASSWORD_CHANGED,
+      userId: user?.id ?? '',
+      metadata: { source: 'AuthService' },
+    });
+  }
+
   async verifyEmail(): Promise<void> {
     logger.info('verifyEmail');
     await this.authProvider.verifyEmail();
     const user = await this.authProvider.getCurrentUser();
     await this.eventBus.publish({
       type: AuthEventType.EMAIL_VERIFIED,
-      userId: user?.id ?? '',
-      metadata: { source: 'AuthService' },
-    });
-  }
-
-  async deleteAccount(): Promise<void> {
-    logger.info('deleteAccount');
-    const user = await this.authProvider.getCurrentUser();
-    await this.authProvider.deleteAccount();
-    await this.sessionManager.endSession();
-    await this.eventBus.publish({
-      type: AuthEventType.ACCOUNT_DELETED,
       userId: user?.id ?? '',
       metadata: { source: 'AuthService' },
     });

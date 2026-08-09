@@ -24,19 +24,33 @@ SELECT '001_extensions' AS check_name,
 -- 2. ALL TABLES EXIST
 -- ============================================================
 
+-- Required application tables are created by 002_tables.sql (10 tables) and
+-- 002b_auth_tables.sql (3 tables). All 13 must exist in public.
+WITH required_tables AS (
+  SELECT unnest(ARRAY[
+    'admin_profiles', 'audit_logs', 'auth_devices', 'auth_sessions',
+    'cart_items', 'carts', 'categories',
+    'order_items', 'order_timeline_entries', 'orders',
+    'products', 'shop_settings', 'users'
+  ]) AS table_name
+)
 SELECT '002_tables' AS check_name,
   CASE
-    WHEN COUNT(*) = 10 THEN 'PASS'
+    WHEN NOT EXISTS (
+      SELECT 1 FROM required_tables r
+      LEFT JOIN pg_tables p
+        ON p.schemaname = 'public'
+       AND p.tablename = r.table_name
+      WHERE p.tablename IS NULL
+    ) THEN 'PASS'
     ELSE 'FAIL'
   END AS status,
-  string_agg(tablename, ', ' ORDER BY tablename) AS details
-FROM pg_tables
-WHERE schemaname = 'public'
-  AND tablename IN (
-    'categories', 'products', 'users', 'admin_profiles',
-    'orders', 'order_items', 'order_timeline_entries',
-    'carts', 'cart_items', 'shop_settings'
-  );
+  (SELECT string_agg(r.table_name, ', ' ORDER BY r.table_name)
+   FROM required_tables r
+   LEFT JOIN pg_tables p
+     ON p.schemaname = 'public'
+    AND p.tablename = r.table_name
+   WHERE p.tablename IS NULL) AS details;
 
 -- ============================================================
 -- 3. ALL ENUMS EXIST
@@ -63,7 +77,7 @@ WHERE typnamespace = 'public'::regnamespace
 
 -- Verify categories columns
 SELECT 'categories_columns' AS check_name,
-  CASE WHEN COUNT(*) = 22 THEN 'PASS' ELSE 'FAIL' END AS status,
+  CASE WHEN COUNT(*) = 24 THEN 'PASS' ELSE 'FAIL' END AS status,
   COUNT(*)::text || ' columns found' AS details
 FROM information_schema.columns
 WHERE table_schema = 'public' AND table_name = 'categories'
@@ -77,7 +91,7 @@ WHERE table_schema = 'public' AND table_name = 'categories'
 
 -- Verify products columns
 SELECT 'products_columns' AS check_name,
-  CASE WHEN COUNT(*) = 29 THEN 'PASS' ELSE 'FAIL' END AS status,
+  CASE WHEN COUNT(*) = 33 THEN 'PASS' ELSE 'FAIL' END AS status,
   COUNT(*)::text || ' columns found' AS details
 FROM information_schema.columns
 WHERE table_schema = 'public' AND table_name = 'products'
@@ -106,7 +120,7 @@ WHERE table_schema = 'public' AND table_name = 'orders'
 
 -- Verify users columns
 SELECT 'users_columns' AS check_name,
-  CASE WHEN COUNT(*) = 14 THEN 'PASS' ELSE 'FAIL' END AS status,
+  CASE WHEN COUNT(*) = 15 THEN 'PASS' ELSE 'FAIL' END AS status,
   COUNT(*)::text || ' columns found' AS details
 FROM information_schema.columns
 WHERE table_schema = 'public' AND table_name = 'users'
@@ -174,13 +188,16 @@ WHERE table_schema = 'public' AND table_name = 'cart_items'
 
 -- Verify shop_settings columns
 SELECT 'shop_settings_columns' AS check_name,
-  CASE WHEN COUNT(*) = 6 THEN 'PASS' ELSE 'FAIL' END AS status,
+  CASE WHEN COUNT(*) = 17 THEN 'PASS' ELSE 'FAIL' END AS status,
   COUNT(*)::text || ' columns found' AS details
 FROM information_schema.columns
 WHERE table_schema = 'public' AND table_name = 'shop_settings'
   AND column_name IN (
     'id', 'whatsapp_number', 'delivery_charge_amount',
-    'delivery_free_above', 'created_at', 'updated_at'
+    'delivery_free_above', 'store_name', 'store_tagline',
+    'phone_display', 'phone_raw', 'email', 'address', 'hours',
+    'pincodes', 'delivery_areas', 'delivery_radius', 'founded_year',
+    'created_at', 'updated_at'
   );
 
 -- ============================================================
@@ -189,7 +206,7 @@ WHERE table_schema = 'public' AND table_name = 'shop_settings'
 
 -- Count all expected FKs across schemas (public + auth for cross-schema FKs)
 SELECT 'foreign_keys' AS check_name,
-  CASE WHEN COUNT(*) = 6 THEN 'PASS' ELSE 'FAIL' END AS status,
+  CASE WHEN COUNT(*) = 7 THEN 'PASS' ELSE 'FAIL' END AS status,
   string_agg(conname, ', ' ORDER BY conname) AS details
 FROM pg_constraint
 WHERE conrelid = 'public.categories'::regclass AND conname = 'categories_parent_id_fkey'
@@ -249,25 +266,32 @@ WHERE schemaname = 'public'
 -- 7. ALL UNIQUE CONSTRAINTS EXIST
 -- ============================================================
 
+-- Uniqueness is enforced via CREATE UNIQUE INDEX (and one inline UNIQUE
+-- constraint). Unique indexes live in pg_indexes, so check there instead of
+-- pg_constraint.
 SELECT 'unique_constraints' AS check_name,
   CASE WHEN COUNT(*) >= 6 THEN 'PASS' ELSE 'FAIL' END AS status,
-  string_agg(conname, ', ' ORDER BY conname) AS details
-FROM pg_constraint
-WHERE contype = 'u'
-  AND conrelid IN (
-    'public.categories'::regclass,
-    'public.products'::regclass,
-    'public.orders'::regclass,
-    'public.users'::regclass,
-    'public.admin_profiles'::regclass
+  string_agg(indexname, ', ' ORDER BY indexname) AS details
+FROM pg_indexes
+WHERE schemaname = 'public'
+  AND indexname IN (
+    'idx_categories_slug',
+    'idx_products_slug',
+    'idx_orders_order_number',
+    'idx_orders_idempotency_key',
+    'idx_users_email',
+    'admin_profiles_user_id_key'
   );
 
 -- ============================================================
 -- 8. ALL TRIGGERS EXIST
 -- ============================================================
+-- 7 data-integrity triggers (005_triggers.sql) + 2 auth-table triggers
+-- (002b_auth_tables.sql) + 3 child-row triggers (015_reconcile_application_contract.sql)
+-- = 12 in an applied schema.
 
 SELECT 'triggers' AS check_name,
-  CASE WHEN COUNT(*) = 7 THEN 'PASS' ELSE 'FAIL' END AS status,
+  CASE WHEN COUNT(*) = 12 THEN 'PASS' ELSE 'FAIL' END AS status,
   string_agg(event_object_table || '.' || trigger_name, ', ' ORDER BY event_object_table) AS details
 FROM information_schema.triggers
 WHERE trigger_schema = 'public'
@@ -277,19 +301,40 @@ WHERE trigger_schema = 'public'
 -- 9. RLS ENABLED ON ALL TABLES
 -- ============================================================
 
+-- Every required application table must exist AND have RLS enabled
+-- (008_rls.sql enables the 10 core tables; 002b enables the 3 auth tables).
+WITH required_rls_tables AS (
+  SELECT unnest(ARRAY[
+    'admin_profiles', 'audit_logs', 'auth_devices', 'auth_sessions',
+    'cart_items', 'carts', 'categories',
+    'order_items', 'order_timeline_entries', 'orders',
+    'products', 'shop_settings', 'users'
+  ]) AS table_name
+)
 SELECT 'rls_enabled' AS check_name,
   CASE
-    WHEN COUNT(*) = 10 THEN 'PASS'
+    WHEN NOT EXISTS (
+      SELECT 1 FROM required_rls_tables r
+      LEFT JOIN pg_tables p
+        ON p.schemaname = 'public'
+       AND p.tablename = r.table_name
+      WHERE p.tablename IS NULL
+         OR NOT COALESCE(p.rowsecurity, false)
+    ) THEN 'PASS'
     ELSE 'FAIL'
   END AS status,
-  string_agg(relname, ', ' ORDER BY relname) AS details
-FROM pg_class
-WHERE relname IN (
-  'categories', 'products', 'users', 'admin_profiles',
-  'orders', 'order_items', 'order_timeline_entries',
-  'carts', 'cart_items', 'shop_settings'
-)
-  AND relrowsecurity = true;
+  (SELECT string_agg(
+            r.table_name || ':' ||
+            CASE WHEN p.tablename IS NULL THEN 'MISSING'
+                 WHEN p.rowsecurity THEN 'rls enabled'
+                 ELSE 'RLS DISABLED' END,
+            ', ' ORDER BY r.table_name)
+   FROM required_rls_tables r
+   LEFT JOIN pg_tables p
+     ON p.schemaname = 'public'
+    AND p.tablename = r.table_name
+   WHERE p.tablename IS NULL
+      OR NOT COALESCE(p.rowsecurity, false))::text AS details;
 
 -- ============================================================
 -- 10. RLS POLICIES EXIST
@@ -325,6 +370,36 @@ SELECT 'is_admin_function' AS check_name,
     ELSE 'FAIL'
   END AS status,
   'public.is_admin()' AS details;
+
+-- ============================================================
+-- 12a. GUEST ORDER RPC EXISTS
+-- ============================================================
+
+SELECT 'place_cod_order_function' AS check_name,
+  CASE
+    WHEN EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'place_cod_order' AND pronamespace = 'public'::regnamespace)
+    THEN 'PASS'
+    ELSE 'FAIL'
+  END AS status,
+  'public.place_cod_order(jsonb) — secure guest COD entry point' AS details;
+
+-- ============================================================
+-- 12b. NO ANONYMOUS ORDER TABLE ACCESS
+-- ============================================================
+-- Anonymous visitors must ONLY be able to place orders via the RPC. Any
+-- anon SELECT/INSERT policy on the order tables is a security failure.
+
+SELECT 'no_anon_order_policies' AS check_name,
+  CASE
+    WHEN NOT EXISTS (
+      SELECT 1 FROM pg_policies
+      WHERE schemaname = 'public'
+        AND tablename IN ('orders', 'order_items', 'order_timeline_entries')
+        AND roles = ARRAY['anon']::name[]
+    ) THEN 'PASS'
+    ELSE 'FAIL'
+  END AS status,
+  'No anon INSERT/SELECT policies on orders, order_items, order_timeline_entries' AS details;
 
 -- ============================================================
 -- 12. STORAGE BUCKET EXISTS
@@ -388,57 +463,81 @@ SELECT 'no_password_in_admin_profiles' AS check_name,
 
 -- Final summary (seed admin is informational — not a hard requirement)
 WITH required_checks AS (
-  SELECT 'All 10 tables exist' AS check, COUNT(*) = 10 AS pass FROM pg_tables
-    WHERE schemaname = 'public' AND tablename IN (
-      'categories', 'products', 'users', 'admin_profiles',
-      'orders', 'order_items', 'order_timeline_entries',
-      'carts', 'cart_items', 'shop_settings'
-    )
+  SELECT 'All required tables exist' AS check_name, NOT EXISTS (
+    SELECT 1 FROM (SELECT unnest(ARRAY[
+      'admin_profiles', 'audit_logs', 'auth_devices', 'auth_sessions',
+      'cart_items', 'carts', 'categories',
+      'order_items', 'order_timeline_entries', 'orders',
+      'products', 'shop_settings', 'users'
+    ]) AS table_name) r
+    LEFT JOIN pg_tables p
+      ON p.schemaname = 'public'
+     AND p.tablename = r.table_name
+    WHERE p.tablename IS NULL
+  ) AS pass
   UNION ALL
-  SELECT 'All 6 enums exist' AS check, COUNT(*) = 6 AS pass FROM pg_type
+  SELECT 'All 6 enums exist' AS check_name, COUNT(*) = 6 AS pass FROM pg_type
     WHERE typnamespace = 'public'::regnamespace AND typtype = 'e'
       AND typname IN ('product_status','product_unit','category_status','order_status','cart_status','cart_source')
   UNION ALL
-  SELECT 'RLS enabled on all 10 tables' AS check, COUNT(*) = 10 AS pass FROM pg_class
-    WHERE relname IN (
-      'categories', 'products', 'users', 'admin_profiles',
-      'orders', 'order_items', 'order_timeline_entries',
-      'carts', 'cart_items', 'shop_settings'
-    ) AND relrowsecurity = true
+  SELECT 'RLS enabled on all required tables' AS check_name, NOT EXISTS (
+    SELECT 1 FROM (SELECT unnest(ARRAY[
+      'admin_profiles', 'audit_logs', 'auth_devices', 'auth_sessions',
+      'cart_items', 'carts', 'categories',
+      'order_items', 'order_timeline_entries', 'orders',
+      'products', 'shop_settings', 'users'
+    ]) AS table_name) r
+    LEFT JOIN pg_tables p
+      ON p.schemaname = 'public'
+     AND p.tablename = r.table_name
+    WHERE p.tablename IS NULL
+       OR NOT COALESCE(p.rowsecurity, false)
+  ) AS pass
   UNION ALL
-  SELECT 'users.id FK to auth.users.id' AS check, EXISTS (
+  SELECT 'users.id FK to auth.users.id' AS check_name, EXISTS (
     SELECT 1 FROM pg_constraint
     WHERE conrelid = 'public.users'::regclass
       AND conname = 'users_id_fkey'
       AND confrelid = 'auth.users'::regclass
   ) AS pass
   UNION ALL
-  SELECT 'admin_profiles.user_id FK to auth.users.id' AS check, EXISTS (
+  SELECT 'admin_profiles.user_id FK to auth.users.id' AS check_name, EXISTS (
     SELECT 1 FROM pg_constraint
     WHERE conrelid = 'public.admin_profiles'::regclass
       AND conname = 'admin_profiles_user_id_fkey'
       AND confrelid = 'auth.users'::regclass
   ) AS pass
   UNION ALL
-  SELECT 'No password columns in admin_profiles' AS check, NOT EXISTS (
+  SELECT 'No password columns in admin_profiles' AS check_name, NOT EXISTS (
     SELECT 1 FROM information_schema.columns
     WHERE table_schema = 'public' AND table_name = 'admin_profiles'
       AND column_name IN ('password', 'password_hash')
   ) AS pass
   UNION ALL
-  SELECT 'Storage bucket "products" exists' AS check, EXISTS (
+  SELECT 'Storage bucket "products" exists' AS check_name, EXISTS (
     SELECT 1 FROM storage.buckets WHERE id = 'products'
   ) AS pass
   UNION ALL
-  SELECT 'is_admin() function exists' AS check, EXISTS (
+  SELECT 'is_admin() function exists' AS check_name, EXISTS (
     SELECT 1 FROM pg_proc WHERE proname = 'is_admin'
   ) AS pass
   UNION ALL
-  SELECT 'Seed shop_settings exists' AS check, EXISTS (
+  SELECT 'place_cod_order() RPC exists' AS check_name, EXISTS (
+    SELECT 1 FROM pg_proc WHERE proname = 'place_cod_order'
+  ) AS pass
+  UNION ALL
+  SELECT 'No anon order table policies' AS check_name, NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename IN ('orders', 'order_items', 'order_timeline_entries')
+      AND roles = ARRAY['anon']::name[]
+  ) AS pass
+  UNION ALL
+  SELECT 'Seed shop_settings exists' AS check_name, EXISTS (
     SELECT 1 FROM shop_settings WHERE id = 'default'
   ) AS pass
   UNION ALL
-  SELECT 'Seed categories exist' AS check, EXISTS (
+  SELECT 'Seed categories exist' AS check_name, EXISTS (
     SELECT 1 FROM categories WHERE is_deleted = false
   ) AS pass
 )
@@ -446,7 +545,7 @@ SELECT
   'FINAL_VERDICT' AS check_name,
   CASE WHEN bool_and(pass) THEN 'ALL CHECKS PASSED' ELSE 'SOME CHECKS FAILED' END AS status,
   string_agg(
-    CASE WHEN pass THEN '✓ ' ELSE '✗ ' END || check,
-    E'\n' ORDER BY check
+    CASE WHEN pass THEN '✓ ' ELSE '✗ ' END || check_name,
+    E'\n' ORDER BY check_name
   ) AS details
 FROM required_checks;

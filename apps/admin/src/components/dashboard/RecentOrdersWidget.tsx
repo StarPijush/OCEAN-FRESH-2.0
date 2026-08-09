@@ -1,11 +1,10 @@
-import type { OrderData } from '../../repositories/types';
+import type { OrderData } from '../../types.js';
+import { formatCurrency } from '../../utils/format.js';
 import { Badge } from '../shared/Badge';
 
 interface Props {
   orders: OrderData[];
 }
-
-const fmt = (n: number) => `₹${Number(n).toLocaleString('en-IN')}`;
 
 export function RecentOrdersWidget({ orders }: Props) {
   if (orders.length === 0) {
@@ -27,7 +26,7 @@ export function RecentOrdersWidget({ orders }: Props) {
               {o.items?.length || 0} item{(o.items?.length || 0) !== 1 ? 's' : ''}
             </div>
           </div>
-          <div className="col-total">{fmt(o.total)}</div>
+          <div className="col-total">{formatCurrency(o.total)}</div>
           <div className="col-ostatus">
             <Badge status={o.status} />
           </div>

@@ -10,10 +10,8 @@ import globals from 'globals';
 const workspacesWithReact = [
   'apps/storefront',
   'apps/admin',
-  'packages/ui',
   'packages/auth',
   'packages/cart',
-  'packages/category',
   'packages/order',
   'packages/product',
 ];
@@ -38,7 +36,7 @@ export default [
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_', caughtErrors: 'none' }],
       '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports', fixStyle: 'separate-type-imports' }],
+      '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports', fixStyle: 'inline-type-imports' }],
       '@typescript-eslint/no-import-type-side-effects': 'error',
       '@typescript-eslint/no-useless-constructor': 'error',
       'no-empty': 'warn',

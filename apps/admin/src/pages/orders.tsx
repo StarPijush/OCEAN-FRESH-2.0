@@ -1,15 +1,22 @@
+import { OrderStatus } from '@oceanfresh/shared';
 import { useCallback, useEffect, useState } from 'react';
 
 import { OrderDetailModal } from '../components/orders/OrderDetailModal';
 import { Badge } from '../components/shared/Badge';
-import { orderRepository } from '../repositories';
-import type { OrderData } from '../repositories/types';
+import { orderService, STATUS_LABELS } from '../services';
+import type { OrderData } from '../types.js';
+import { formatCurrency, formatDate, formatTime } from '../utils/format.js';
 
-const fmt = (n: number) => `₹${Number(n).toLocaleString('en-IN')}`;
-const fmtDate = (ts: number) =>
-  new Date(ts).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
-const fmtTime = (ts: number) =>
-  new Date(ts).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+const FILTERS: { id: string; label: string; statuses: OrderStatus[] | null }[] = [
+  { id: 'all', label: 'All', statuses: null },
+  { id: 'pending', label: 'Pending', statuses: [OrderStatus.VALIDATING] },
+  {
+    id: 'processing',
+    label: 'Processing',
+    statuses: [OrderStatus.CONFIRMED, OrderStatus.PROCESSING, OrderStatus.OUT_FOR_DELIVERY],
+  },
+  { id: 'delivered', label: 'Delivered', statuses: [OrderStatus.DELIVERED] },
+];
 
 export function OrdersPage() {
   const [orders, setOrders] = useState<OrderData[]>([]);
@@ -18,7 +25,7 @@ export function OrdersPage() {
   const [selected, setSelected] = useState<OrderData | null>(null);
 
   const load = useCallback(async () => {
-    const list = await orderRepository.getAll();
+    const list = await orderService.getAll();
     setOrders(list);
   }, []);
 
@@ -27,7 +34,8 @@ export function OrdersPage() {
   }, [load]);
 
   const filtered = orders.filter((o) => {
-    if (filter !== 'all' && o.status !== filter) return false;
+    const active = FILTERS.find((f) => f.id === filter);
+    if (active?.statuses && !active.statuses.includes(o.status)) return false;
     if (search) {
       const q = search.toLowerCase();
       return (
@@ -37,12 +45,7 @@ export function OrdersPage() {
     return true;
   });
 
-  const filterBtns = [
-    { id: 'all', label: 'All' },
-    { id: 'pending', label: 'Pending' },
-    { id: 'preparing', label: 'Preparing' },
-    { id: 'delivered', label: 'Delivered' },
-  ];
+  const filterBtns = FILTERS.map((f) => ({ id: f.id, label: f.label }));
 
   return (
     <div id="panel-orders" className="admin-panel active">
@@ -107,14 +110,16 @@ export function OrdersPage() {
                   <div className="cell-name-main">{o.name}</div>
                   <div className="cell-name-sub">{o.phone}</div>
                 </div>
-                <div className="col-total">{fmt(o.total)}</div>
+                <div className="col-total">{formatCurrency(o.total)}</div>
                 <div className="col-ostatus">
-                  <Badge status={o.status} />
+                  <Badge status={o.status} label={STATUS_LABELS[o.status]} />
                 </div>
                 <div className="col-date">
-                  {fmtDate(o.ts)}
+                  {formatDate(o.ts)}
                   <br />
-                  <span style={{ fontSize: '.6rem', color: 'var(--muted)' }}>{fmtTime(o.ts)}</span>
+                  <span style={{ fontSize: '.6rem', color: 'var(--muted)' }}>
+                    {formatTime(o.ts)}
+                  </span>
                 </div>
               </div>
             ))

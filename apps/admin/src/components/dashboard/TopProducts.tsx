@@ -20,7 +20,10 @@ export function TopProducts({ items }: Props) {
           <div className="top-prod-rank">{i + 1}</div>
           <div className="top-prod-name">{p.name}</div>
           <div className="top-prod-bar-wrap">
-            <div className="top-prod-bar" style={{ width: `${Math.round((p.qty / max) * 100)}%` }} />
+            <div
+              className="top-prod-bar"
+              style={{ width: `${Math.round((p.qty / max) * 100)}%` }}
+            />
           </div>
           <div className="top-prod-qty">{p.qty}kg</div>
         </div>

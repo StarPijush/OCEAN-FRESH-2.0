@@ -1,26 +1,72 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { ChartCard } from '../components/dashboard/ChartCard';
 import { RecentOrdersWidget } from '../components/dashboard/RecentOrdersWidget';
 import { StatCard } from '../components/dashboard/StatCard';
 import { TopProducts } from '../components/dashboard/TopProducts';
-import { useAdminContext } from '../components/layout/AdminContext';
-import { statsRepository } from '../repositories';
-import type { DashboardStats } from '../repositories/types';
-
-const fmt = (n: number) => `₹${Number(n).toLocaleString('en-IN')}`;
+import { useAdminContext } from '../components/layout/use-admin-context.js';
+import { statsService } from '../services';
+import type { DashboardStats } from '../types.js';
+import { formatCurrency } from '../utils/format.js';
 
 export function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { setPendingCount } = useAdminContext();
 
-  useEffect(() => {
-    statsRepository.getStats().then((s) => {
-      setStats(s);
-      setPendingCount(s.pendingOrders);
-    });
+  const load = useCallback(() => {
+    setLoading(true);
+    setError(null);
+    statsService
+      .getDashboardStats()
+      .then((s) => {
+        setStats(s);
+        setPendingCount(s.pendingOrders);
+      })
+      .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load dashboard'))
+      .finally(() => setLoading(false));
   }, [setPendingCount]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  if (error) {
+    return (
+      <div id="panel-dashboard" className="admin-panel active">
+        <div className="panel-header">
+          <div className="panel-eyebrow">OceanFresh</div>
+          <h1 className="panel-title">Dashboard</h1>
+        </div>
+        <div className="empty-state">
+          <div className="empty-icon">⚠️</div>
+          <p className="empty-title">Could not load dashboard</p>
+          <p className="empty-text">{error}</p>
+          <button className="btn btn-primary" onClick={load} type="button">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading && !stats) {
+    return (
+      <div id="panel-dashboard" className="admin-panel active">
+        <div className="panel-header">
+          <div className="panel-eyebrow">OceanFresh</div>
+          <h1 className="panel-title">Dashboard</h1>
+          <p className="panel-sub">Your shop at a glance — today&apos;s performance and trends.</p>
+        </div>
+        <div className="empty-state">
+          <div className="spinner" aria-label="Loading dashboard" />
+          <p className="empty-text">Loading dashboard…</p>
+        </div>
+      </div>
+    );
+  }
 
   const s = stats;
 
@@ -42,14 +88,14 @@ export function DashboardPage() {
         />
         <StatCard
           label="Today's Income"
-          value={s ? fmt(s.todayIncome) : '—'}
+          value={s ? formatCurrency(s.todayIncome) : '—'}
           delta="↑ revenue"
           deltaType="up"
           icon="💰"
         />
         <StatCard
           label="This Week"
-          value={s ? fmt(s.weekIncome ?? 0) : '—'}
+          value={s ? formatCurrency(s.weekIncome ?? 0) : '—'}
           delta="7-day income"
           deltaType="neu"
           icon="📅"
@@ -73,7 +119,7 @@ export function DashboardPage() {
         />
         <StatCard
           label="Total Revenue"
-          value={s ? fmt(s.totalIncome) : '—'}
+          value={s ? formatCurrency(s.totalIncome) : '—'}
           delta="all time"
           deltaType="up"
           icon="📈"

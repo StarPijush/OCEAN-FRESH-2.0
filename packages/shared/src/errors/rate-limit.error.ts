@@ -5,7 +5,10 @@ export class RateLimitError extends AppError {
   readonly statusCode = 429;
   readonly severity = 'warning' as const;
 
-  constructor(public readonly retryAfterSeconds: number, context?: Record<string, unknown>) {
+  constructor(
+    public readonly retryAfterSeconds: number,
+    context?: Record<string, unknown>,
+  ) {
     super(`Too many requests. Please try again after ${retryAfterSeconds} seconds.`, context);
   }
 }

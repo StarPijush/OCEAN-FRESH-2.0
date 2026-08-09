@@ -1,10 +1,10 @@
 export {
-  useDeleteAccount,
   useLogin,
   useLogout,
   useRefreshSession,
   useRegister,
   useResetPassword,
+  useUpdatePassword,
   useVerifyEmail,
 } from './auth.mutations.js';
 export {

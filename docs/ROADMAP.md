@@ -6,13 +6,13 @@
 - [ ] Monorepo scaffold with Turborepo + pnpm
 - [ ] TypeScript strict + ESLint + Prettier
 - [ ] Design system v1 (shadcn/ui + tokens)
-- [ ] Firebase: Auth, Firestore, Functions, Storage, App Check
+- [x] Supabase: Auth, Database, Edge Functions, Storage
 - [ ] Auth: email login, admin custom claims, OTP reset
 - [ ] Storefront: product list, search, filter
 - [ ] Storefront: cart, checkout, WhatsApp order
 - [ ] Admin: dashboard, product CRUD, order management
-- [ ] CI/CD: GitHub Actions, Vercel previews, Firebase deploy
-- [ ] Migration: RTDB to Firestore
+- [ ] CI/CD: GitHub Actions, Vercel previews, Supabase deploy
+- [x] Migration: Firebase to Supabase
 
 ## Q4 2026 — Quality (Weeks 9-16)
 

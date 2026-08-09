@@ -1,17 +1,17 @@
 :root {
-  --ink:      #0d0d0d;
-  --cream:    #f5f0e8;
-  --sand:     #e8e0d0;
-  --deep:     #0a1628;
-  --ocean:    #1a3a5c;
-  --aqua:     #4ab8c1;
-  --muted:    #8a8070;
-  --white:    #ffffff;
-  --warn:     #c8513a;
+  --ink: #0d0d0d;
+  --cream: #f5f0e8;
+  --sand: #e8e0d0;
+  --deep: #0a1628;
+  --ocean: #1a3a5c;
+  --aqua: #4ab8c1;
+  --muted: #8a8070;
+  --white: #ffffff;
+  --warn: #c8513a;
 
   --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-body:    'Instrument Sans', sans-serif;
+  --font-body: 'Instrument Sans', sans-serif;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in:  cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
 }

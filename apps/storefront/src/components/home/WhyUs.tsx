@@ -25,7 +25,11 @@ export function WhyUs() {
   return (
     <section className="section section-sand">
       <div className="section-eyebrow reveal">Our Promise</div>
-      <h2 className="section-title-lg reveal">Why<br />OceanFresh</h2>
+      <h2 className="section-title-lg reveal">
+        Why
+        <br />
+        OceanFresh
+      </h2>
       <div className="section-rule reveal"></div>
       <div className="why-grid" style={{ marginTop: '24px' }}>
         {reasons.map((r, i) => (

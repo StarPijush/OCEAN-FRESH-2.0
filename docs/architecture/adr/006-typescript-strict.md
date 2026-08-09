@@ -1,7 +1,7 @@
 # ADR 006: TypeScript Strict Mode
 
 **Status:** Accepted  
-**Date:** 2026-07-16  
+**Date:** 2026-07-16
 
 ## Context
 

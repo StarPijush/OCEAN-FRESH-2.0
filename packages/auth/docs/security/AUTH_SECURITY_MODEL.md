@@ -2,15 +2,15 @@
 
 ## Threat Model
 
-| Threat | Mitigation |
-|---|---|
-| Credential stuffing | Rate limiting (5 attempts/15min), exponential backoff |
-| Session hijacking | Device fingerprinting, risk scoring, session rotation |
-| Token theft | Short-lived access tokens, refresh token rotation, absolute timeout 24h |
-| Privilege escalation | RBAC with DENY overrides, Cloud Functions for sensitive ops |
-| Account takeover | MFA (TOTP, SMS, Email OTP, Passkeys, Recovery Codes) |
-| Replay attacks | JWT with iat, exp, jti claims |
-| Cross-tab session theft | BroadcastChannel sync, activity tracking |
+| Threat                  | Mitigation                                                              |
+| ----------------------- | ----------------------------------------------------------------------- |
+| Credential stuffing     | Rate limiting (5 attempts/15min), exponential backoff                   |
+| Session hijacking       | Device fingerprinting, risk scoring, session rotation                   |
+| Token theft             | Short-lived access tokens, refresh token rotation, absolute timeout 24h |
+| Privilege escalation    | RBAC with DENY overrides, Cloud Functions for sensitive ops             |
+| Account takeover        | MFA (TOTP, SMS, Email OTP, Passkeys, Recovery Codes)                    |
+| Replay attacks          | JWT with iat, exp, jti claims                                           |
+| Cross-tab session theft | BroadcastChannel sync, activity tracking                                |
 
 ## Authentication Flow
 
@@ -33,6 +33,7 @@
 ## Audit Events
 
 All privileged operations emit AuthEvents:
+
 - LOGIN_SUCCESS, LOGIN_FAILED, LOGOUT
 - REGISTER_SUCCESS, REGISTER_FAILED
 - ACCOUNT_LOCKED, ACCOUNT_UNLOCKED, ACCOUNT_DISABLED, ACCOUNT_ENABLED, ACCOUNT_DELETED
@@ -48,6 +49,7 @@ All privileged operations emit AuthEvents:
 ## Error Handling
 
 15 error classes with machine-readable codes:
+
 - Authentication: InvalidCredentialsError, MfaRequiredError, MfaFailedError, ReauthenticationRequiredError
 - Account state: AccountLockedError, AccountDisabledError, EmailNotVerifiedError
 - Token: TokenExpiredError, TokenRevokedError

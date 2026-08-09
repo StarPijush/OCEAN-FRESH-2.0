@@ -31,7 +31,17 @@ export function initSupabase(): SupabaseClient {
     );
   }
 
-  supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+  supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      // Explicit session persistence: Supabase remains the auth source of
+      // truth; supabase-js stores the session in localStorage and restores it
+      // automatically on page reload / new tabs.
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    },
+  });
 
   return supabaseClient;
 }

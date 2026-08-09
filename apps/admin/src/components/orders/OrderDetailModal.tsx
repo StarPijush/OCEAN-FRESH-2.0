@@ -1,7 +1,10 @@
-import { orderRepository, statsRepository } from '../../repositories';
-import type { OrderData } from '../../repositories/types';
-import { useAdminContext } from '../layout/AdminContext';
-import { useAdminToast } from '../shared/AdminToast';
+import { OrderStatus } from '@oceanfresh/shared';
+
+import { getNextStatus, isCancellable, orderService, STATUS_LABELS } from '../../services';
+import type { OrderData } from '../../types.js';
+import { formatCurrency, formatDate, formatTime } from '../../utils/format.js';
+import { useAdminContext } from '../layout/use-admin-context.js';
+import { useAdminToast } from '../shared/use-admin-toast.js';
 
 interface Props {
   order: OrderData;
@@ -9,24 +12,19 @@ interface Props {
   onUpdated: () => void;
 }
 
-const fmt = (n: number) => `₹${Number(n).toLocaleString('en-IN')}`;
-const fmtDate = (ts: number) =>
-  new Date(ts).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
-const fmtTime = (ts: number) =>
-  new Date(ts).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-
 export function OrderDetailModal({ order, onClose, onUpdated }: Props) {
   const { toast } = useAdminToast();
   const { setPendingCount } = useAdminContext();
 
-  const handleStatusUpdate = async (status: OrderData['status']) => {
-    await orderRepository.updateStatus(order.id, status);
-    toast(`Order ${order.id} → ${status}`, 'success');
-    const stats = await statsRepository.getStats();
-    setPendingCount(stats.pendingOrders);
+  const handleStatusUpdate = async (status: OrderStatus) => {
+    const { pendingCount } = await orderService.updateStatus(order.id, status);
+    toast(`Order ${order.id} → ${STATUS_LABELS[status]}`, 'success');
+    setPendingCount(pendingCount);
     onUpdated();
     onClose();
   };
+
+  const nextStatus = getNextStatus(order.status);
 
   return (
     <div className="modal-overlay show" onClick={onClose}>
@@ -88,8 +86,8 @@ export function OrderDetailModal({ order, onClose, onUpdated }: Props) {
             >
               Date & Time
             </div>
-            <div style={{ fontSize: '.82rem', color: 'var(--cream)' }}>{fmtDate(order.ts)}</div>
-            <div style={{ fontSize: '.72rem', color: 'var(--muted2)' }}>{fmtTime(order.ts)}</div>
+            <div style={{ fontSize: '.82rem', color: 'var(--cream)' }}>{formatDate(order.ts)}</div>
+            <div style={{ fontSize: '.72rem', color: 'var(--muted2)' }}>{formatTime(order.ts)}</div>
           </div>
         </div>
 
@@ -137,10 +135,10 @@ export function OrderDetailModal({ order, onClose, onUpdated }: Props) {
             <div>
               <div style={{ fontSize: '.85rem', color: 'var(--cream)' }}>{it.name}</div>
               <div style={{ fontSize: '.7rem', color: 'var(--muted2)' }}>
-                {it.qty}kg × {fmt(it.price)}
+                {it.qty}kg × {formatCurrency(it.price)}
               </div>
             </div>
-            <div style={{ fontWeight: 600, color: 'var(--aqua)' }}>{fmt(it.sub)}</div>
+            <div style={{ fontWeight: 600, color: 'var(--aqua)' }}>{formatCurrency(it.sub)}</div>
           </div>
         ))}
 
@@ -154,7 +152,7 @@ export function OrderDetailModal({ order, onClose, onUpdated }: Props) {
           }}
         >
           <span>Total</span>
-          <span style={{ color: 'var(--aqua)' }}>{fmt(order.total)}</span>
+          <span style={{ color: 'var(--aqua)' }}>{formatCurrency(order.total)}</span>
         </div>
 
         <div style={{ height: '1px', background: 'var(--border)', margin: '4px 0 16px' }} />
@@ -170,16 +168,26 @@ export function OrderDetailModal({ order, onClose, onUpdated }: Props) {
         >
           Update Status
         </div>
+        <div style={{ marginBottom: '10px', fontSize: '.85rem', color: 'var(--cream)' }}>
+          Current: <strong style={{ color: 'var(--aqua)' }}>{STATUS_LABELS[order.status]}</strong>
+        </div>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {(['pending', 'preparing', 'delivered'] as const).map((s) => (
+          {nextStatus && (
             <button
-              key={s}
-              className={`btn btn-sm ${order.status === s ? 'btn-primary' : 'btn-ghost'}`}
-              onClick={() => handleStatusUpdate(s)}
+              className="btn btn-sm btn-primary"
+              onClick={() => handleStatusUpdate(nextStatus)}
             >
-              {s}
+              {STATUS_LABELS[nextStatus]}
             </button>
-          ))}
+          )}
+          {isCancellable(order.status) && (
+            <button
+              className="btn btn-sm btn-ghost"
+              onClick={() => handleStatusUpdate(OrderStatus.CANCELLED)}
+            >
+              Cancel Order
+            </button>
+          )}
         </div>
       </div>
     </div>

@@ -2,21 +2,21 @@ import type { Money } from './cart.js';
 import type { ProductUnit } from './product.js';
 
 export enum OrderStatus {
-  DRAFT = 'draft',
-  VALIDATING = 'validating',
-  PENDING_PAYMENT = 'pending_payment',
-  PAYMENT_FAILED = 'payment_failed',
-  PAID = 'paid',
-  CONFIRMED = 'confirmed',
-  PROCESSING = 'processing',
-  PACKED = 'packed',
-  SHIPPED = 'shipped',
-  OUT_FOR_DELIVERY = 'out_for_delivery',
-  DELIVERED = 'delivered',
-  CANCELLED = 'cancelled',
-  REFUND_REQUESTED = 'refund_requested',
-  REFUNDED = 'refunded',
-  ARCHIVED = 'archived',
+  DRAFT = 'DRAFT',
+  VALIDATING = 'VALIDATING',
+  PENDING_PAYMENT = 'PENDING_PAYMENT',
+  PAYMENT_FAILED = 'PAYMENT_FAILED',
+  PAID = 'PAID',
+  CONFIRMED = 'CONFIRMED',
+  PROCESSING = 'PROCESSING',
+  PACKED = 'PACKED',
+  SHIPPED = 'SHIPPED',
+  OUT_FOR_DELIVERY = 'OUT_FOR_DELIVERY',
+  DELIVERED = 'DELIVERED',
+  CANCELLED = 'CANCELLED',
+  REFUND_REQUESTED = 'REFUND_REQUESTED',
+  REFUNDED = 'REFUNDED',
+  ARCHIVED = 'ARCHIVED',
 }
 
 export enum OrderSource {
@@ -155,6 +155,7 @@ export interface OrderQuery {
   dateFrom?: Date;
   dateTo?: Date;
   search?: string;
+  page?: number;
   limit?: number;
   cursor?: string;
   sort?: OrderSortField;

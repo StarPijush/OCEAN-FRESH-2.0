@@ -2,7 +2,7 @@
 
 ## System Overview
 
-OceanFresh is a serverless e-commerce platform built on Firebase, featuring a Clean Architecture monorepo with strict separation of concerns.
+OceanFresh is a serverless e-commerce platform built on Supabase, featuring a Clean Architecture monorepo with strict separation of concerns.
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -22,7 +22,7 @@ OceanFresh is a serverless e-commerce platform built on Firebase, featuring a Cl
 │  ProductRepo  |  OrderRepo  |  UserRepo  |  SettingsRepo     │
 ├──────────────────────────────────────────────────────────────┤
 │                    INFRASTRUCTURE LAYER                       │
-│  Firebase Auth  |  Firestore  |  Cloud Functions  |  Storage │
+│  Supabase Auth  |  PostgreSQL  |  Edge Functions  |  Storage │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -30,37 +30,39 @@ OceanFresh is a serverless e-commerce platform built on Firebase, featuring a Cl
 
 All ADRs in [docs/architecture/adr/](adr/)
 
-| ADR | Decision | Rationale |
-|---|---|---|
-| 001 | Monorepo with Turborepo | Shared types, configs, atomic commits |
-| 002 | Firestore over RTDB | Rich queries, auto-scaling, security rules |
-| 003 | Clean Architecture + DDD | 10-year maintainability, team scaling |
-| 004 | Cloud Functions for sensitive ops | Zero-trust security posture |
-| 005 | TanStack Query for server state | Caching, deduplication, stale management |
-| 006 | TypeScript strict | Zero-runtime type safety |
+| ADR | Decision                                                           | Rationale                                  |
+| --- | ------------------------------------------------------------------ | ------------------------------------------ |
+| 001 | Monorepo with Turborepo                                            | Shared types, configs, atomic commits      |
+| 002 | Firestore over RTDB (superseded — migrated to Supabase PostgreSQL) | Rich queries, auto-scaling, security rules |
+| 003 | Clean Architecture + DDD                                           | 10-year maintainability, team scaling      |
+| 004 | Edge Functions for sensitive ops (planned — Phase 2)               | Zero-trust security posture                |
+| 005 | TanStack Query for server state                                    | Caching, deduplication, stale management   |
+| 006 | TypeScript strict                                                  | Zero-runtime type safety                   |
 
 ## Package Dependency Graph
 
 ```
-@oceanfresh/storefront  →  @oceanfresh/shared, @oceanfresh/ui, @oceanfresh/firebase
-@oceanfresh/admin       →  @oceanfresh/shared, @oceanfresh/ui, @oceanfresh/firebase
+@oceanfresh/storefront  →  @oceanfresh/shared, @oceanfresh/ui, @oceanfresh/supabase
+@oceanfresh/admin       →  @oceanfresh/shared, @oceanfresh/ui, @oceanfresh/supabase
 @oceanfresh/ui          →  @oceanfresh/shared
-@oceanfresh/firebase    →  @oceanfresh/shared
+@oceanfresh/supabase    →  @oceanfresh/shared
 @oceanfresh/shared      →  (leaf — no internal deps)
 ```
 
 ## Data Flow
 
 ### Read Flow
+
 ```
-Page → Hook (TanStack Query) → Service → Repository → Firestore
+Page → Hook (TanStack Query) → Service → Repository → PostgreSQL (Supabase)
                                                      ↓
                                               Cache (TanStack)
 ```
 
 ### Write Flow
+
 ```
-Form (RHF + Zod) → Hook (useMutation) → Service → Cloud Function → Firestore
+Form (RHF + Zod) → Hook (useMutation) → Service → Repository → PostgreSQL (Supabase)
                                                                     ↓
                                                              Invalidate Query
 ```
@@ -68,18 +70,17 @@ Form (RHF + Zod) → Hook (useMutation) → Service → Cloud Function → Fires
 ## Security Layers
 
 1. **Network:** HTTPS enforced, CSP headers, HSTS
-2. **App Level:** Firebase App Check (reCAPTCHA v3)
-3. **Auth:** Firebase Auth with Custom Claims
-4. **Data:** Firestore security rules (per-document)
-5. **API:** Cloud Function validation (Zod) + rate limiting
-6. **Audit:** All admin actions logged to auditLogs collection
+2. **Auth:** Supabase Auth with Row Level Security
+3. **Data:** PostgreSQL RLS policies (row-level)
+4. **API:** Zod validation (client + server)
+5. **Audit:** All admin actions logged to audit_logs table
 
 ## Performance Targets
 
-| Metric | Target |
-|---|---|
+| Metric            | Target  |
+| ----------------- | ------- |
 | Initial JS bundle | <150 KB |
-| LCP | <2.0s |
-| INP | <100ms |
-| CLS | <0.1 |
-| TTI | <3.0s |
+| LCP               | <2.0s   |
+| INP               | <100ms  |
+| CLS               | <0.1    |
+| TTI               | <3.0s   |

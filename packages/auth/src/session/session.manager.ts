@@ -56,9 +56,21 @@ export class SessionManager {
   async startSession(session: AuthSession): Promise<void> {
     logger.info('startSession', { userId: session.userId });
     this.store.setSession(session);
-    if (this.stateMachine.currentState === AuthenticationState.UNAUTHENTICATED) {
-      this.stateMachine.transition(AuthenticationState.AUTHENTICATING);
+    const current = this.stateMachine.currentState;
+    if (current === AuthenticationState.AUTHENTICATED) {
+      // Already authenticated (duplicate SIGNED_IN / token refresh). Retain the
+      // session data without attempting an invalid AUTHENTICATED→AUTHENTICATED
+      // transition.
+      this.scheduleTimers();
+      this.setupCrossTabSync();
+      return;
     }
+    if (current !== AuthenticationState.UNAUTHENTICATED) {
+      // SESSION_EXPIRED / REAUTH_REQUIRED / etc.: a fresh successful login
+      // always re-enters the authenticated path.
+      this.stateMachine.reset();
+    }
+    this.stateMachine.transition(AuthenticationState.AUTHENTICATING);
     this.stateMachine.transition(AuthenticationState.AUTHENTICATED);
     this.scheduleTimers();
     this.setupCrossTabSync();
@@ -67,7 +79,9 @@ export class SessionManager {
   async endSession(): Promise<void> {
     logger.info('endSession');
     this.store.clearSession();
-    this.stateMachine.transition(AuthenticationState.UNAUTHENTICATED);
+    if (this.stateMachine.currentState !== AuthenticationState.UNAUTHENTICATED) {
+      this.stateMachine.transition(AuthenticationState.UNAUTHENTICATED);
+    }
     this.clearTimers();
   }
 
@@ -126,7 +140,9 @@ export class SessionManager {
         metadata: { source: 'SessionManager' },
       });
     }
-    this.stateMachine.transition(AuthenticationState.SESSION_EXPIRED);
+    if (this.stateMachine.currentState !== AuthenticationState.SESSION_EXPIRED) {
+      this.stateMachine.transition(AuthenticationState.SESSION_EXPIRED);
+    }
   }
 
   onStateTransition(

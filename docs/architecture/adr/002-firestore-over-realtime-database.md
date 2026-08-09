@@ -1,11 +1,12 @@
 # ADR 002: Firestore over Realtime Database
 
-**Status:** Accepted  
-**Date:** 2026-07-16  
+**Status:** Superseded by migration to Supabase PostgreSQL  
+**Date:** 2026-07-16
 
 ## Context
 
 The current project uses Firebase Realtime Database (RTDB). The database stores products, orders, and settings. Key problems:
+
 1. No query capabilities — `getStats()` fetches ALL orders to count pending
 2. No filtering — must filter client-side
 3. Security rules are path-based, not document-based
@@ -37,6 +38,8 @@ Migrate from RTDB to Firestore.
 - Firestore has higher per-document read cost ($0.06/100K vs RTDB bandwidth pricing)
 - Real-time listeners use `onSnapshot` instead of `on('value')`
 
-## Migration
+## Supersession Note
 
-See `scripts/migrate-rtdb-to-firestore.js` for the migration script.
+This ADR is superseded. The project has migrated directly from Firebase RTDB to **Supabase PostgreSQL** (2026-07-30), skipping Firestore entirely. The SQL migrations are in the `database/` directory.
+
+See `database/001_extensions.sql` through `database/010_verify.sql` for the full schema.

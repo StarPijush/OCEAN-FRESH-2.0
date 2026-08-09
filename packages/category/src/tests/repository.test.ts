@@ -1,205 +1,109 @@
-import { firestoreService } from '@oceanfresh/firebase';
 import { CategoryStatus } from '@oceanfresh/shared';
+import { supabaseService } from '@oceanfresh/supabase';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { FirestoreCategoryRepository } from '../repository/firestore-category.repository.js';
+import { SupabaseCategoryRepository } from '../repository/supabase-category.repository.js';
 
-vi.mock('@oceanfresh/firebase', () => ({
-  firestoreService: {
-    get: vi.fn(),
-    query: vi.fn(),
-    add: vi.fn(),
-    update: vi.fn(),
-  },
-}));
+vi.mock('@oceanfresh/supabase', async (importOriginal) => {
+  const mod = await importOriginal<typeof supabaseService>();
+  return {
+    ...mod,
+    supabaseService: {
+      get: vi.fn(),
+      query: vi.fn(),
+      add: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+      upsert: vi.fn(),
+    },
+  };
+});
 
-describe('FirestoreCategoryRepository', () => {
-  let repository: FirestoreCategoryRepository;
+const categoryRow = {
+  id: 'a0000000-0000-0000-0000-000000000001',
+  name: 'Fresh Fish',
+  slug: 'fresh-fish',
+  status: CategoryStatus.ACTIVE,
+  is_deleted: false,
+  sort_order: 1,
+};
+
+describe('SupabaseCategoryRepository', () => {
+  let repository: SupabaseCategoryRepository;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    repository = new FirestoreCategoryRepository();
+    vi.resetAllMocks();
+    repository = new SupabaseCategoryRepository();
+  });
+
+  describe('findAll', () => {
+    it('returns active, non-deleted categories ordered by sort_order', async () => {
+      vi.mocked(supabaseService.query).mockResolvedValue([categoryRow] as never);
+
+      const categories = await repository.findAll();
+
+      expect(categories).toHaveLength(1);
+      expect(categories[0]?.slug).toBe('fresh-fish');
+      expect(supabaseService.query).toHaveBeenCalledWith(
+        'categories',
+        [{ field: 'is_deleted', operator: 'eq', value: false }],
+        { orderByField: 'sort_order', orderDirection: 'asc' },
+      );
+    });
+
+    it('applies a status filter when provided', async () => {
+      vi.mocked(supabaseService.query).mockResolvedValue([] as never);
+
+      await repository.findAll({ status: CategoryStatus.ACTIVE });
+
+      expect(supabaseService.query).toHaveBeenCalledWith(
+        'categories',
+        expect.arrayContaining([{ field: 'status', operator: 'eq', value: 'ACTIVE' }]),
+        expect.anything(),
+      );
+    });
+
+    it('wraps supabase errors in RepositoryError', async () => {
+      vi.mocked(supabaseService.query).mockRejectedValue(new Error('boom'));
+
+      await expect(repository.findAll()).rejects.toThrow('Failed to query categories');
+    });
   });
 
   describe('findById', () => {
-    it('returns category when found', async () => {
-      const mockDoc = { id: '1', name: 'Seafood', isDeleted: false, status: CategoryStatus.ACTIVE };
-      vi.mocked(firestoreService.get).mockResolvedValue(mockDoc as Record<string, unknown>);
+    it('returns a category when found', async () => {
+      vi.mocked(supabaseService.get).mockResolvedValue(categoryRow as never);
 
-      const result = await repository.findById('1');
-      expect(result).toBeDefined();
-      expect(result?.name).toBe('Seafood');
-      expect(firestoreService.get).toHaveBeenCalledWith('categories', '1');
+      const category = await repository.findById(categoryRow.id);
+
+      expect(category?.name).toBe('Fresh Fish');
+      expect(supabaseService.get).toHaveBeenCalledWith('categories', categoryRow.id);
     });
 
     it('returns null when not found', async () => {
-      vi.mocked(firestoreService.get).mockResolvedValue(null);
-      const result = await repository.findById('nonexistent');
-      expect(result).toBeNull();
-    });
+      vi.mocked(supabaseService.get).mockResolvedValue(null);
 
-    it('returns null when category is soft-deleted', async () => {
-      const mockDoc = {
-        id: '1',
-        name: 'Deleted',
-        isDeleted: true,
-        status: CategoryStatus.ARCHIVED,
-      };
-      vi.mocked(firestoreService.get).mockResolvedValue(mockDoc as Record<string, unknown>);
-
-      const result = await repository.findById('1');
-      expect(result).toBeNull();
+      await expect(repository.findById('missing')).resolves.toBeNull();
     });
   });
 
   describe('findBySlug', () => {
-    it('returns category when found by slug', async () => {
-      vi.mocked(firestoreService.query).mockResolvedValue([
-        {
-          id: '1',
-          name: 'Seafood',
-          slug: 'seafood',
-          isDeleted: false,
-          status: CategoryStatus.ACTIVE,
-        },
-      ] as Record<string, unknown>[]);
+    it('returns a category when found', async () => {
+      vi.mocked(supabaseService.query).mockResolvedValue([categoryRow] as never);
 
-      const result = await repository.findBySlug('seafood');
-      expect(result).toBeDefined();
-      expect(result?.slug).toBe('seafood');
-    });
+      const category = await repository.findBySlug('fresh-fish');
 
-    it('returns null when slug not found', async () => {
-      vi.mocked(firestoreService.query).mockResolvedValue([]);
-      const result = await repository.findBySlug('nonexistent');
-      expect(result).toBeNull();
-    });
-  });
-
-  describe('findRootCategories', () => {
-    it('returns categories with null parentId', async () => {
-      vi.mocked(firestoreService.query).mockResolvedValue([
-        { id: '1', name: 'Root 1', parentId: null, isDeleted: false },
-        { id: '2', name: 'Root 2', parentId: null, isDeleted: false },
-      ] as Record<string, unknown>[]);
-
-      const result = await repository.findRootCategories();
-      expect(result).toHaveLength(2);
-    });
-  });
-
-  describe('findChildren', () => {
-    it('returns direct children of a parent', async () => {
-      vi.mocked(firestoreService.query).mockResolvedValue([
-        { id: '2', name: 'Child', parentId: '1', isDeleted: false },
-      ] as Record<string, unknown>[]);
-
-      const result = await repository.findChildren('1');
-      expect(result).toHaveLength(1);
-      expect(result[0]?.name).toBe('Child');
-    });
-  });
-
-  describe('create', () => {
-    it('creates a category and returns it', async () => {
-      vi.mocked(firestoreService.add).mockResolvedValue({ id: 'new-id' } as Record<
-        string,
-        unknown
-      >);
-
-      const result = await repository.create({
-        name: 'Fresh Fish',
-        slug: 'fresh-fish',
-        path: '',
-        level: 0,
-        createdBy: 'user-1',
-      });
-
-      expect(result).toBeDefined();
-      expect(result.name).toBe('Fresh Fish');
-      expect(firestoreService.add).toHaveBeenCalledOnce();
-    });
-  });
-
-  describe('softDelete', () => {
-    it('soft deletes a category', async () => {
-      vi.mocked(firestoreService.get).mockResolvedValue({
-        id: '1',
-        name: 'Test',
-        isDeleted: false,
-        status: CategoryStatus.ACTIVE,
-      } as Record<string, unknown>);
-      vi.mocked(firestoreService.update).mockResolvedValue();
-
-      await repository.softDelete('1');
-      expect(firestoreService.update).toHaveBeenCalledWith(
+      expect(category?.id).toBe(categoryRow.id);
+      expect(supabaseService.query).toHaveBeenCalledWith(
         'categories',
-        '1',
-        expect.objectContaining({ isDeleted: true, status: CategoryStatus.ARCHIVED }),
+        expect.arrayContaining([{ field: 'slug', operator: 'eq', value: 'fresh-fish' }]),
       );
     });
-  });
 
-  describe('findFeatured', () => {
-    it('returns featured categories', async () => {
-      vi.mocked(firestoreService.query).mockResolvedValue([
-        { id: '1', name: 'Featured', featured: true, isDeleted: false },
-      ] as Record<string, unknown>[]);
+    it('returns null when no category matches', async () => {
+      vi.mocked(supabaseService.query).mockResolvedValue([] as never);
 
-      const result = await repository.findFeatured(5);
-      expect(result).toHaveLength(1);
-    });
-  });
-
-  describe('exists', () => {
-    it('returns true when category exists', async () => {
-      vi.mocked(firestoreService.get).mockResolvedValue({
-        id: '1',
-        name: 'Test',
-        isDeleted: false,
-        status: CategoryStatus.ACTIVE,
-      } as Record<string, unknown>);
-      expect(await repository.exists('1')).toBe(true);
-    });
-
-    it('returns false when category does not exist', async () => {
-      vi.mocked(firestoreService.get).mockResolvedValue(null);
-      expect(await repository.exists('1')).toBe(false);
-    });
-  });
-
-  describe('findDescendants', () => {
-    it('returns descendants by path prefix', async () => {
-      vi.mocked(firestoreService.get).mockResolvedValue({
-        id: '1',
-        name: 'Parent',
-        path: '',
-        isDeleted: false,
-      } as Record<string, unknown>);
-      vi.mocked(firestoreService.query).mockResolvedValue([
-        { id: '2', name: 'Child', path: '1/2', isDeleted: false },
-        { id: '3', name: 'Grandchild', path: '1/2/3', isDeleted: false },
-      ] as Record<string, unknown>[]);
-
-      const result = await repository.findDescendants('1');
-      expect(result).toHaveLength(2);
-    });
-  });
-
-  describe('move', () => {
-    it('updates path and level', async () => {
-      vi.mocked(firestoreService.update).mockResolvedValue();
-      vi.mocked(firestoreService.get).mockResolvedValue({
-        id: '2',
-        name: 'Moved',
-        parentId: '1',
-        path: '1/2',
-        level: 1,
-      } as Record<string, unknown>);
-
-      const result = await repository.move('2', { parentId: '1', path: '1/2', level: 1 });
-      expect(result).toBeDefined();
-      expect(result.path).toBe('1/2');
+      await expect(repository.findBySlug('nope')).resolves.toBeNull();
     });
   });
 });

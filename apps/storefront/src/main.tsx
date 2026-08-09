@@ -1,5 +1,10 @@
 import './index.css';
 
+import { registerCartRepository } from '@oceanfresh/cart/repository';
+import { registerCategoryRepository } from '@oceanfresh/category/repository';
+import { registerOrderRepository } from '@oceanfresh/order/repository';
+import { registerProductRepository } from '@oceanfresh/product/repository';
+import { registerSettingsRepository } from '@oceanfresh/settings/repository';
 import { logger } from '@oceanfresh/shared';
 import { initSupabase } from '@oceanfresh/supabase';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -21,20 +26,24 @@ const queryClient = new QueryClient({
 
 async function bootstrap() {
   try {
+    registerProductRepository();
+    registerCartRepository();
+    registerOrderRepository();
+    registerSettingsRepository();
+    registerCategoryRepository();
     initSupabase();
-    logger.info('Supabase initialized');
+    logger.info('DI and Supabase initialized');
   } catch (err) {
-    logger.critical('Failed to initialize Supabase', err);
-    // Do NOT continue — surface the error and stop startup.
+    logger.critical('Failed to initialize', err);
     const root = document.getElementById('root');
     if (root) {
       root.innerHTML =
         '<div style="padding:2rem;font-family:monospace;color:#c00">' +
-        '<h2>Supabase initialization failed</h2>' +
+        '<h2>Initialization failed</h2>' +
         '<pre>' +
         String(err) +
         '</pre>' +
-        '<p>Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.</p>' +
+        '<p>Check your configuration.</p>' +
         '</div>';
     }
     return;

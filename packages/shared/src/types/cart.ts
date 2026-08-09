@@ -1,17 +1,17 @@
 export enum CartStatus {
-  ACTIVE = 'active',
-  VALIDATING = 'validating',
-  READY_FOR_CHECKOUT = 'ready_for_checkout',
-  CHECKOUT_STARTED = 'checkout_started',
-  CHECKED_OUT = 'checked_out',
-  ARCHIVED = 'archived',
-  EXPIRED = 'expired',
-  ABANDONED = 'abandoned',
+  ACTIVE = 'ACTIVE',
+  VALIDATING = 'VALIDATING',
+  READY_FOR_CHECKOUT = 'READY_FOR_CHECKOUT',
+  CHECKOUT_STARTED = 'CHECKOUT_STARTED',
+  CHECKED_OUT = 'CHECKED_OUT',
+  ARCHIVED = 'ARCHIVED',
+  EXPIRED = 'EXPIRED',
+  ABANDONED = 'ABANDONED',
 }
 
 export enum CartSource {
-  GUEST = 'guest',
-  AUTHENTICATED = 'authenticated',
+  GUEST = 'GUEST',
+  AUTHENTICATED = 'AUTHENTICATED',
 }
 
 export enum CartEventType {

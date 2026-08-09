@@ -1,5 +1,6 @@
 import {
   AccountStatus,
+  AuthenticationState,
   AuthEventType,
   AuthProviderType,
   type AuthSession,
@@ -13,6 +14,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthService } from '../service/auth.service.js';
 import { AuthorizationService } from '../service/authorization.service.js';
 import { TokenService } from '../service/token.service.js';
+import { DeviceManager } from '../session/device.manager.js';
+import { SessionManager } from '../session/session.manager.js';
+import { InMemorySessionStore } from '../session/session.store.js';
 
 const mockUser: UserIdentity = {
   id: 'user-1',
@@ -144,6 +148,22 @@ describe('AuthService', () => {
     expect(result).toBeDefined();
   });
 
+  it('login is idempotent when called twice (duplicate authenticated event)', async () => {
+    provider.login.mockResolvedValue(mockSession);
+    eventBus.publish.mockResolvedValue(undefined);
+    const realStore = new InMemorySessionStore();
+    const realManager = new SessionManager(realStore, eventBus, new DeviceManager());
+    const realService = new AuthService(provider, realManager, eventBus, resolver);
+
+    await realService.login({ email: 'a@b.com', password: 'pass123' });
+    expect(realManager.state).toBe(AuthenticationState.AUTHENTICATED);
+    await expect(
+      realService.login({ email: 'a@b.com', password: 'pass123' }),
+    ).resolves.toBeDefined();
+    expect(realManager.state).toBe(AuthenticationState.AUTHENTICATED);
+    expect(realStore.getSession()).not.toBeNull();
+  });
+
   it('register delegates to provider and publishes event', async () => {
     provider.register.mockResolvedValue(mockUser);
     eventBus.publish.mockResolvedValue(undefined);
@@ -193,21 +213,6 @@ describe('AuthService', () => {
       expect.objectContaining({ type: AuthEventType.EMAIL_VERIFIED }),
     );
   });
-
-  it('deleteAccount delegates and ends session', async () => {
-    provider.deleteAccount.mockResolvedValue(undefined);
-    provider.getCurrentUser.mockResolvedValue(mockUser);
-    sessionManager.endSession.mockResolvedValue(undefined);
-    eventBus.publish.mockResolvedValue(undefined);
-
-    await service.deleteAccount();
-
-    expect(provider.deleteAccount).toHaveBeenCalled();
-    expect(sessionManager.endSession).toHaveBeenCalled();
-    expect(eventBus.publish).toHaveBeenCalledWith(
-      expect.objectContaining({ type: AuthEventType.ACCOUNT_DELETED }),
-    );
-  });
 });
 
 describe('AuthorizationService', () => {
@@ -218,7 +223,10 @@ describe('AuthorizationService', () => {
   beforeEach(() => {
     resolver = createMockResolver();
     eventBus = createMockEventBus();
-    const mockRepo = { findUserById: vi.fn() } as Record<string, unknown>;
+    const mockRepo = {
+      findUserById: vi.fn(),
+      getAdminProfile: vi.fn().mockResolvedValue(null),
+    } as Record<string, unknown>;
     const mockFn = { assignRole: vi.fn() } as Record<string, unknown>;
     service = new AuthorizationService(resolver, mockRepo, mockFn, eventBus);
   });

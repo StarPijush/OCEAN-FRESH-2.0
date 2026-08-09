@@ -1,7 +1,7 @@
 import { AuthEventType } from '@oceanfresh/shared';
 import { describe, expect, it, vi } from 'vitest';
 
-import { InMemoryEventBus } from '../events/in-memory-event-bus.js';
+import { InMemoryEventBus } from '../events/index.js';
 
 describe('InMemoryEventBus (Auth)', () => {
   it('publishes event to subscribed handlers', async () => {

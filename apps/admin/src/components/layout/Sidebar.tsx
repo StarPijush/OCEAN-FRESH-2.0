@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useAdminSession } from '@oceanfresh/auth';
+import { getAuthService } from '@oceanfresh/auth/service';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { authRepository } from '../../repositories';
-import { useAdminContext } from './AdminContext';
+import { useAdminContext } from './use-admin-context.js';
 
 interface Props {
   onNavigate: () => void;
@@ -30,16 +30,13 @@ export function Sidebar({ onNavigate }: Props) {
   const location = useLocation();
   const navigate = useNavigate();
   const current = location.pathname.replace('/', '') || 'dashboard';
-  const [admin, setAdmin] = useState({ name: 'Shop Owner', mobile: '9876543210' });
+  const { user, adminProfile } = useAdminSession();
   const { pendingCount } = useAdminContext();
 
-  useEffect(() => {
-    authRepository.getAdmin().then((a) => {
-      if (a) setAdmin(a);
-    });
-  }, [location.pathname]);
+  const name = adminProfile?.fullName || user?.displayName || 'Admin';
+  const email = user?.email ?? '';
 
-  const initials = admin.name
+  const initials = name
     .split(' ')
     .map((w) => w[0])
     .join('')
@@ -56,8 +53,11 @@ export function Sidebar({ onNavigate }: Props) {
   };
 
   const handleLogout = async () => {
-    await authRepository.logout();
-    navigate('/login', { replace: true });
+    try {
+      await getAuthService().logout();
+    } finally {
+      navigate('/login', { replace: true });
+    }
   };
 
   return (
@@ -99,10 +99,10 @@ export function Sidebar({ onNavigate }: Props) {
           </div>
           <div>
             <div className="sb-username" id="sb-name">
-              {admin.name}
+              {name}
             </div>
             <div className="sb-mobile" id="sb-mobile">
-              {admin.mobile}
+              {email}
             </div>
           </div>
         </div>

@@ -1,3 +1,5 @@
+export type { AdminSessionState, AdminSessionStatus } from './use-admin-session.js';
+export { useAdminSession } from './use-admin-session.js';
 export {
   useAuthState,
   useCurrentUser,

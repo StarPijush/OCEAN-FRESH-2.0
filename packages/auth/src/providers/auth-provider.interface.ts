@@ -9,8 +9,8 @@ export interface IAuthProvider {
   getIdToken(forceRefresh?: boolean): Promise<string>;
   getCustomClaims(): Promise<Record<string, unknown>>;
   reauthenticate(password: string): Promise<void>;
-  deleteAccount(): Promise<void>;
   sendPasswordReset(email: string): Promise<void>;
+  updatePassword(newPassword: string): Promise<void>;
   verifyEmail(): Promise<void>;
   linkProvider(provider: string): Promise<void>;
   unlinkProvider(providerId: string): Promise<void>;

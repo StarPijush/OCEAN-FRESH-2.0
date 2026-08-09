@@ -11,7 +11,9 @@ function isProduction(): boolean {
       const env = (import.meta as unknown as Record<string, Record<string, boolean>>).env;
       return env?.PROD === true;
     }
-  } catch {}
+  } catch {
+    return false;
+  }
   return false;
 }
 

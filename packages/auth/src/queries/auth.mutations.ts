@@ -1,28 +1,15 @@
 import type { LoginInput } from '@oceanfresh/shared';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { InMemoryEventBus } from '../events/index.js';
-import { PermissionResolver } from '../permissions/index.js';
 import { SupabaseAuthProvider } from '../providers/index.js';
-import { AuthService } from '../service/index.js';
-import { DeviceManager, InMemorySessionStore, SessionManager } from '../session/index.js';
+import { getAuthService } from '../service/index.js';
 import { authKeys } from './auth.query-keys.js';
-
-function createAuthService(): AuthService {
-  const provider = new SupabaseAuthProvider();
-  const eventBus = new InMemoryEventBus();
-  const store = new InMemorySessionStore();
-  const deviceManager = new DeviceManager();
-  const sessionManager = new SessionManager(store, eventBus, deviceManager);
-  const resolver = new PermissionResolver();
-  return new AuthService(provider, sessionManager, eventBus, resolver);
-}
 
 export function useLogin() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (input: LoginInput) => createAuthService().login(input),
+    mutationFn: (input: LoginInput) => getAuthService().login(input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: authKeys.all });
     },
@@ -41,7 +28,7 @@ export function useRegister() {
       email: string;
       password: string;
       displayName: string;
-    }) => createAuthService().register(email, password, displayName),
+    }) => getAuthService().register(email, password, displayName),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: authKeys.all });
     },
@@ -52,7 +39,7 @@ export function useLogout() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => createAuthService().logout(),
+    mutationFn: () => getAuthService().logout(),
     onSuccess: () => {
       queryClient.clear();
     },
@@ -61,24 +48,19 @@ export function useLogout() {
 
 export function useResetPassword() {
   return useMutation({
-    mutationFn: (email: string) => createAuthService().resetPassword(email),
+    mutationFn: (email: string) => getAuthService().resetPassword(email),
+  });
+}
+
+export function useUpdatePassword() {
+  return useMutation({
+    mutationFn: (newPassword: string) => getAuthService().updatePassword(newPassword),
   });
 }
 
 export function useVerifyEmail() {
   return useMutation({
-    mutationFn: () => createAuthService().verifyEmail(),
-  });
-}
-
-export function useDeleteAccount() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: () => createAuthService().deleteAccount(),
-    onSuccess: () => {
-      queryClient.clear();
-    },
+    mutationFn: () => getAuthService().verifyEmail(),
   });
 }
 
@@ -86,7 +68,10 @@ export function useRefreshSession() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => createAuthService().login({ email: '', password: '' }),
+    mutationFn: async () => {
+      const provider = new SupabaseAuthProvider();
+      await provider.refreshToken();
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: authKeys.all });
     },

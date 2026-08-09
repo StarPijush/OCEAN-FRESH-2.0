@@ -21,12 +21,5 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": [
-    "src/repositories/rtdb.ts",
-    "src/repositories/authRepository.ts",
-    "src/repositories/productRepository.ts",
-    "src/repositories/orderRepository.ts",
-    "src/repositories/settingsRepository.ts"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

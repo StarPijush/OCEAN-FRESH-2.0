@@ -10,7 +10,14 @@ export {
 export type { EventBus, InMemoryEventBus } from './events/index.js';
 export { AuthGuard, FeatureGate, PermissionGate, RoleGate } from './guards/index.js';
 export type { AuthFormOptions } from './hooks/index.js';
-export { useAuthForm, useLoginAction, useLogoutAction, useRegisterAction } from './hooks/index.js';
+export type { AdminSessionState, AdminSessionStatus } from './hooks/index.js';
+export {
+  useAdminSession,
+  useAuthForm,
+  useLoginAction,
+  useLogoutAction,
+  useRegisterAction,
+} from './hooks/index.js';
 export type { PermissionResolver } from './permissions/index.js';
 export type { SupabaseAuthProvider } from './providers/index.js';
 export type { IAuthProvider } from './providers/index.js';
@@ -18,7 +25,6 @@ export {
   authKeys,
   useAuthState,
   useCurrentUser,
-  useDeleteAccount,
   useIsAuthenticated,
   useLogin,
   useLogout,
@@ -29,9 +35,10 @@ export {
   useResetPassword,
   useRole,
   useSession,
+  useUpdatePassword,
   useVerifyEmail,
 } from './queries/index.js';
-export type { IAuthRepository } from './repository/index.js';
+export type { AdminProfile, IAuthRepository } from './repository/index.js';
 export type {
   AuthorizationService,
   AuthService,
@@ -42,5 +49,6 @@ export type {
   AuthStateMachine,
   DeviceManager,
   InMemorySessionStore,
+  PersistentSessionStore,
   SessionManager,
 } from './session/index.js';

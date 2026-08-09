@@ -236,6 +236,70 @@ describe('SessionManager', () => {
     expect(manager.validateSession()).resolves.toBe(true);
   });
 
+  it('is idempotent for duplicate authenticated events', async () => {
+    const manager = new SessionManager(store, eventBus, deviceManager);
+    await manager.startSession(mockSession);
+    await expect(manager.startSession(mockSession)).resolves.toBeUndefined();
+    expect(manager.state).toBe(AuthenticationState.AUTHENTICATED);
+    expect(store.getSession()).toBe(mockSession);
+  });
+
+  it('retains the latest session data on a duplicate startSession', async () => {
+    const manager = new SessionManager(store, eventBus, deviceManager);
+    await manager.startSession({
+      ...mockSession,
+      tokenPair: { ...mockSession.tokenPair, accessToken: 'at1' },
+    });
+    const refreshed = {
+      ...mockSession,
+      tokenPair: { ...mockSession.tokenPair, accessToken: 'at2' },
+    };
+    await expect(manager.startSession(refreshed)).resolves.toBeUndefined();
+    expect(manager.state).toBe(AuthenticationState.AUTHENTICATED);
+    expect(store.getSession()?.tokenPair.accessToken).toBe('at2');
+  });
+
+  it('supports token refresh while authenticated (startSession re-entry)', async () => {
+    const manager = new SessionManager(store, eventBus, deviceManager);
+    await manager.startSession(mockSession);
+    expect(manager.state).toBe(AuthenticationState.AUTHENTICATED);
+    const refreshed = {
+      ...mockSession,
+      tokenPair: { ...mockSession.tokenPair, accessToken: 'refreshed-token' },
+    };
+    await expect(manager.startSession(refreshed)).resolves.toBeUndefined();
+    expect(manager.state).toBe(AuthenticationState.AUTHENTICATED);
+    expect(store.getSession()?.tokenPair.accessToken).toBe('refreshed-token');
+  });
+
+  it('does not throw when ending session while already unauthenticated', async () => {
+    const manager = new SessionManager(store, eventBus, deviceManager);
+    await manager.startSession(mockSession);
+    await manager.endSession();
+    await expect(manager.endSession()).resolves.toBeUndefined();
+    expect(manager.state).toBe(AuthenticationState.UNAUTHENTICATED);
+    expect(store.getSession()).toBeNull();
+  });
+
+  it('re-authenticates after session expired without throwing', async () => {
+    const manager = new SessionManager(store, eventBus, deviceManager);
+    await manager.startSession(mockSession);
+    const revoked = { ...mockSession, isRevoked: true };
+    store.setSession(revoked);
+    await expect(manager.validateSession()).resolves.toBe(false);
+    expect(manager.state).toBe(AuthenticationState.SESSION_EXPIRED);
+    await expect(manager.startSession(mockSession)).resolves.toBeUndefined();
+    expect(manager.state).toBe(AuthenticationState.AUTHENTICATED);
+  });
+
+  it('handles session expiry idempotently', async () => {
+    const manager = new SessionManager(store, eventBus, deviceManager);
+    await manager.startSession(mockSession);
+    await manager.handleSessionExpired();
+    await expect(manager.handleSessionExpired()).resolves.toBeUndefined();
+    expect(manager.state).toBe(AuthenticationState.SESSION_EXPIRED);
+  });
+
   it('destroys and cleans up', () => {
     const manager = new SessionManager(store, eventBus, deviceManager);
     manager.startSession(mockSession);

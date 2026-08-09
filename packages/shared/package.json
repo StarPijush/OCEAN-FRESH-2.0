@@ -8,13 +8,15 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./domain": "./src/domain/index.ts",
     "./errors": "./src/errors/index.ts",
     "./types": "./src/types/index.ts",
     "./validators": "./src/validators/index.ts",
     "./logger": "./src/logger/index.ts",
     "./config": "./src/config/index.ts",
     "./features": "./src/features/index.ts",
-    "./di": "./src/di/index.ts"
+    "./di": "./src/di/index.ts",
+    "./repository": "./src/repository/index.ts"
   },
   "scripts": {
     "build": "tsc",
@@ -26,7 +28,8 @@
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "@oceanfresh/supabase": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.0.0",

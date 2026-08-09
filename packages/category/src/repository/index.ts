@@ -3,5 +3,5 @@ export {
   getCategoryRepository,
   registerCategoryRepository,
 } from './category.repository.factory.js';
-export type { ICategoryRepository } from './category.repository.js';
+export type { CategoryFilter, ICategoryRepository } from './category.repository.js';
 export { SupabaseCategoryRepository } from './supabase-category.repository.js';

@@ -1,5 +1,14 @@
 import type { AuthSession, DeviceInfo, UserIdentity } from '@oceanfresh/shared';
 
+export interface AdminProfile {
+  id: string;
+  userId: string;
+  fullName: string;
+  mobile: string | null;
+  avatarUrl: string | null;
+  role: string;
+}
+
 export interface IAuthRepository {
   findSessionById(sessionId: string): Promise<AuthSession | null>;
   findSessionsByUserId(userId: string): Promise<AuthSession[]>;
@@ -17,6 +26,11 @@ export interface IAuthRepository {
   getUserById(userId: string): Promise<UserIdentity | null>;
   saveUser(user: UserIdentity): Promise<void>;
   updateUser(userId: string, data: Partial<UserIdentity>): Promise<void>;
+  getAdminProfile(userId: string): Promise<AdminProfile | null>;
+  updateAdminProfile(
+    userId: string,
+    data: Partial<Pick<AdminProfile, 'fullName' | 'mobile' | 'avatarUrl'>>,
+  ): Promise<void>;
 }
 
 export interface AuditLogEntry {

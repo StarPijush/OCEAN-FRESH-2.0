@@ -5,17 +5,20 @@
 ### SEV-1: Critical (Service Down / Data Breach)
 
 **Examples:**
+
 - Service unavailable for all users
 - PII data breach confirmed
 - Admin account compromised
 
 **Response:**
+
 - **Acknowledge:** <5 minutes
 - **Mitigate:** <1 hour
 - **Notify affected users:** <24 hours (legal requirement)
 - **Post-mortem:** <48 hours
 
 **Team:**
+
 - On-call engineer (primary)
 - Principal architect (secondary)
 - CTO (escalation)
@@ -23,11 +26,13 @@
 ### SEV-2: High (Degraded Service)
 
 **Examples:**
+
 - Service slow for significant subset of users
 - Cloud Function errors >5%
-- Firebase quota exceeded
+- Supabase quota exceeded
 
 **Response:**
+
 - **Acknowledge:** <15 minutes
 - **Mitigate:** <2 hours
 - **Post-mortem:** <1 week
@@ -35,21 +40,23 @@
 ### SEV-3: Medium (Minor Issue)
 
 **Examples:**
+
 - UI bug affecting small subset of users
 - Performance degradation <20%
 - Non-critical feature broken
 
 **Response:**
+
 - **Acknowledge:** <2 hours
 - **Fix:** Next sprint
 
 ## Communication
 
-| Channel | Purpose |
-|---|---|
-| Slack #incidents | Real-time incident communication |
-| status.oceanfresh.in | Public status page |
-| Email (all-hands) | Major incident notifications |
+| Channel              | Purpose                          |
+| -------------------- | -------------------------------- |
+| Slack #incidents     | Real-time incident communication |
+| status.oceanfresh.in | Public status page               |
+| Email (all-hands)    | Major incident notifications     |
 
 ## Incident Process
 

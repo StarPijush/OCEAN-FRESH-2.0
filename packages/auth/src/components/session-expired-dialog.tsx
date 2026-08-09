@@ -12,7 +12,11 @@ export function SessionExpiredDialog({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" role="dialog" aria-modal="true">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-4">
         <div className="text-center">
           <div className="mx-auto h-12 w-12 rounded-full bg-yellow-100 flex items-center justify-center mb-4">

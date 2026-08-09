@@ -23,6 +23,13 @@ export class AuthorizationService {
     private readonly eventBus: EventBus,
   ) {}
 
+  private async resolveRole(user: UserIdentity): Promise<Role> {
+    if (user.identityType === 'service_account') return Role.SYSTEM;
+    const profile = await this.authRepository.getAdminProfile(user.id);
+    if (!profile) return Role.CUSTOMER;
+    return profile.role === 'super_admin' ? Role.SUPER_ADMIN : Role.ADMIN;
+  }
+
   async hasPermission(
     user: UserIdentity,
     permission: Permission,
@@ -30,7 +37,7 @@ export class AuthorizationService {
   ): Promise<boolean> {
     const context: PermissionContext = {
       userId: user.id,
-      userRole: user.identityType === 'service_account' ? Role.SYSTEM : Role.CUSTOMER,
+      userRole: await this.resolveRole(user),
       resource,
       action: permission,
     };
@@ -60,13 +67,13 @@ export class AuthorizationService {
     });
   }
 
-  async getEffectivePermissions(_user: UserIdentity): Promise<Permission[]> {
-    const role = Role.CUSTOMER;
+  async getEffectivePermissions(user: UserIdentity): Promise<Permission[]> {
+    const role = await this.resolveRole(user);
     return this.resolver.getEffectivePermissions(role);
   }
 
   async isAtLeastRole(user: UserIdentity, minimumRole: Role): Promise<boolean> {
-    const role = Role.CUSTOMER;
+    const role = await this.resolveRole(user);
     return this.resolver.isAtLeastRole(role, minimumRole);
   }
 

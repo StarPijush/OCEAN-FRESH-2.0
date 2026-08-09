@@ -1,7 +1,9 @@
+import { useSettings } from '../context/settings-context.js';
 import { useReveal } from '../hooks/useReveal.js';
 
 export function ContactPage() {
   useReveal();
+  const s = useSettings();
 
   return (
     <div id="page-contact" className="page active">
@@ -21,12 +23,12 @@ export function ContactPage() {
       </div>
 
       <div className="contact-list">
-        <a href="tel:+919876543210" className="contact-item" style={{ color: 'inherit' }}>
+        <a href={`tel:${s.phoneRaw}`} className="contact-item" style={{ color: 'inherit' }}>
           <div className="contact-item-left">
             <div className="contact-item-icon">{'\u{1F4F1}'}</div>
             <div>
               <div className="contact-item-title">Call Us</div>
-              <div className="contact-item-value">+91 98765 43210</div>
+              <div className="contact-item-value">{s.phoneDisplay}</div>
             </div>
           </div>
           <div className="contact-item-arrow">{'\u203A'}</div>
@@ -36,7 +38,7 @@ export function ContactPage() {
           className="contact-item"
           onClick={() =>
             window.open(
-              'https://wa.me/919876543210?text=' +
+              `https://wa.me/${s.whatsapp}?text=` +
                 encodeURIComponent("Hi! I'd like to know more about today's fresh catch \u{1F41F}"),
               '_blank',
             )
@@ -61,8 +63,8 @@ export function ContactPage() {
             <div className="contact-item-icon">{'\u{1F550}'}</div>
             <div>
               <div className="contact-item-title">Shop Hours</div>
-              <div className="contact-item-value">Mon\u2013Sat &middot; 6AM \u2013 9PM</div>
-              <div className="contact-item-value">Sunday &middot; 6AM \u2013 2PM</div>
+              <div className="contact-item-value">{s.hours[0]}</div>
+              <div className="contact-item-value">{s.hours[1]}</div>
             </div>
           </div>
         </div>
@@ -72,8 +74,8 @@ export function ContactPage() {
             <div className="contact-item-icon">{'\u{1F4CD}'}</div>
             <div>
               <div className="contact-item-title">Address</div>
-              <div className="contact-item-value">Shop No. 12, Fish Market</div>
-              <div className="contact-item-value">Jhargram, West Bengal 721507</div>
+              <div className="contact-item-value">{s.addressLines[0]}</div>
+              <div className="contact-item-value">{s.addressLines[1]}</div>
             </div>
           </div>
         </div>
@@ -95,16 +97,11 @@ export function ContactPage() {
           Delivery Areas
         </div>
         <div className="area-chips">
-          <span className="area-chip">Jamboni</span>
-          <span className="area-chip">Binpur</span>
-          <span className="area-chip">Gopiballavpur</span>
-          <span className="area-chip">Belpahari</span>
-          <span className="area-chip">Nayagram</span>
-          <span className="area-chip">Sankrail</span>
-          <span className="area-chip">Rohini</span>
-          <span className="area-chip">Silda</span>
-          <span className="area-chip">Gidhni</span>
-          <span className="area-chip">Lodhasuli</span>
+          {s.deliveryAreas.map((area) => (
+            <span className="area-chip" key={area}>
+              {area}
+            </span>
+          ))}
           <span className="area-chip" style={{ background: 'var(--sand)', color: 'var(--muted)' }}>
             + More
           </span>
@@ -122,12 +119,12 @@ export function ContactPage() {
             marginBottom: '8px',
           }}
         >
-          OceanFresh
+          {s.storeName}
         </div>
         <div
           style={{ fontSize: '0.65rem', color: 'rgba(245,240,232,0.3)', letterSpacing: '0.1em' }}
         >
-          Fresh Seafood &middot; Jhargram, West Bengal &middot; Est. 2018
+          {s.tagline} &middot; Est. {s.foundedYear}
         </div>
       </div>
     </div>

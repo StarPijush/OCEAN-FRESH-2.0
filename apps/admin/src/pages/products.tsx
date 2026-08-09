@@ -2,15 +2,17 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { DeleteModal } from '../components/products/DeleteModal';
 import { ProductModal } from '../components/products/ProductModal';
-import { useAdminToast } from '../components/shared/AdminToast';
-import { productRepository } from '../repositories';
-import type { ProductData } from '../repositories/types';
-
-const fmt = (n: number) => `₹${Number(n).toLocaleString('en-IN')}`;
+import { useAdminToast } from '../components/shared/use-admin-toast.js';
+import { productService } from '../services';
+import type { ProductData } from '../types.js';
+import { formatCurrency } from '../utils/format.js';
+import { imageUtils } from '../utils/image.js';
 
 export function ProductsPage() {
   const { toast } = useAdminToast();
   const [products, setProducts] = useState<ProductData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState('all');
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<ProductData | null>(null);
@@ -18,13 +20,53 @@ export function ProductsPage() {
   const [deleting, setDeleting] = useState<{ id: string; name: string } | null>(null);
 
   const load = useCallback(async () => {
-    const list = await productRepository.getAll();
-    setProducts(list);
+    setLoading(true);
+    setError(null);
+    try {
+      const list = await productService.getAll();
+      setProducts(list);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load products');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  const handleToggleAvailable = async (id: string) => {
+    try {
+      const p = await productService.toggleAvailable(id);
+      if (p) toast(`${p.name} is now ${p.available ? 'available' : 'unavailable'}`, 'success');
+      await load();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Update failed', 'error');
+    }
+  };
+
+  const handleToggleFeatured = async (id: string) => {
+    try {
+      const p = await productService.toggleFeatured(id);
+      if (p) toast(`${p.name} ${p.featured ? 'added to' : 'removed from'} featured`, 'success');
+      await load();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Update failed', 'error');
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleting) return;
+    try {
+      await productService.remove(deleting.id);
+      toast(`${deleting.name} deleted`, 'success');
+      setDeleting(null);
+      await load();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : 'Delete failed', 'error');
+    }
+  };
 
   const filtered = products.filter((p) => {
     if (filter !== 'all' && p.category !== filter) return false;
@@ -36,29 +78,6 @@ export function ProductsPage() {
     return true;
   });
 
-  const handleToggleAvailable = async (id: string) => {
-    await productRepository.toggleAvailable(id);
-    const p = await productRepository.getById(id);
-    if (p) toast(`${p.name} is now ${p.available ? 'available' : 'unavailable'}`, 'success');
-    load();
-  };
-
-  const handleToggleFeatured = async (id: string) => {
-    await productRepository.toggleFeatured(id);
-    const p = await productRepository.getById(id);
-    if (p) toast(`${p.name} ${p.featured ? 'added to' : 'removed from'} featured`, 'success');
-    load();
-  };
-
-  const handleDelete = async () => {
-    if (!deleting) return;
-    const p = await productRepository.getById(deleting.id);
-    await productRepository.remove(deleting.id);
-    toast(`${p?.name || 'Product'} deleted`, 'error');
-    setDeleting(null);
-    load();
-  };
-
   const filterChips = [
     { id: 'all', label: 'All' },
     { id: 'fresh', label: 'Fresh Fish' },
@@ -66,6 +85,25 @@ export function ProductsPage() {
     { id: 'prawns', label: 'Prawns' },
     { id: 'crabs', label: 'Crabs' },
   ];
+
+  if (error) {
+    return (
+      <div id="panel-products" className="admin-panel active">
+        <div className="panel-header">
+          <div className="panel-eyebrow">Inventory</div>
+          <h1 className="panel-title">Products</h1>
+        </div>
+        <div className="empty-state" style={{ padding: '48px 16px' }}>
+          <div className="empty-state-icon">⚠️</div>
+          <div className="empty-state-title">Could not load products</div>
+          <div className="empty-state-sub">{error}</div>
+          <button className="btn btn-primary" onClick={load} type="button">
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div id="panel-products" className="admin-panel active">
@@ -121,7 +159,12 @@ export function ProductsPage() {
         </div>
 
         <div id="products-tbody">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="empty-state" style={{ padding: '48px 16px' }}>
+              <div className="spinner" aria-label="Loading products" />
+              <div className="empty-state-sub">Loading products…</div>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="empty-state" style={{ padding: '48px 16px' }}>
               <div className="empty-state-icon">🐟</div>
               <div className="empty-state-title">No products found</div>
@@ -133,10 +176,11 @@ export function ProductsPage() {
                 <div className="col-img">
                   <div className="col-img-thumb">
                     <img
-                      src={p.image}
+                      src={p.image ?? imageUtils.PLACEHOLDER}
                       alt={p.name}
                       onError={(e) => {
-                        (e.target as HTMLElement).style.background = '#1c2030';
+                        const img = e.target as HTMLImageElement;
+                        if (img.src !== imageUtils.PLACEHOLDER) img.src = imageUtils.PLACEHOLDER;
                       }}
                     />
                   </div>
@@ -149,7 +193,7 @@ export function ProductsPage() {
                   <span className="badge badge-muted">{p.category}</span>
                 </div>
                 <div className="col-price" style={{ fontWeight: 600, color: 'var(--aqua)' }}>
-                  {fmt(p.price)}
+                  {formatCurrency(p.price)}
                 </div>
                 <div className="col-status">
                   <label className="toggle">

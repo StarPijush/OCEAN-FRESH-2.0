@@ -20,16 +20,16 @@
 # Design system
 /packages/ui/ @oceanfresh/frontend @oceanfresh/design
 
-# Firebase configuration
-/packages/firebase/ @oceanfresh/backend
+# Supabase configuration
+/packages/supabase/ @oceanfresh/backend
 
 # Shared configs (ESLint, TypeScript)
 /packages/config/ @oceanfresh/engineering
 
-# --- Backend ---
+# --- Database ---
 
-# Cloud Functions
-/functions/ @oceanfresh/backend
+# PostgreSQL migrations
+/database/ @oceanfresh/backend
 
 # --- Infrastructure ---
 

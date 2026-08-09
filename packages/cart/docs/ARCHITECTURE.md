@@ -40,6 +40,7 @@
 ```
 
 ## Dependency Rules
+
 1. Components → Hooks → Queries → Services → Repository
 2. Services never reference components, hooks, or queries
 3. Repository is the only layer that touches Firestore
@@ -74,6 +75,7 @@
 ```
 
 ## Terminal States
+
 - `checked_out` — final, no further transitions
 - `expired` — session TTL reached, can reactivate
 - `abandoned` — inactivity timeout, can reactivate

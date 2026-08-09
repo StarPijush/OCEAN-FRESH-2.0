@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 
 interface Props {
   onReset: (p1: string, p2: string) => Promise<boolean>;
+  onBack: () => void;
   error: string;
 }
 
-export function ResetScreen({ onReset, error }: Props) {
+export function ResetScreen({ onReset, onBack, error }: Props) {
   const [pass1, setPass1] = useState('');
   const [pass2, setPass2] = useState('');
   const [show1, setShow1] = useState(false);
@@ -91,6 +92,12 @@ export function ResetScreen({ onReset, error }: Props) {
       >
         {loading ? 'Updating…' : 'Update Password →'}
       </button>
+
+      <div style={{ textAlign: 'center' }}>
+        <span className="auth-link" onClick={onBack}>
+          ← Back to login
+        </span>
+      </div>
     </div>
   );
 }

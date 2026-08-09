@@ -5,7 +5,12 @@ export class RepositoryError extends AppError {
   readonly statusCode = 500;
   readonly severity = 'critical' as const;
 
-  constructor(message: string, public readonly operation: string, public readonly collection: string, context?: Record<string, unknown>) {
+  constructor(
+    message: string,
+    public readonly operation: string,
+    public readonly collection: string,
+    context?: Record<string, unknown>,
+  ) {
     super(message, context);
   }
 }

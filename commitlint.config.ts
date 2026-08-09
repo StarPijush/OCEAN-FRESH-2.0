@@ -26,7 +26,7 @@ const config: UserConfig = {
       [
         'shared',
         'ui',
-        'firebase',
+        'supabase',
         'config',
         'storefront',
         'admin',

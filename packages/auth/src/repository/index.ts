@@ -3,5 +3,5 @@ export {
   getAuthRepository,
   registerAuthRepository,
 } from './auth.repository.factory.js';
-export type { AuditLogEntry, IAuthRepository } from './auth.repository.js';
+export type { AdminProfile, AuditLogEntry, IAuthRepository } from './auth.repository.js';
 export { SupabaseAuthRepository } from './supabase-auth.repository.js';

@@ -1,9 +1,6 @@
 import { Permission, Role, type RolePermissions } from '@oceanfresh/shared';
 
-const GUEST_PERMISSIONS: Permission[] = [
-  Permission.PRODUCT_READ,
-  Permission.CATEGORY_READ,
-];
+const GUEST_PERMISSIONS: Permission[] = [Permission.PRODUCT_READ, Permission.CATEGORY_READ];
 
 const CUSTOMER_PERMISSIONS: Permission[] = [
   ...GUEST_PERMISSIONS,
@@ -59,9 +56,19 @@ const SYSTEM_PERMISSIONS: Permission[] = Object.values(Permission);
 export const ROLE_PERMISSIONS: RolePermissions[] = [
   { role: Role.GUEST, level: 0, inherits: [], permissions: GUEST_PERMISSIONS },
   { role: Role.CUSTOMER, level: 10, inherits: [Role.GUEST], permissions: CUSTOMER_PERMISSIONS },
-  { role: Role.MODERATOR, level: 50, inherits: [Role.CUSTOMER], permissions: MODERATOR_PERMISSIONS },
+  {
+    role: Role.MODERATOR,
+    level: 50,
+    inherits: [Role.CUSTOMER],
+    permissions: MODERATOR_PERMISSIONS,
+  },
   { role: Role.ADMIN, level: 90, inherits: [Role.MODERATOR], permissions: ADMIN_PERMISSIONS },
-  { role: Role.SUPER_ADMIN, level: 100, inherits: [Role.ADMIN], permissions: SUPER_ADMIN_PERMISSIONS },
+  {
+    role: Role.SUPER_ADMIN,
+    level: 100,
+    inherits: [Role.ADMIN],
+    permissions: SUPER_ADMIN_PERMISSIONS,
+  },
   { role: Role.SYSTEM, level: 999, inherits: [Role.SUPER_ADMIN], permissions: SYSTEM_PERMISSIONS },
 ];
 

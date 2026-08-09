@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-let showToastFn: ((msg: string) => void) | null = null;
-
-export function showToast(msg: string) {
-  showToastFn?.(msg);
-}
+import { setShowToastFn } from './toast.js';
 
 export function Toast() {
   const [message, setMessage] = useState('');
@@ -23,9 +19,9 @@ export function Toast() {
   );
 
   useEffect(() => {
-    showToastFn = show;
+    setShowToastFn(show);
     return () => {
-      showToastFn = null;
+      setShowToastFn(null);
     };
   }, [show]);
 

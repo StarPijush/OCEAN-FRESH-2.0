@@ -1,7 +1,16 @@
 const reviews = [
-  { text: '\u201CGreat fish quality and quick delivery. Always on time and very fresh.\u201D', author: '\u2014 Raju, Jhargram' },
-  { text: '\u201CLove the variety, and prices are fair. We order every week for the family.\u201D', author: '\u2014 Shalini, Binpur' },
-  { text: '\u201CFriendly support via WhatsApp and they handled my location request smoothly.\u201D', author: '\u2014 Amit, Gopiballavpur' },
+  {
+    text: '\u201CGreat fish quality and quick delivery. Always on time and very fresh.\u201D',
+    author: '\u2014 Raju, Jhargram',
+  },
+  {
+    text: '\u201CLove the variety, and prices are fair. We order every week for the family.\u201D',
+    author: '\u2014 Shalini, Binpur',
+  },
+  {
+    text: '\u201CFriendly support via WhatsApp and they handled my location request smoothly.\u201D',
+    author: '\u2014 Amit, Gopiballavpur',
+  },
 ];
 
 export function ReviewsSection() {

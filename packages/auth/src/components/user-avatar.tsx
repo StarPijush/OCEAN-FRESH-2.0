@@ -26,11 +26,18 @@ export function UserAvatar({ user, size = 'md', className = '' }: UserAvatarProp
   }
 
   const initials = user.displayName
-    ? user.displayName.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
+    ? user.displayName
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
     : '?';
 
   return (
-    <div className={`${sizeClass} rounded-full bg-blue-500 flex items-center justify-center text-white font-medium ${className}`}>
+    <div
+      className={`${sizeClass} rounded-full bg-blue-500 flex items-center justify-center text-white font-medium ${className}`}
+    >
       {initials}
     </div>
   );

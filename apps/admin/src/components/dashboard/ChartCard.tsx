@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import { formatCurrency } from '../../utils/format.js';
+
 interface ChartDay {
   label: string;
   sales: number;
@@ -10,11 +12,9 @@ interface Props {
   data: ChartDay[];
 }
 
-const fmt = (n: number) => `₹${Number(n).toLocaleString('en-IN')}`;
-
 export function ChartCard({ data }: Props) {
   const [mode, setMode] = useState<'income' | 'sales'>('income');
-  const max = Math.max(...data.map(d => (mode === 'income' ? d.income : d.sales)), 1);
+  const max = Math.max(...data.map((d) => (mode === 'income' ? d.income : d.sales)), 1);
   const today = new Date().toLocaleDateString('en-IN', { weekday: 'short' });
 
   return (
@@ -37,7 +37,7 @@ export function ChartCard({ data }: Props) {
         </div>
       </div>
       <div className="chart-bars" id="chart-bars">
-        {data.map(d => {
+        {data.map((d) => {
           const val = mode === 'income' ? d.income : d.sales;
           const pct = Math.max(Math.round((val / max) * 100), 4);
           return (
@@ -46,7 +46,7 @@ export function ChartCard({ data }: Props) {
                 <div
                   className={`chart-bar${d.label === today ? ' today' : ''}`}
                   style={{ height: `${pct}%` }}
-                  title={`${d.label}: ${mode === 'income' ? fmt(d.income) : `${d.sales} orders`}`}
+                  title={`${d.label}: ${mode === 'income' ? formatCurrency(d.income) : `${d.sales} orders`}`}
                 />
               </div>
               <div className="chart-bar-label">{d.label}</div>

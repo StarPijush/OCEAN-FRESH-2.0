@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 
-import { useAdminToast } from '../components/shared/AdminToast';
-import { authRepository, settingsRepository } from '../repositories';
-import type { AdminProfile, DeliveryCharge } from '../repositories/types';
+import { useAdminToast } from '../components/shared/use-admin-toast.js';
+import { settingsService } from '../services';
+import type { DeliveryCharge } from '../types.js';
 
 export function SettingsPage() {
   const { toast } = useAdminToast();
 
-  const [admin, setAdmin] = useState<AdminProfile>({ name: '', mobile: '', password: '' });
+  const [admin, setAdmin] = useState({ name: '', mobile: '', email: '' });
   const [curPass, setCurPass] = useState('');
   const [newPass1, setNewPass1] = useState('');
   const [newPass2, setNewPass2] = useState('');
@@ -15,61 +15,62 @@ export function SettingsPage() {
   const [delivery, setDelivery] = useState<DeliveryCharge>({ amount: 0, freeAbove: 0 });
 
   useEffect(() => {
-    authRepository.getAdmin().then(setAdmin);
-    settingsRepository.getWA().then(setWa);
-    settingsRepository.getDeliveryCharge().then(setDelivery);
-  }, []);
+    settingsService
+      .getProfile()
+      .then((p) => {
+        if (p) setAdmin(p);
+      })
+      .catch(() => toast('Failed to load profile', 'error'));
+    settingsService
+      .getWhatsAppNumber()
+      .then(setWa)
+      .catch(() => toast('Failed to load WhatsApp number', 'error'));
+    settingsService
+      .getDeliveryCharge()
+      .then(setDelivery)
+      .catch(() => toast('Failed to load delivery settings', 'error'));
+  }, [toast]);
 
   const saveProfile = async () => {
-    if (!admin.name.trim()) {
-      toast('Name cannot be empty', 'error');
-      return;
+    const result = await settingsService.updateProfile({
+      name: admin.name.trim(),
+      mobile: admin.mobile.trim(),
+    });
+    if (result.success) {
+      toast('Profile updated', 'success');
+    } else {
+      toast(result.error || 'Failed to update profile', 'error');
     }
-    if (admin.mobile.length < 10) {
-      toast('Enter a valid mobile number', 'error');
-      return;
-    }
-    await authRepository.updateAdmin({ name: admin.name.trim(), mobile: admin.mobile.trim() });
-    toast('Profile updated', 'success');
   };
 
   const savePassword = async () => {
-    if (curPass !== admin.password) {
-      toast('Current password is incorrect', 'error');
-      return;
+    const result = await settingsService.changePassword(curPass, newPass1, newPass2);
+    if (result.success) {
+      setCurPass('');
+      setNewPass1('');
+      setNewPass2('');
+      toast('Password changed successfully', 'success');
+    } else {
+      toast(result.error || 'Failed to change password', 'error');
     }
-    if (newPass1.length < 6) {
-      toast('New password must be at least 6 characters', 'error');
-      return;
-    }
-    if (newPass1 !== newPass2) {
-      toast('Passwords do not match', 'error');
-      return;
-    }
-    await authRepository.updateAdmin({ password: newPass1 });
-    setCurPass('');
-    setNewPass1('');
-    setNewPass2('');
-    toast('Password changed successfully', 'success');
   };
 
   const saveWA = async () => {
-    const num = wa.replace(/\D/g, '');
-    if (num.length < 10) {
-      toast('Enter a valid WhatsApp number', 'error');
-      return;
+    const result = await settingsService.updateWhatsAppNumber(wa);
+    if (result.success) {
+      toast('WhatsApp number updated', 'success');
+    } else {
+      toast(result.error || 'Failed to update WhatsApp number', 'error');
     }
-    await settingsRepository.setWA('91' + num.slice(-10));
-    toast('WhatsApp number updated', 'success');
   };
 
   const saveDelivery = async () => {
-    if (delivery.amount < 0) {
-      toast('Charge cannot be negative', 'error');
-      return;
+    const result = await settingsService.updateDeliveryCharge(delivery);
+    if (result.success) {
+      toast('Delivery charge updated', 'success');
+    } else {
+      toast(result.error || 'Failed to update delivery charge', 'error');
     }
-    await settingsRepository.setDeliveryCharge(delivery);
-    toast('Delivery charge updated', 'success');
   };
 
   return (
@@ -98,7 +99,7 @@ export function SettingsPage() {
             />
           </div>
           <div className="form-grp">
-            <label className="form-lbl">Mobile Number (Login ID)</label>
+            <label className="form-lbl">Mobile Number (Contact)</label>
             <div className="form-inp-prefix">
               <span className="prefix">+91</span>
               <input

@@ -1,12 +1,13 @@
 import {
   type AuthSession,
   type DeviceInfo,
+  NotFoundError,
   RepositoryError,
   type UserIdentity,
 } from '@oceanfresh/shared';
 import { objToSnakeCase, rowToCamelCase, stripId, supabaseService } from '@oceanfresh/supabase';
 
-import type { AuditLogEntry, IAuthRepository } from './auth.repository.js';
+import type { AdminProfile, AuditLogEntry, IAuthRepository } from './auth.repository.js';
 
 const TABLES = {
   sessions: 'auth_sessions',
@@ -232,6 +233,49 @@ export class SupabaseAuthRepository implements IAuthRepository {
         userId,
         error: err,
       });
+    }
+  }
+
+  async getAdminProfile(userId: string): Promise<AdminProfile | null> {
+    try {
+      const rows = await supabaseService.query<Record<string, unknown>>('admin_profiles', [
+        { field: 'user_id', operator: 'eq', value: userId },
+      ]);
+      if (rows.length === 0) return null;
+      return rowToCamelCase<AdminProfile>(rows[0] as Record<string, unknown>);
+    } catch (err) {
+      throw new RepositoryError(
+        'Failed to find admin profile',
+        'getAdminProfile',
+        'admin_profiles',
+        {
+          userId,
+          error: err,
+        },
+      );
+    }
+  }
+
+  async updateAdminProfile(
+    userId: string,
+    data: Partial<Pick<AdminProfile, 'fullName' | 'mobile' | 'avatarUrl'>>,
+  ): Promise<void> {
+    try {
+      const profile = await this.getAdminProfile(userId);
+      if (!profile) throw new NotFoundError('Admin profile not found');
+      const snakeData = objToSnakeCase(data as unknown as Record<string, unknown>);
+      await supabaseService.update('admin_profiles', profile.id, snakeData);
+    } catch (err) {
+      if (err instanceof NotFoundError) throw err;
+      throw new RepositoryError(
+        'Failed to update admin profile',
+        'updateAdminProfile',
+        'admin_profiles',
+        {
+          userId,
+          error: err,
+        },
+      );
     }
   }
 }
