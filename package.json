@@ -17,6 +17,7 @@
     "dev": "turbo run dev --parallel",
     "dev:storefront": "pnpm --filter @oceanfresh/storefront dev",
     "dev:admin": "pnpm --filter @oceanfresh/admin dev",
+    "dev:admin-legacy": "pnpm --filter @oceanfresh/legacy-admin-web dev",
     "build": "turbo run build",
     "build:analyze": "turbo run build:analyze",
     "lint": "turbo run lint",
