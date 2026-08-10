@@ -1,5 +1,7 @@
+import { getCategoryRepository } from '@oceanfresh/category/repository';
 import { getProductRepository } from '@oceanfresh/product/repository';
 import type {
+  Category,
   CreateProductInput,
   PaginatedResult,
   Product,
@@ -10,21 +12,31 @@ import type {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export const PRODUCTS_KEY = ['products'] as const;
+export const CATEGORIES_KEY = ['categories'] as const;
+
+export function useCategories() {
+  return useQuery({
+    queryKey: CATEGORIES_KEY,
+    queryFn: (): Promise<Category[]> => getCategoryRepository().findAll(),
+  });
+}
 
 export interface UseProductsOptions {
   page?: number;
   limit?: number;
   search?: string;
   status?: string;
+  categoryId?: string;
 }
 
 export function useProducts(options: UseProductsOptions = {}) {
-  const { page = 1, limit = 50, search = '', status } = options;
+  const { page = 1, limit = 50, search = '', status, categoryId } = options;
   const query = useQuery({
-    queryKey: [...PRODUCTS_KEY, { page, limit, search, status }],
+    queryKey: [...PRODUCTS_KEY, { page, limit, search, status, categoryId }],
     queryFn: async (): Promise<PaginatedResult<Product>> => {
       const query: ProductQuery = { page, limit, search };
       if (status && status !== 'ALL') query.status = status as ProductStatus;
+      if (categoryId && categoryId !== 'all') query.categoryId = categoryId;
       return getProductRepository().findAll(query);
     },
   });

@@ -15,8 +15,8 @@ export function useDashboardStats(): {
     queryKey: ['dashboard', 'stats'],
     queryFn: async (): Promise<DashboardStats> => {
       const [orders, products] = await Promise.all([
-        getOrderRepository().findAll({ limit: 200 }),
-        getProductRepository().findAll({ limit: 100 }),
+        getOrderRepository().findAll({ limit: 500 }),
+        getProductRepository().findAll({ limit: 500 }),
       ]);
       return computeDashboardStats(orders.items, products.items);
     },

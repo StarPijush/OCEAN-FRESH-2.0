@@ -5,15 +5,36 @@ export interface RevenueDay {
   value: number;
 }
 
+export interface ChartDay {
+  label: string;
+  sales: number;
+  income: number;
+}
+
+export interface TopProduct {
+  name: string;
+  qty: number;
+}
+
 export interface DashboardStats {
-  revenueTotal: number;
-  ordersCount: number;
-  pendingCount: number;
-  productsOnline: number;
+  /** Orders created today. */
+  todaySales: number;
+  /** Revenue from today's paid orders. */
+  todayIncome: number;
+  /** Revenue from the last 7 days (paid orders). */
+  weekIncome: number;
+  /** Orders awaiting action — matches the Orders "Pending" tab and sidebar badge. */
+  pendingOrders: number;
+  totalOrders: number;
+  totalIncome: number;
+  totalProducts: number;
+  availableProducts: number;
   outOfStock: number;
   lowStock: number;
   avgOrderValue: number;
-  revenueByDay: RevenueDay[];
+  chart: ChartDay[];
+  topProducts: TopProduct[];
+  recentOrders: Order[];
 }
 
 /** Statuses whose payment is captured — counted toward revenue. */
@@ -40,6 +61,17 @@ function startOfDay(date: Date): number {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 }
 
+function orderRevenue(order: Order): number {
+  return order.totals?.grandTotal?.amount ?? 0;
+}
+
+function orderDayLabel(ts: number): string {
+  return new Date(ts).toLocaleDateString('en-IN', {
+    weekday: 'short',
+    day: 'numeric',
+  });
+}
+
 export function computeDashboardStats(
   orders: Order[],
   products: Product[],
@@ -47,41 +79,63 @@ export function computeDashboardStats(
 ): DashboardStats {
   const activeProducts = products.filter((p) => p.status === ProductStatus.ACTIVE);
   const paidOrders = orders.filter((o) => PAID_STATUSES.has(o.status));
-  const revenueTotal = paidOrders.reduce((sum, o) => sum + (o.totals?.grandTotal?.amount ?? 0), 0);
-  const pendingCount = orders.filter((o) => PENDING_STATUSES.has(o.status)).length;
+  const totalIncome = paidOrders.reduce((sum, o) => sum + orderRevenue(o), 0);
+  const pendingOrders = orders.filter((o) => PENDING_STATUSES.has(o.status)).length;
 
   const todayStart = startOfDay(today);
-  const revenueByDay: RevenueDay[] = [];
+
+  const chart: ChartDay[] = [];
   for (let i = 6; i >= 0; i -= 1) {
     const dayStart = todayStart - i * DAY_MS;
     const dayEnd = dayStart + DAY_MS;
-    const value = paidOrders
-      .filter((o) => {
-        const ts = new Date(o.createdAt).getTime();
-        return ts >= dayStart && ts < dayEnd;
-      })
-      .reduce((sum, o) => sum + (o.totals?.grandTotal?.amount ?? 0), 0);
-    revenueByDay.push({
-      label: new Date(dayStart).toLocaleDateString('en-IN', {
-        weekday: 'short',
-        day: 'numeric',
-      }),
-      value,
+    const dayOrders = orders.filter((o) => {
+      const ts = new Date(o.createdAt).getTime();
+      return ts >= dayStart && ts < dayEnd;
+    });
+    chart.push({
+      label: orderDayLabel(dayStart),
+      sales: dayOrders.length,
+      income: dayOrders
+        .filter((o) => PAID_STATUSES.has(o.status))
+        .reduce((sum, o) => sum + orderRevenue(o), 0),
     });
   }
 
+  const weekIncome = chart.reduce((sum, d) => sum + d.income, 0);
+  const todayOrders = orders.filter((o) => new Date(o.createdAt).getTime() >= todayStart);
+
+  const productSales: Record<string, number> = {};
+  for (const o of orders) {
+    for (const it of o.items ?? []) {
+      const name = it.snapshot?.name ?? 'Unknown';
+      productSales[name] = (productSales[name] ?? 0) + it.quantity;
+    }
+  }
+  const topProducts: TopProduct[] = Object.entries(productSales)
+    .map(([name, qty]) => ({ name, qty }))
+    .sort((a, b) => b.qty - a.qty)
+    .slice(0, 5);
+
   return {
-    revenueTotal,
-    ordersCount: orders.length,
-    pendingCount,
-    productsOnline: activeProducts.length,
+    todaySales: todayOrders.length,
+    todayIncome: todayOrders
+      .filter((o) => PAID_STATUSES.has(o.status))
+      .reduce((sum, o) => sum + orderRevenue(o), 0),
+    weekIncome,
+    pendingOrders,
+    totalOrders: orders.length,
+    totalIncome,
+    totalProducts: products.length,
+    availableProducts: activeProducts.length,
     outOfStock: products.filter(
       (p) => p.status === ProductStatus.OUT_OF_STOCK || (p.stock ?? 0) === 0,
     ).length,
     lowStock: products.filter(
       (p) => p.status === ProductStatus.ACTIVE && (p.stock ?? 0) > 0 && (p.stock ?? 0) <= 5,
     ).length,
-    avgOrderValue: paidOrders.length > 0 ? revenueTotal / paidOrders.length : 0,
-    revenueByDay,
+    avgOrderValue: paidOrders.length > 0 ? totalIncome / paidOrders.length : 0,
+    chart,
+    topProducts,
+    recentOrders: orders.slice(0, 5),
   };
 }

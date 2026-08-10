@@ -11,13 +11,17 @@ import { DarkTheme, NavigationContainer } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
+import { useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { AccessDenied } from './src/components/AccessDenied';
+import { SessionError } from './src/components/SessionError';
 import { useAdminSession } from './src/hooks/use-auth-session';
 import { AdminNavigator } from './src/navigation/AdminNavigator';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { getAuthProvider } from './src/services/auth.service';
 import { colors } from './src/theme';
 
 const queryClient = new QueryClient();
@@ -36,6 +40,10 @@ const NAV_THEME = {
 
 function Navigator() {
   const session = useAdminSession();
+  const [signingOut, setSigningOut] = useState(false);
+
+  // LOADING → wait for the session to resolve. Redirecting from here would
+  // bounce authenticated admins back to login before their role is known.
   if (session.status === 'loading') {
     return (
       <View style={styles.splash}>
@@ -43,10 +51,34 @@ function Navigator() {
       </View>
     );
   }
-  if (session.status === 'authenticated') {
+
+  // ERROR → session could not be resolved (network / profile lookup). This is
+  // NOT unauthenticated; offer retry instead of silently logging the user out.
+  if (session.status === 'error') {
+    return <SessionError message={session.error} onRetry={session.retry} />;
+  }
+
+  if (session.status === 'unauthenticated') {
+    return <RootNavigator />;
+  }
+
+  // AUTHENTICATED + ADMIN → the admin drawer.
+  if (session.isAdmin) {
     return <AdminNavigator />;
   }
-  return <RootNavigator />;
+
+  // AUTHENTICATED + NON-ADMIN → deny access without bouncing to login.
+  return (
+    <AccessDenied
+      signingOut={signingOut}
+      onSignOut={() => {
+        setSigningOut(true);
+        void getAuthProvider()
+          .logout()
+          .finally(() => setSigningOut(false));
+      }}
+    />
+  );
 }
 
 export default function App() {

@@ -29,3 +29,12 @@ export function useAdminProfile(userId: string | undefined) {
     enabled: Boolean(userId),
   });
 }
+
+export function useUpdateAdminProfile(userId: string | undefined) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<Pick<AdminProfile, 'fullName' | 'mobile' | 'avatarUrl'>>) =>
+      getAuthRepository().updateAdminProfile(userId as string, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: PROFILE_KEY }),
+  });
+}
