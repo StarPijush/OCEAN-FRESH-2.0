@@ -1,3 +1,5 @@
+import { randomUUID } from '../utils/uuid.js';
+
 export type ErrorSeverity = 'critical' | 'error' | 'warning' | 'info';
 
 export type ErrorPayload = {
@@ -20,7 +22,7 @@ export abstract class AppError extends Error {
     super(message);
     this.name = this.constructor.name;
     this.timestamp = Date.now();
-    this.correlationId = crypto.randomUUID();
+    this.correlationId = randomUUID();
     this.context = context ?? {};
   }
 

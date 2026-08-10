@@ -7,6 +7,7 @@ import {
   IdentityType,
   InvalidCredentialsError,
   type LoginInput,
+  randomUUID,
   type UserIdentity,
 } from '@oceanfresh/shared';
 import { getClient, initSupabase } from '@oceanfresh/supabase';
@@ -71,7 +72,7 @@ function mapSupabaseError(err: unknown): never {
 }
 
 function generateSessionId(): string {
-  return crypto.randomUUID();
+  return randomUUID();
 }
 
 export class SupabaseAuthProvider implements IAuthProvider {

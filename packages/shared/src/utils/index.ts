@@ -52,3 +52,5 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
 export function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
+
+export { randomUUID } from './uuid.js';

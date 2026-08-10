@@ -1,3 +1,4 @@
+import { randomUUID } from '../../utils/uuid.js';
 import {
   type ErrorInfo,
   type LogEntry,
@@ -45,7 +46,7 @@ export class ProductionLogger implements Logger {
       level,
       message,
       timestamp: Date.now(),
-      correlationId: (meta?.correlationId as string | undefined) ?? crypto.randomUUID(),
+      correlationId: (meta?.correlationId as string | undefined) ?? randomUUID(),
       module: this.module,
       error: errInfo,
       metadata: meta,
