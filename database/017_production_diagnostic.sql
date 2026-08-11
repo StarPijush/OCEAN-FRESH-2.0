@@ -40,7 +40,7 @@ SELECT 'storage_bucket_products' AS check_name, count(*) AS value
 SELECT 'storage_policy_count' AS check_name, count(*) AS value
   FROM pg_policies
   WHERE schemaname = 'storage'
-    AND polname IN ('products_select_public','products_insert_admin','products_update_admin','products_delete_admin');
+    AND policyname IN ('products_select_public','products_insert_admin','products_update_admin','products_delete_admin');
 
 -- ============================================================
 -- 4. RLS STATE (every public application table)
