@@ -24,19 +24,19 @@ const STATUS_META: Record<OrderStatus, { label: string; color: string; bg: strin
 export function StatusBadge({ status }: { status: OrderStatus }) {
   const meta = STATUS_META[status] ?? STATUS_META.ARCHIVED;
   return (
-    <AppText
-      variant="label"
+    <span
       style={{
         color: meta.color,
         backgroundColor: meta.bg,
-        paddingHorizontal: 10,
-        paddingVertical: 4,
+        padding: '4px 10px',
         borderRadius: 999,
-        overflow: 'hidden',
         alignSelf: 'flex-start',
+        whiteSpace: 'nowrap',
       }}
     >
-      {meta.label}
-    </AppText>
+      <AppText variant="label" style={{ color: meta.color, lineHeight: '18px' }}>
+        {meta.label}
+      </AppText>
+    </span>
   );
 }

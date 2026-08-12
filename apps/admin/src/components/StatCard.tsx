@@ -1,60 +1,101 @@
-import { StyleSheet, View } from 'react-native';
+import type { ReactNode } from 'react';
 
-import { colors, radius, shadows, spacing, typography } from '../theme';
+import { useBreakpoint } from '../hooks/use-breakpoint';
+import { colors, radius, shadows, spacing, STAT_GUTTER, statTileWidth, typography } from '../theme';
 import { AppText } from './AppText';
+import { Icon, type IconName } from './Icon';
 
 type Tone = 'aqua' | 'gold' | 'green' | 'warn' | 'muted';
 
-const TONE_BG: Record<Tone, string> = {
-  aqua: colors.aquaDim,
-  gold: colors.goldDim,
-  green: colors.greenDim,
-  warn: colors.warnDim,
-  muted: colors.surface,
+const TONE_META: Record<Tone, { bg: string; fg: string; bar: string }> = {
+  aqua: { bg: colors.aquaDim, fg: colors.aqua, bar: colors.aqua },
+  gold: { bg: colors.goldDim, fg: colors.gold, bar: colors.gold },
+  green: { bg: colors.greenDim, fg: colors.green, bar: colors.green },
+  warn: { bg: colors.warnDim, fg: colors.warn, bar: colors.warn },
+  muted: { bg: colors.surfaceAlive, fg: colors.mutedBright, bar: colors.borderStrong },
 };
 
 export interface StatCardData {
   label: string;
   value: string;
   tone: Tone;
+  icon?: IconName;
+  /** Short supporting context under the value. */
+  hint?: string;
 }
 
-export function StatCard({ label, value, tone }: StatCardData) {
+/** Tile wrapper (gutter-aware) — reuse for skeletons next to real cards. */
+export function StatTile({ width, children }: { width: `${number}%`; children: ReactNode }) {
   return (
-    <View style={styles.card}>
-      <View style={[styles.dot, { backgroundColor: TONE_BG[tone] }]} />
-      <AppText variant="label" color="mutedBright">
-        {label}
-      </AppText>
-      <AppText style={styles.value}>{value}</AppText>
-    </View>
+    <div style={{ width, padding: `0 ${STAT_GUTTER}px`, marginBottom: STAT_GUTTER * 2 }}>
+      {children}
+    </div>
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    flex: 1,
-    minWidth: '46%',
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-    gap: spacing.xs,
-    ...shadows.card,
-  },
-  value: {
-    color: colors.cream,
-    fontSize: 30,
-    lineHeight: 36,
-    fontFamily: typography.display.fontFamily,
-  },
-  dot: {
-    position: 'absolute',
-    top: spacing.lg,
-    right: spacing.lg,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
-});
+export function StatCard({ label, value, tone, icon, hint }: StatCardData) {
+  const meta = TONE_META[tone];
+  const { width } = useBreakpoint();
+
+  return (
+    <StatTile width={statTileWidth(width)}>
+      <div
+        style={{
+          backgroundColor: colors.surface,
+          borderRadius: radius.lg,
+          border: `1px solid ${colors.border}`,
+          padding: spacing.lg,
+          gap: spacing.xs,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          position: 'relative',
+          boxShadow: `0 4px 12px rgba(0, 0, 0, ${shadows.card.shadowOpacity})`,
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 3,
+            backgroundColor: meta.bar,
+          }}
+        />
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: spacing.sm,
+          }}
+        >
+          <AppText variant="label" color="mutedBright" numberOfLines={1}>
+            {label}
+          </AppText>
+          {icon ? <Icon name={icon} size={18} color={meta.fg} /> : null}
+        </div>
+        <span
+          style={{
+            color: colors.cream,
+            fontSize: 28,
+            lineHeight: '34px',
+            fontFamily: typography.display.fontFamily,
+            fontWeight: typography.display.weight,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {value}
+        </span>
+        {hint ? (
+          <AppText variant="caption" color="muted" numberOfLines={1}>
+            {hint}
+          </AppText>
+        ) : null}
+      </div>
+    </StatTile>
+  );
+}

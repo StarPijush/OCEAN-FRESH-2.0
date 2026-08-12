@@ -1,24 +1,19 @@
-import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  type PressableProps,
-  type StyleProp,
-  StyleSheet,
-  View,
-  type ViewStyle,
-} from 'react-native';
+import type { ButtonHTMLAttributes, CSSProperties } from 'react';
 
 import { colors, radius, spacing } from '../theme';
 import { AppText } from './AppText';
+import { Spinner } from './Spinner';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'link';
 
-interface ButtonProps extends PressableProps {
+interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'style'> {
   label: string;
   variant?: ButtonVariant;
   loading?: boolean;
   fullWidth?: boolean;
+  /** RN-compatible handler kept so existing call sites stay unchanged. */
+  onPress?: () => void;
+  style?: CSSProperties;
 }
 
 export function Button({
@@ -27,71 +22,60 @@ export function Button({
   loading = false,
   fullWidth = false,
   disabled,
+  onPress,
   style,
   ...rest
 }: ButtonProps) {
-  const [pressed, setPressed] = useState(false);
   const isPrimary = variant === 'primary';
   const isLink = variant === 'link';
   const tone = isLink ? 'aqua' : isPrimary ? 'white' : 'aqua';
-  const resolvedStyle: StyleProp<ViewStyle> =
-    typeof style === 'function' ? undefined : (style as StyleProp<ViewStyle>);
 
   return (
-    <Pressable
+    <button
       {...rest}
+      type={rest.type ?? 'button'}
+      className="of-btn"
       disabled={disabled ?? loading}
-      onPressIn={(e) => {
-        setPressed(true);
-        rest.onPressIn?.(e);
+      onClick={onPress ?? rest.onClick}
+      style={{
+        borderRadius: radius.md,
+        padding: isLink ? `${spacing.sm}px 0` : `${spacing.md}px ${spacing.lg}px`,
+        alignItems: 'center',
+        justifyContent: 'center',
+        display: 'flex',
+        flexDirection: 'row',
+        width: fullWidth ? '100%' : undefined,
+        backgroundColor: isPrimary
+          ? colors.aqua
+          : variant === 'secondary'
+            ? colors.aquaDim
+            : variant === 'ghost'
+              ? colors.surface
+              : variant === 'danger'
+                ? colors.warnDim
+                : 'transparent',
+        border:
+          variant === 'link'
+            ? 'none'
+            : variant === 'primary'
+              ? 'none'
+              : `1px solid ${colors.borderStrong}`,
+        gap: spacing.sm,
+        ...style,
       }}
-      onPressOut={(e) => {
-        setPressed(false);
-        rest.onPressOut?.(e);
-      }}
-      style={[
-        styles.base,
-        variant === 'primary' && styles.primary,
-        variant === 'secondary' && styles.secondary,
-        variant === 'ghost' && styles.ghost,
-        variant === 'danger' && styles.danger,
-        isLink && styles.link,
-        fullWidth && styles.fullWidth,
-        pressed && styles.pressed,
-        resolvedStyle,
-      ]}
     >
       {loading ? (
-        <View style={styles.row}>
-          <ActivityIndicator size="small" color={isPrimary ? colors.white : colors.aqua} />
-          <AppText variant="label" color={tone === 'white' ? 'white' : 'aqua'}>
+        <>
+          <Spinner size={16} color={isPrimary ? colors.white : colors.aqua} />
+          <AppText variant="label" color={isPrimary ? 'white' : 'aqua'}>
             {label}
           </AppText>
-        </View>
+        </>
       ) : (
         <AppText variant="label" color={tone}>
           {label}
         </AppText>
       )}
-    </Pressable>
+    </button>
   );
 }
-
-const styles = StyleSheet.create({
-  base: {
-    borderRadius: radius.md,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  primary: { backgroundColor: colors.aqua },
-  secondary: { backgroundColor: colors.aquaDim, borderWidth: 1, borderColor: colors.borderStrong },
-  ghost: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.borderStrong },
-  danger: { backgroundColor: colors.warnDim, borderWidth: 1, borderColor: colors.borderStrong },
-  link: { paddingVertical: spacing.sm, paddingHorizontal: 0 },
-  fullWidth: { width: '100%' },
-  pressed: { opacity: 0.75 },
-});

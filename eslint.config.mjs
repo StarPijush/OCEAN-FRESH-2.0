@@ -10,7 +10,6 @@ import globals from 'globals';
 const workspacesWithReact = [
   'apps/storefront',
   'apps/admin',
-  'apps/legacy-admin-web',
   'packages/auth',
   'packages/cart',
   'packages/order',

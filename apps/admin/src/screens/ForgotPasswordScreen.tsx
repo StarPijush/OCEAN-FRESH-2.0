@@ -1,20 +1,16 @@
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigate } from 'react-router-dom';
 
 import { AppText } from '../components/AppText';
 import { BrandMark } from '../components/BrandMark';
 import { Button } from '../components/Button';
 import { Screen } from '../components/Screen';
 import { TextField } from '../components/TextField';
-import type { RootStackParamList } from '../navigation/types';
 import { sendEmailOtp } from '../services/auth.service';
 import { colors, spacing } from '../theme';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>;
-
-export function ForgotPasswordScreen({ navigation }: Props) {
+export function ForgotPasswordScreen() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -29,7 +25,7 @@ export function ForgotPasswordScreen({ navigation }: Props) {
     setError(null);
     try {
       await sendEmailOtp(trimmed);
-      navigation.navigate('OtpVerify', { email: trimmed });
+      navigate(`/otp-verify?email=${encodeURIComponent(trimmed)}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not send the passcode. Try again.');
     } finally {
@@ -38,14 +34,34 @@ export function ForgotPasswordScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-      <View style={styles.brand}>
+    <div
+      style={{
+        minHeight: '100vh',
+        backgroundColor: colors.bg,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          flexDirection: 'column',
+          gap: spacing.sm,
+          paddingTop: spacing.xxl,
+          paddingBottom: spacing.xxl,
+        }}
+      >
         <BrandMark size={56} />
         <AppText variant="title">Recover password</AppText>
-        <AppText variant="body" color="mutedBright" style={styles.sub}>
+        <AppText
+          variant="body"
+          color="mutedBright"
+          style={{ textAlign: 'center', padding: `0 ${spacing.xl}px` }}
+        >
           Enter your email — we will send a one-time passcode.
         </AppText>
-      </View>
+      </div>
 
       <Screen scroll={false}>
         <TextField
@@ -58,32 +74,24 @@ export function ForgotPasswordScreen({ navigation }: Props) {
           keyboardType="email-address"
         />
         {error ? (
-          <AppText variant="caption" color="warn" style={styles.error}>
+          <AppText variant="caption" color="warn" style={{ marginBottom: spacing.lg }}>
             {error}
           </AppText>
         ) : null}
-        <Button label="Send passcode" fullWidth loading={submitting} onPress={handleSend} />
+        <Button
+          label="Send passcode"
+          fullWidth
+          loading={submitting}
+          onPress={() => void handleSend()}
+        />
         <Button
           label="Back to sign in"
           variant="ghost"
           fullWidth
-          onPress={() => navigation.goBack()}
-          style={styles.back}
+          onPress={() => navigate(-1)}
+          style={{ marginTop: spacing.md }}
         />
       </Screen>
-    </SafeAreaView>
+    </div>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.bg },
-  brand: {
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingTop: spacing.xxl,
-    paddingBottom: spacing.xxl,
-  },
-  sub: { textAlign: 'center', paddingHorizontal: spacing.xl },
-  error: { marginBottom: spacing.lg },
-  back: { marginTop: spacing.md },
-});

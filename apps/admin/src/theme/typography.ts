@@ -1,53 +1,53 @@
-// Fonts are loaded once in App.tsx via expo-font + @expo-google-fonts/*.
-// The `fontFamily` values here are the exact registered names.
+// Fonts are loaded once in index.html via Google Fonts. The `fontFamily`
+// values here are the CSS family names with weights applied separately.
 export const typography = {
   display: {
     size: 34,
     lineHeight: 42,
     weight: '600' as const,
-    fontFamily: 'CormorantGaramond_600SemiBold',
+    fontFamily: 'Cormorant Garamond',
   },
   heading: {
     size: 26,
     lineHeight: 34,
     weight: '600' as const,
-    fontFamily: 'CormorantGaramond_600SemiBold',
+    fontFamily: 'Cormorant Garamond',
   },
   title: {
     size: 22,
     lineHeight: 30,
     weight: '600' as const,
-    fontFamily: 'CormorantGaramond_600SemiBold',
+    fontFamily: 'Cormorant Garamond',
   },
   body: {
     size: 16,
     lineHeight: 24,
     weight: '400' as const,
-    fontFamily: 'InstrumentSans_400Regular',
+    fontFamily: 'Instrument Sans',
   },
   bodyMedium: {
     size: 16,
     lineHeight: 24,
     weight: '500' as const,
-    fontFamily: 'InstrumentSans_500Medium',
+    fontFamily: 'Instrument Sans',
   },
   bodySemiBold: {
     size: 16,
     lineHeight: 24,
     weight: '600' as const,
-    fontFamily: 'InstrumentSans_600SemiBold',
+    fontFamily: 'Instrument Sans',
   },
   label: {
     size: 13,
     lineHeight: 18,
     weight: '500' as const,
-    fontFamily: 'InstrumentSans_500Medium',
+    fontFamily: 'Instrument Sans',
   },
   caption: {
     size: 12,
     lineHeight: 16,
     weight: '400' as const,
-    fontFamily: 'InstrumentSans_400Regular',
+    fontFamily: 'Instrument Sans',
   },
 } as const;
 

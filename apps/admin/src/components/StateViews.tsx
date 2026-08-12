@@ -1,17 +1,17 @@
 import type { ReactNode } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { colors, spacing } from '../theme';
 import { AppText } from './AppText';
+import { Spinner } from './Spinner';
 
 export function LoadingState({ label = 'Loading…' }: { label?: string }) {
   return (
-    <View style={styles.state}>
-      <ActivityIndicator size="large" color={colors.aqua} />
+    <div style={styles.state}>
+      <Spinner size={28} color={colors.aqua} />
       <AppText variant="body" color="muted">
         {label}
       </AppText>
-    </View>
+    </div>
   );
 }
 
@@ -23,7 +23,7 @@ interface ErrorStateProps {
 
 export function ErrorState({ message, onRetry, actionLabel = 'Try again' }: ErrorStateProps) {
   return (
-    <View style={styles.state}>
+    <div style={styles.state}>
       <AppText variant="body" color="warn" style={styles.center}>
         Something went wrong
       </AppText>
@@ -33,11 +33,18 @@ export function ErrorState({ message, onRetry, actionLabel = 'Try again' }: Erro
         </AppText>
       ) : null}
       {onRetry ? (
-        <AppText variant="bodySemiBold" color="aqua" onPress={onRetry} style={styles.link}>
-          {actionLabel}
-        </AppText>
+        <button
+          type="button"
+          onClick={onRetry}
+          className="of-btn"
+          style={{ background: 'none', border: 'none', padding: 0, marginTop: spacing.sm }}
+        >
+          <AppText variant="bodySemiBold" color="aqua">
+            {actionLabel}
+          </AppText>
+        </button>
       ) : null}
-    </View>
+    </div>
   );
 }
 
@@ -53,7 +60,7 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <View style={styles.state}>
+    <div style={styles.state}>
       {icon}
       <AppText variant="title" style={styles.center}>
         {title}
@@ -64,18 +71,18 @@ export function EmptyState({
         </AppText>
       ) : null}
       {action}
-    </View>
+    </div>
   );
 }
 
-const styles = StyleSheet.create({
+const styles: Record<string, React.CSSProperties> = {
   state: {
+    display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'column',
     gap: spacing.md,
-    paddingVertical: spacing.xxl * 2,
-    paddingHorizontal: spacing.xl,
+    padding: `${spacing.xxl * 2}px ${spacing.xl}px`,
   },
   center: { textAlign: 'center' },
-  link: { marginTop: spacing.sm },
-});
+};

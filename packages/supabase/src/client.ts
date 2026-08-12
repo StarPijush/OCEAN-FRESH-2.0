@@ -34,10 +34,21 @@ export interface SupabaseInitOptions {
   url?: string;
   /** Override the anon key resolved from the environment. */
   anonKey?: string;
-  /** Custom auth storage (e.g. AsyncStorage on React Native). */
+  /**
+   * Custom auth storage (e.g. AsyncStorage on React Native).
+   * Only meaningful when `persistSession` is true.
+   */
   storage?: SupabaseAuthStorage;
   /** Detect session from URL (keep false on native). */
   detectSessionInUrl?: boolean;
+  /**
+   * Persist the session in the configured storage (default: true).
+   * Set to false for memory-only sessions (e.g. the admin apps, which must
+   * require a fresh login on every reload/reopen). When false, no storage
+   * adapter is used for authentication and any previously persisted session
+   * is never restored.
+   */
+  persistSession?: boolean;
 }
 
 let supabaseClient: SupabaseClient | null = null;
@@ -63,15 +74,25 @@ export function initSupabase(options: SupabaseInitOptions = {}): SupabaseClient 
     );
   }
 
+  const persistSession = options.persistSession ?? true;
+
   supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
-      // Explicit session persistence: Supabase remains the auth source of
-      // truth; supabase-js stores the session (localStorage on web, the
-      // provided AsyncStorage adapter on native) and restores it automatically.
-      persistSession: true,
+      // Explicit session persistence policy. Storefront keeps persisted
+      // sessions (localStorage / AsyncStorage); admin apps use memory-only
+      // sessions (persistSession: false) so a reload or reopen always lands
+      // on the login screen and stale persisted sessions are never restored.
+      persistSession,
       autoRefreshToken: true,
       detectSessionInUrl: options.detectSessionInUrl ?? true,
-      storage: options.storage ?? (typeof window !== 'undefined' ? window.localStorage : undefined),
+      // No storage adapter when persistence is disabled: admin auth lives
+      // only in memory.
+      storage:
+        persistSession && options.storage
+          ? options.storage
+          : persistSession && typeof window !== 'undefined'
+            ? window.localStorage
+            : undefined,
     },
   });
 

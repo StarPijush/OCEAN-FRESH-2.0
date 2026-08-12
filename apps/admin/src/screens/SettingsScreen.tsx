@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 
 import { ConfirmDialog } from '../components/ActionSheet';
 import { AppText } from '../components/AppText';
 import { Button } from '../components/Button';
+import { Icon, type IconName } from '../components/Icon';
+import { PageHeader } from '../components/PageHeader';
 import { TextField } from '../components/TextField';
 import { STOREFRONT_URL } from '../env';
 import { useAdminSession } from '../hooks/use-auth-session';
@@ -22,16 +23,93 @@ type SaveState =
 
 interface GroupProps {
   title: string;
+  icon: IconName;
   children: React.ReactNode;
 }
 
-function Group({ title, children }: GroupProps) {
+function Group({ title, icon, children }: GroupProps) {
   return (
-    <View style={styles.group}>
-      <AppText variant="title">{title}</AppText>
-      <View style={styles.card}>{children}</View>
-    </View>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.md }}>
+      <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: spacing.sm }}>
+        <div
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: radius.md,
+            backgroundColor: colors.aquaDim,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Icon name={icon} size={16} color={colors.aqua} />
+        </div>
+        <AppText variant="title">{title}</AppText>
+      </div>
+      <div
+        style={{
+          backgroundColor: colors.surface,
+          borderRadius: radius.lg,
+          border: `1px solid ${colors.border}`,
+          padding: spacing.lg,
+          gap: spacing.md,
+          display: 'flex',
+          flexDirection: 'column',
+          ...shadows.card,
+        }}
+      >
+        {children}
+      </div>
+    </div>
   );
+}
+
+function SaveFeedback({ state }: { state: SaveState }) {
+  if (state.kind === 'saved') {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.sm,
+          backgroundColor: colors.greenDim,
+          borderRadius: radius.md,
+          padding: spacing.sm,
+          paddingLeft: spacing.md,
+          paddingRight: spacing.md,
+        }}
+      >
+        <Icon name="checkmark-circle" size={15} color={colors.green} />
+        <AppText variant="caption" color="green">
+          Saved.
+        </AppText>
+      </div>
+    );
+  }
+  if (state.kind === 'error') {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.sm,
+          backgroundColor: colors.warnDim,
+          borderRadius: radius.md,
+          padding: spacing.sm,
+          paddingLeft: spacing.md,
+          paddingRight: spacing.md,
+        }}
+      >
+        <Icon name="alert-circle" size={15} color={colors.warn} />
+        <AppText variant="caption" color="warn" style={{ flex: 1, lineHeight: 18 }}>
+          {state.message}
+        </AppText>
+      </div>
+    );
+  }
+  return null;
 }
 
 function parseAmount(value: string): number | undefined {
@@ -140,8 +218,24 @@ export function SettingsScreen() {
   };
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content}>
-      <Group title="Account">
+    <div
+      style={{
+        flex: 1,
+        backgroundColor: colors.bg,
+        padding: spacing.lg,
+        paddingBottom: spacing.xxxl,
+        gap: spacing.xl,
+        display: 'flex',
+        flexDirection: 'column',
+        overflowY: 'auto',
+      }}
+    >
+      <PageHeader
+        title="Settings"
+        subtitle="Manage your profile, password and store configuration."
+      />
+
+      <Group title="Account" icon="person-outline">
         <TextField
           label="Full name"
           value={fullName}
@@ -161,22 +255,38 @@ export function SettingsScreen() {
           placeholder="+91 00000 00000"
           keyboardType="phone-pad"
         />
-        <View style={styles.row}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: spacing.lg,
+          }}
+        >
           <AppText variant="label" color="mutedBright">
             Signed in as
           </AppText>
-          <AppText variant="bodyMedium" style={styles.right}>
+          <AppText variant="bodyMedium" style={{ textAlign: 'right', flexShrink: 1 }}>
             {session.user?.email ?? '—'}
           </AppText>
-        </View>
-        <View style={styles.row}>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: spacing.lg,
+          }}
+        >
           <AppText variant="label" color="mutedBright">
             Role
           </AppText>
-          <AppText variant="bodyMedium" style={styles.right}>
+          <AppText variant="bodyMedium" style={{ textAlign: 'right', flexShrink: 1 }}>
             {profile?.role ?? 'admin'}
           </AppText>
-        </View>
+        </div>
         <Button
           label={profileState.kind === 'saving' ? 'Saving…' : 'Save profile'}
           loading={profileState.kind === 'saving'}
@@ -185,7 +295,7 @@ export function SettingsScreen() {
         <SaveFeedback state={profileState} />
       </Group>
 
-      <Group title="Password">
+      <Group title="Password" icon="lock-closed-outline">
         <TextField
           label="New password"
           value={password}
@@ -214,7 +324,7 @@ export function SettingsScreen() {
         <SaveFeedback state={passwordState} />
       </Group>
 
-      <Group title="Store">
+      <Group title="Store" icon="storefront-outline">
         <TextField
           label="Store name"
           value={storeName}
@@ -276,12 +386,12 @@ export function SettingsScreen() {
         <SaveFeedback state={storeState} />
       </Group>
 
-      <Group title="Resources">
+      <Group title="Resources" icon="link-outline">
         {STOREFRONT_URL ? (
           <Button
             label="View storefront"
             variant="secondary"
-            onPress={() => Linking.openURL(STOREFRONT_URL)}
+            onPress={() => window.open(STOREFRONT_URL, '_blank', 'noopener')}
           />
         ) : null}
         <Button label="Sign out" variant="danger" onPress={() => setConfirmOpen(true)} />
@@ -297,46 +407,6 @@ export function SettingsScreen() {
         onConfirm={handleSignOut}
         onClose={() => setConfirmOpen(false)}
       />
-    </ScrollView>
+    </div>
   );
 }
-
-function SaveFeedback({ state }: { state: SaveState }) {
-  if (state.kind === 'saved') {
-    return (
-      <AppText variant="caption" color="green">
-        Saved.
-      </AppText>
-    );
-  }
-  if (state.kind === 'error') {
-    return (
-      <AppText variant="caption" color="warn">
-        {state.message}
-      </AppText>
-    );
-  }
-  return null;
-}
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xxxl, gap: spacing.xl },
-  group: { gap: spacing.md },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-    gap: spacing.md,
-    ...shadows.card,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: spacing.lg,
-  },
-  right: { textAlign: 'right', flexShrink: 1 },
-});

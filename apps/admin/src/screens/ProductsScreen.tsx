@@ -1,21 +1,17 @@
 import { type Product, ProductStatus } from '@oceanfresh/shared';
 import { useCallback, useDeferredValue, useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  TextInput,
-  View,
-} from 'react-native';
 
 import { ConfirmDialog } from '../components/ActionSheet';
 import { AppText } from '../components/AppText';
 import { Card } from '../components/Card';
+import { FilterChip } from '../components/FilterChip';
+import { Icon } from '../components/Icon';
+import { PageHeader } from '../components/PageHeader';
 import { ProductFormSheet, type ProductFormValues } from '../components/products/ProductFormSheet';
-import { EmptyState, ErrorState, LoadingState } from '../components/StateViews';
+import { SearchInput } from '../components/SearchInput';
+import { Skeleton } from '../components/Skeleton';
+import { EmptyState, ErrorState } from '../components/StateViews';
+import { useBreakpoint } from '../hooks/use-breakpoint';
 import {
   useCategories,
   useCreateProduct,
@@ -26,13 +22,55 @@ import {
   useUpdateProduct,
 } from '../hooks/use-products';
 import { removeStoredProductImage, uploadProductImage } from '../services/product-image';
-import { colors, radius, spacing } from '../theme';
+import { breakpoints, colors, radius, spacing } from '../theme';
+import { errorToMessage } from '../utils/error';
 import { formatCurrency } from '../utils/format';
 
 const STATUS_FILTERS = ['ALL', 'ACTIVE', 'DRAFT', 'OUT_OF_STOCK', 'ARCHIVED'] as const;
 
 /** Storage path convention mirrors the web admin: products/{id}/thumbnail.webp */
 const thumbnailPath = (id: string) => `products/${id}/thumbnail.webp`;
+
+const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
+  [ProductStatus.ACTIVE]: { label: 'Active', color: colors.green, bg: colors.greenDim },
+  [ProductStatus.DRAFT]: { label: 'Draft', color: colors.mutedBright, bg: colors.surfaceAlive },
+  [ProductStatus.OUT_OF_STOCK]: { label: 'Out of stock', color: colors.warn, bg: colors.warnDim },
+  [ProductStatus.ARCHIVED]: { label: 'Archived', color: colors.muted, bg: colors.surfaceAlive },
+  [ProductStatus.COMING_SOON]: { label: 'Coming soon', color: colors.gold, bg: colors.goldDim },
+  [ProductStatus.HIDDEN]: { label: 'Hidden', color: colors.muted, bg: colors.surfaceAlive },
+  [ProductStatus.PREORDER]: { label: 'Preorder', color: colors.gold, bg: colors.goldDim },
+  [ProductStatus.DISCONTINUED]: {
+    label: 'Discontinued',
+    color: colors.muted,
+    bg: colors.surfaceAlive,
+  },
+};
+
+function ProductStatusBadge({ status }: { status: ProductStatus }) {
+  const meta = STATUS_META[status] ?? {
+    label: status.replace('_', ' '),
+    color: colors.mutedBright,
+    bg: colors.surfaceAlive,
+  };
+  return (
+    <AppText
+      variant="caption"
+      style={{
+        color: meta.color,
+        backgroundColor: meta.bg,
+        paddingLeft: 8,
+        paddingRight: 8,
+        paddingTop: 3,
+        paddingBottom: 3,
+        borderRadius: radius.full,
+        overflow: 'hidden',
+        alignSelf: 'flex-start',
+      }}
+    >
+      {meta.label}
+    </AppText>
+  );
+}
 
 interface RowProps {
   item: Product;
@@ -56,70 +94,224 @@ function ProductRow({ item, categoryName, onEdit, onDelete }: RowProps) {
   };
 
   return (
-    <Card style={styles.row}>
-      <Image source={{ uri: item.thumbnail || item.images?.[0] }} style={styles.thumb} />
-      <View style={styles.rowBody}>
+    <Card style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+      {item.thumbnail || item.images?.[0] ? (
+        <img
+          src={item.thumbnail || item.images?.[0]}
+          alt={item.name}
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: radius.md,
+            backgroundColor: colors.surfaceAlive,
+            objectFit: 'cover',
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: radius.md,
+            backgroundColor: colors.surfaceAlive,
+          }}
+        />
+      )}
+      <div style={{ flex: 1, gap: 3, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
         <AppText variant="bodySemiBold" numberOfLines={1}>
           {item.name}
         </AppText>
-        <AppText variant="caption" color="muted">
-          {categoryName} · {item.status.replace('_', ' ')}
-        </AppText>
-        <View style={styles.rowMeta}>
-          <AppText variant="bodyMedium">{formatCurrency(item.price)}</AppText>
-          {item.featured ? (
-            <View style={styles.featuredPill}>
-              <AppText variant="caption" color="gold">
-                ★ Featured
-              </AppText>
-            </View>
-          ) : null}
-        </View>
-      </View>
-
-      <View style={styles.rowActions}>
-        <Pressable
-          onPress={handleToggleAvailable}
-          disabled={busy}
-          hitSlop={8}
-          style={[styles.avail, available && styles.availOn]}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: spacing.sm,
+            flexWrap: 'wrap',
+          }}
         >
-          {busy ? (
-            <ActivityIndicator size="small" color={colors.mutedBright} />
-          ) : (
-            <AppText variant="label" color={available ? 'bg' : 'mutedBright'}>
-              {available ? '• In stock' : '• Out of stock'}
+          {categoryName ? (
+            <AppText variant="caption" color="muted">
+              {categoryName}
             </AppText>
-          )}
-        </Pressable>
-        <View style={styles.iconRow}>
-          <Pressable
-            onPress={() => toggleFeatured.mutate(item)}
+          ) : null}
+          <ProductStatusBadge status={item.status} />
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: spacing.sm,
+            flexWrap: 'wrap',
+            marginTop: 2,
+          }}
+        >
+          <AppText variant="bodyMedium" color="cream">
+            {formatCurrency(item.price)}
+          </AppText>
+          <AppText variant="caption" color="muted">
+            {item.stock > 0 ? `${item.stock} in stock` : 'No stock'}
+          </AppText>
+          {item.featured ? (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 4,
+                backgroundColor: colors.goldDim,
+                borderRadius: radius.sm,
+                paddingLeft: spacing.sm,
+                paddingRight: spacing.sm,
+                paddingTop: 2,
+                paddingBottom: 2,
+              }}
+            >
+              <Icon name="star" size={11} color={colors.gold} />
+              <AppText variant="caption" color="gold">
+                Featured
+              </AppText>
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      <div
+        style={{
+          gap: spacing.sm,
+          alignItems: 'flex-end',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <button
+          type="button"
+          onClick={handleToggleAvailable}
+          disabled={busy}
+          className="of-btn"
+          aria-label={available ? 'Mark out of stock' : 'Mark in stock'}
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: spacing.xs,
+            borderRadius: radius.sm,
+            paddingLeft: spacing.md,
+            paddingRight: spacing.md,
+            paddingTop: spacing.sm,
+            paddingBottom: spacing.sm,
+            backgroundColor: available ? colors.greenDim : colors.surface,
+            border: `1px solid ${available ? colors.green : colors.borderStrong}`,
+            minHeight: 34,
+          }}
+        >
+          <Icon
+            name={available ? 'checkmark-circle' : 'ellipse-outline'}
+            size={15}
+            color={available ? colors.green : colors.mutedBright}
+          />
+          <AppText variant="label" color={available ? 'bg' : 'mutedBright'}>
+            {available ? 'In stock' : 'Out of stock'}
+          </AppText>
+        </button>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: spacing.sm }}>
+          <button
+            type="button"
+            onClick={() => toggleFeatured.mutate(item)}
             disabled={busy}
-            hitSlop={8}
-            style={[styles.icon, item.featured && styles.iconActive]}
+            className="of-btn"
+            aria-label={item.featured ? 'Remove from featured' : 'Mark as featured'}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: radius.md,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: item.featured ? colors.goldDim : colors.surface,
+              border: `1px solid ${item.featured ? colors.gold : colors.borderStrong}`,
+            }}
           >
-            <AppText variant="label" color={item.featured ? 'gold' : 'muted'}>
-              ★
-            </AppText>
-          </Pressable>
-          <Pressable onPress={() => onEdit(item)} hitSlop={8} style={styles.icon}>
-            <AppText variant="label" color="aqua">
-              ✎
-            </AppText>
-          </Pressable>
-          <Pressable onPress={() => onDelete(item)} hitSlop={8} style={styles.icon}>
-            <AppText variant="label" color="warn">
-              ✕
-            </AppText>
-          </Pressable>
-        </View>
-      </View>
+            <Icon
+              name={item.featured ? 'star' : 'star-outline'}
+              size={18}
+              color={item.featured ? colors.gold : colors.mutedBright}
+            />
+          </button>
+          <button
+            type="button"
+            onClick={() => onEdit(item)}
+            className="of-btn"
+            aria-label={`Edit ${item.name}`}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: radius.md,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: colors.surface,
+              border: `1px solid ${colors.borderStrong}`,
+            }}
+          >
+            <Icon name="pencil-outline" size={18} color={colors.aqua} />
+          </button>
+          <button
+            type="button"
+            onClick={() => onDelete(item)}
+            className="of-btn"
+            aria-label={`Delete ${item.name}`}
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: radius.md,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: colors.surface,
+              border: `1px solid ${colors.borderStrong}`,
+            }}
+          >
+            <Icon name="trash-outline" size={18} color={colors.warn} />
+          </button>
+        </div>
+      </div>
     </Card>
   );
 }
 
+function ProductRowSkeleton() {
+  return (
+    <Card style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: spacing.md }}>
+      <Skeleton width={56} height={56} radiusValue={radius.md} />
+      <div style={{ flex: 1, gap: 3, display: 'flex', flexDirection: 'column' }}>
+        <Skeleton width="60%" height={16} />
+        <Skeleton width="40%" height={12} />
+        <Skeleton width="50%" height={12} />
+      </div>
+    </Card>
+  );
+}
+
+const addBtnStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: spacing.sm,
+  backgroundColor: colors.aqua,
+  borderRadius: radius.md,
+  paddingLeft: spacing.lg,
+  paddingRight: spacing.lg,
+  paddingTop: spacing.md + 2,
+  paddingBottom: spacing.md + 2,
+  minHeight: 46,
+};
+
 export function ProductsScreen() {
+  const { width } = useBreakpoint();
+  const isDesktop = width >= breakpoints.desktop;
   const [status, setStatus] = useState<(typeof STATUS_FILTERS)[number]>('ALL');
   const [categoryId, setCategoryId] = useState('all');
   const [search, setSearch] = useState('');
@@ -161,7 +353,7 @@ export function ProductsScreen() {
   const handleSave = async (values: ProductFormValues) => {
     setFormError(null);
     const statusFor = values.available ? ProductStatus.ACTIVE : ProductStatus.OUT_OF_STOCK;
-    const stockFor = values.available ? 10 : 0;
+    const stockFor = values.available ? Math.max(1, values.stock) : 0;
     try {
       if (editing) {
         let thumbnail = editing.thumbnail;
@@ -181,6 +373,8 @@ export function ProductsScreen() {
             categoryId: values.categoryId,
             status: statusFor,
             stock: stockFor,
+            unit: values.unit,
+            minOrderQuantity: values.minOrderQuantity,
             featured: values.featured,
             thumbnail,
             updatedBy: 'admin',
@@ -201,6 +395,8 @@ export function ProductsScreen() {
           categoryId: values.categoryId,
           status: statusFor,
           stock: stockFor,
+          unit: values.unit,
+          minOrderQuantity: values.minOrderQuantity,
           featured: values.featured,
           thumbnail,
           createdBy: 'admin',
@@ -218,76 +414,133 @@ export function ProductsScreen() {
       await deleteProduct.mutateAsync(deleteTarget.id);
       if (deleteTarget.categoryId) void removeStoredProductImage(thumbnailPath(deleteTarget.id));
       setDeleteTarget(null);
-    } catch (err) {
+    } catch {
       setDeleteTarget(null);
     }
   };
 
+  const categoryChips = (
+    <>
+      <FilterChip label="All" active={categoryId === 'all'} onPress={() => setCategoryId('all')} />
+      {categories.data?.map((c) => (
+        <FilterChip
+          key={c.id}
+          label={c.name}
+          active={categoryId === c.id}
+          onPress={() => setCategoryId(c.id === categoryId ? 'all' : c.id)}
+        />
+      ))}
+    </>
+  );
+
   return (
-    <View style={styles.root}>
-      <View style={styles.toolbar}>
-        <View style={styles.searchRow}>
-          <TextInput
-            value={search}
-            onChangeText={setSearch}
-            placeholder="Search products…"
-            placeholderTextColor={colors.muted}
-            style={styles.search}
-          />
-          <Pressable onPress={openCreate} style={styles.addBtn}>
-            <AppText variant="label" color="bg">
-              ＋ Add
-            </AppText>
-          </Pressable>
-        </View>
+    <div style={{ flex: 1, backgroundColor: colors.bg, minHeight: '100%' }}>
+      <div
+        style={{
+          paddingLeft: spacing.lg,
+          paddingRight: spacing.lg,
+          paddingTop: spacing.lg,
+          gap: spacing.md,
+          paddingBottom: spacing.sm,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <PageHeader
+          title="Products"
+          subtitle="Manage what's for sale and how it looks on the storefront."
+          actions={
+            <button type="button" onClick={openCreate} className="of-btn" style={addBtnStyle}>
+              <Icon name="add" size={18} color={colors.bg} />
+              <AppText variant="label" color="bg">
+                Add Product
+              </AppText>
+            </button>
+          }
+        />
+        <div style={{ display: 'flex', flexDirection: 'row', gap: spacing.md }}>
+          <div style={{ flex: 1 }}>
+            <SearchInput value={search} onChangeText={setSearch} placeholder="Search products…" />
+          </div>
+        </div>
         {categories.data && categories.data.length > 0 ? (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.chipScroll}
-          >
-            <FilterChip
-              label="All"
-              active={categoryId === 'all'}
-              onPress={() => setCategoryId('all')}
-            />
-            {categories.data.map((c) => (
-              <FilterChip
-                key={c.id}
-                label={c.name}
-                active={categoryId === c.id}
-                onPress={() => setCategoryId(c.id === categoryId ? 'all' : c.id)}
-              />
-            ))}
-          </ScrollView>
+          isDesktop ? (
+            <div
+              style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}
+            >
+              {categoryChips}
+            </div>
+          ) : (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: spacing.sm,
+                overflowX: 'auto',
+                paddingRight: spacing.sm,
+                paddingBottom: 2,
+              }}
+            >
+              {categoryChips}
+            </div>
+          )
         ) : null}
-        <View style={styles.chips}>
+        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
           {STATUS_FILTERS.map((s) => (
             <FilterChip key={s} label={s} active={status === s} onPress={() => setStatus(s)} />
           ))}
-        </View>
-      </View>
+        </div>
+      </div>
 
       {isLoading ? (
-        <LoadingState />
+        <div
+          style={{ padding: spacing.lg, display: 'flex', flexDirection: 'column', gap: spacing.md }}
+        >
+          {Array.from({ length: 4 }).map((_, i) => (
+            <ProductRowSkeleton key={i} />
+          ))}
+        </div>
       ) : isError || !data ? (
-        <ErrorState message={error?.message ?? null} onRetry={refetch} />
+        <div style={{ padding: spacing.lg }}>
+          <ErrorState message={errorToMessage(error)} onRetry={refetch} />
+        </div>
       ) : data.items.length === 0 ? (
-        <EmptyState title="No products" hint="Try a different search, category or status filter." />
+        <EmptyState
+          title={
+            search || categoryId !== 'all' || status !== 'ALL'
+              ? 'No products found'
+              : 'No products yet'
+          }
+          hint={
+            search || categoryId !== 'all' || status !== 'ALL'
+              ? 'Try a different search, category or status filter.'
+              : 'Add your first product to start selling.'
+          }
+          action={
+            search || categoryId !== 'all' || status !== 'ALL' ? undefined : (
+              <button type="button" onClick={openCreate} className="of-btn" style={addBtnStyle}>
+                <Icon name="add" size={18} color={colors.bg} />
+                <AppText variant="label" color="bg">
+                  Add Product
+                </AppText>
+              </button>
+            )
+          }
+        />
       ) : (
-        <FlatList
-          data={data.items}
-          keyExtractor={(p) => p.id}
-          contentContainerStyle={styles.list}
-          renderItem={({ item }) => (
+        <div
+          style={{ padding: spacing.lg, display: 'flex', flexDirection: 'column', gap: spacing.md }}
+        >
+          {data.items.map((item) => (
             <ProductRow
+              key={item.id}
               item={item}
               categoryName={categoryNames(item.categoryId)}
               onEdit={openEdit}
               onDelete={setDeleteTarget}
             />
-          )}
-        />
+          ))}
+        </div>
       )}
 
       <ProductFormSheet
@@ -310,87 +563,6 @@ export function ProductsScreen() {
         onConfirm={handleDelete}
         onClose={() => setDeleteTarget(null)}
       />
-    </View>
+    </div>
   );
 }
-
-function FilterChip({
-  label,
-  active,
-  onPress,
-}: {
-  label: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable onPress={onPress} style={[styles.chip, active && styles.chipActive]}>
-      <AppText variant="label" color={active ? 'bg' : 'mutedBright'}>
-        {label.replace('_', ' ')}
-      </AppText>
-    </Pressable>
-  );
-}
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.bg, paddingTop: spacing.md },
-  toolbar: { paddingHorizontal: spacing.lg, gap: spacing.md },
-  searchRow: { flexDirection: 'row', gap: spacing.md },
-  search: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: radius.md,
-    color: colors.cream,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  addBtn: {
-    backgroundColor: colors.aqua,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
-    justifyContent: 'center',
-  },
-  chipScroll: { gap: spacing.sm, flexGrow: 0 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  chip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.full,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-  },
-  chipActive: { backgroundColor: colors.aqua, borderColor: colors.aqua },
-  list: { padding: spacing.lg, gap: spacing.md },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
-  thumb: { width: 56, height: 56, borderRadius: radius.md, backgroundColor: colors.surfaceAlive },
-  rowBody: { flex: 1, gap: 2 },
-  rowMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  featuredPill: {
-    backgroundColor: colors.goldDim,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
-  },
-  rowActions: { gap: spacing.sm, alignItems: 'flex-end' },
-  avail: {
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-  },
-  availOn: { backgroundColor: colors.greenDim, borderColor: colors.green },
-  iconRow: { flexDirection: 'row', gap: spacing.sm },
-  icon: {
-    padding: spacing.sm,
-    borderRadius: radius.sm,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-  },
-  iconActive: { borderColor: colors.gold, backgroundColor: colors.goldDim },
-});

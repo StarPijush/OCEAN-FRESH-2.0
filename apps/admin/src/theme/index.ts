@@ -1,5 +1,7 @@
+export { breakpoints, isDesktopWidth } from './breakpoints';
 export type { ThemeColors } from './colors';
 export { colors } from './colors';
+export { STAT_GUTTER, statTileWidth } from './grid';
 export { motion } from './motion';
 export { radius } from './radius';
 export { shadows } from './shadows';

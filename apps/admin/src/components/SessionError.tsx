@@ -1,6 +1,3 @@
-import { StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { colors, radius, spacing } from '../theme';
 import { AppText } from './AppText';
 import { BrandMark } from './BrandMark';
@@ -19,44 +16,50 @@ export function SessionError({
   onRetry: () => void;
 }) {
   return (
-    <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-      <View style={styles.card}>
+    <div
+      style={{
+        minHeight: '100vh',
+        backgroundColor: colors.bg,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: spacing.xl,
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 400,
+          backgroundColor: colors.surface,
+          border: `1px solid ${colors.borderStrong}`,
+          borderRadius: radius.lg,
+          padding: spacing.xl,
+          display: 'flex',
+          alignItems: 'center',
+          flexDirection: 'column',
+          gap: spacing.md,
+        }}
+      >
         <BrandMark size={48} />
-        <AppText variant="label" color="mutedBright" style={styles.eyebrow}>
+        <AppText
+          variant="label"
+          color="mutedBright"
+          style={{ letterSpacing: 1.5, textTransform: 'uppercase' }}
+        >
           Admin Panel · Session Error
         </AppText>
-        <AppText variant="heading" style={styles.title}>
+        <AppText variant="heading" style={{ textAlign: 'center' }}>
           Could not resolve your session
         </AppText>
-        <AppText variant="body" color="mutedBright" style={styles.sub}>
+        <AppText
+          variant="body"
+          color="mutedBright"
+          style={{ textAlign: 'center', lineHeight: '22px', marginBottom: spacing.sm }}
+        >
           {message || 'An unexpected error occurred.'}
         </AppText>
         <Button label="Try Again" fullWidth onPress={onRetry} />
-      </View>
-    </SafeAreaView>
+      </div>
+    </div>
   );
 }
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: colors.bg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.xl,
-  },
-  card: {
-    width: '100%',
-    maxWidth: 400,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: radius.lg,
-    padding: spacing.xl,
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  eyebrow: { letterSpacing: 1.5, textTransform: 'uppercase' },
-  title: { textAlign: 'center' },
-  sub: { textAlign: 'center', lineHeight: 22, marginBottom: spacing.sm },
-});

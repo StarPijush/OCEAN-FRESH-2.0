@@ -1,0 +1,324 @@
+:root {
+  --of-bg: #0a1628;
+  --of-surface: #1a3a5c;
+  --of-surface-alive: #224a73;
+  --of-border: rgba(255, 255, 255, 0.08);
+  --of-border-strong: rgba(255, 255, 255, 0.14);
+  --of-ink: #0d0d0d;
+  --of-cream: #f5f0e8;
+  --of-sand: #e8e0d0;
+  --of-muted: #8a8070;
+  --of-muted-bright: #e8e0d0;
+  --of-aqua: #4ab8c1;
+  --of-aqua-dim: rgba(74, 184, 193, 0.14);
+  --of-warn: #c8513a;
+  --of-warn-dim: rgba(200, 81, 58, 0.14);
+  --of-green: #4ade80;
+  --of-green-dim: rgba(74, 222, 128, 0.12);
+  --of-gold: #f0b429;
+  --of-gold-dim: rgba(240, 180, 41, 0.12);
+  --of-white: #ffffff;
+  --of-font-display: 'Cormorant Garamond', Georgia, serif;
+  --of-font-body: 'Instrument Sans', sans-serif;
+  --of-motion: 250ms;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--of-bg);
+  color: var(--of-cream);
+  font-family: var(--of-font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+textarea {
+  font-family: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--of-muted);
+  opacity: 1;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--of-aqua);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Buttons                                                             */
+/* ------------------------------------------------------------------ */
+.of-btn {
+  transition:
+    opacity 150ms ease,
+    filter 150ms ease;
+}
+
+.of-btn:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+
+.of-btn:active:not(:disabled) {
+  opacity: 0.75;
+}
+
+.of-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ------------------------------------------------------------------ */
+/* Spinner                                                             */
+/* ------------------------------------------------------------------ */
+.of-spinner {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  border-top-color: currentColor;
+  animation: of-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.of-spin {
+  animation: of-spin 1s linear infinite;
+}
+
+@keyframes of-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Skeleton                                                            */
+/* ------------------------------------------------------------------ */
+.of-skeleton {
+  background: var(--of-surface-alive);
+  animation: of-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes of-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Admin shell                                                         */
+/* ------------------------------------------------------------------ */
+.of-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.of-sidebar {
+  width: 264px;
+  flex-shrink: 0;
+  height: 100vh;
+  overflow-y: auto;
+  background: var(--of-surface);
+  border-right: 1px solid var(--of-border);
+}
+
+.of-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.of-content {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ------------------------------------------------------------------ */
+/* Mobile drawer                                                       */
+/* ------------------------------------------------------------------ */
+.of-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--of-motion) ease;
+}
+
+.of-drawer-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.of-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 264px;
+  background: var(--of-surface);
+  z-index: 41;
+  transform: translateX(-100%);
+  transition: transform var(--of-motion) ease;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.of-drawer.open {
+  transform: translateX(0);
+}
+
+@media (min-width: 1024px) {
+  .of-drawer-overlay,
+  .of-drawer {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Nav items                                                           */
+/* ------------------------------------------------------------------ */
+.of-nav-item {
+  transition:
+    background-color 150ms ease,
+    opacity 150ms ease;
+}
+
+.of-nav-item:hover {
+  background-color: var(--of-surface-alive);
+}
+
+.of-nav-item:active {
+  opacity: 0.8;
+}
+
+/* ------------------------------------------------------------------ */
+/* Modals (ActionSheet / ConfirmDialog)                                */
+/* ------------------------------------------------------------------ */
+.of-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.of-modal-backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+.of-modal-dialog {
+  position: relative;
+  width: 92%;
+  max-height: 88%;
+  margin: 24px 0;
+  background: var(--of-surface);
+  border-radius: 16px;
+  border: 1px solid var(--of-border-strong);
+  display: flex;
+  flex-direction: column;
+  outline: none;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  animation: of-fade 200ms ease;
+}
+
+.of-modal-sheet {
+  position: relative;
+  width: 100%;
+  max-height: 92%;
+  background: var(--of-surface);
+  border-radius: 16px 16px 0 0;
+  border: 1px solid var(--of-border-strong);
+  border-bottom: none;
+  display: flex;
+  flex-direction: column;
+  outline: none;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  animation: of-slide-up 250ms ease;
+}
+
+.of-modal-handle {
+  align-self: center;
+  width: 44px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--of-border-strong);
+  margin-top: 12px;
+}
+
+.of-modal-body {
+  overflow-y: auto;
+}
+
+@keyframes of-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes of-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Scrollbars                                                          */
+/* ------------------------------------------------------------------ */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--of-border-strong);
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (max-width: 480px) {
+  *::-webkit-scrollbar {
+    width: 6px;
+  }
+}

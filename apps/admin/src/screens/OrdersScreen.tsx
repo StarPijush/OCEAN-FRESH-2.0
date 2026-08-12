@@ -1,14 +1,20 @@
 import { type Order, OrderStatus } from '@oceanfresh/shared';
 import { useDeferredValue, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { AppText } from '../components/AppText';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
-import { EmptyState, ErrorState, LoadingState } from '../components/StateViews';
+import { FilterChip } from '../components/FilterChip';
+import { Icon } from '../components/Icon';
+import { PageHeader } from '../components/PageHeader';
+import { SearchInput } from '../components/SearchInput';
+import { Skeleton } from '../components/Skeleton';
+import { EmptyState, ErrorState } from '../components/StateViews';
 import { StatusBadge } from '../components/StatusBadge';
+import { useBreakpoint } from '../hooks/use-breakpoint';
 import { useOrderCounts, useOrders, useUpdateOrderStatus } from '../hooks/use-orders';
-import { colors, radius, spacing } from '../theme';
+import { breakpoints, colors, radius, spacing } from '../theme';
+import { errorToMessage } from '../utils/error';
 import { formatCurrency, formatDate, formatTime } from '../utils/format';
 
 const TABS = ['ALL', 'PENDING', 'PAID', 'SHIPPED', 'DELIVERED'] as const;
@@ -42,7 +48,19 @@ function matchesTab(order: Order, tab: Tab): boolean {
   }
 }
 
+function OrderCardSkeleton() {
+  return (
+    <Card>
+      <Skeleton width="45%" height={16} />
+      <Skeleton width="30%" height={12} style={{ marginTop: spacing.sm }} />
+      <Skeleton width="60%" height={14} style={{ marginTop: spacing.md }} />
+    </Card>
+  );
+}
+
 export function OrdersScreen() {
+  const { width } = useBreakpoint();
+  const isDesktop = width >= breakpoints.desktop;
   const [tab, setTab] = useState<Tab>('ALL');
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
@@ -67,99 +85,330 @@ export function OrdersScreen() {
     return undefined;
   };
 
+  const handleStatusError = updateStatus.error ? errorToMessage(updateStatus.error) : null;
+
+  const rootStyle: React.CSSProperties = {
+    flex: 1,
+    backgroundColor: colors.bg,
+    minHeight: '100%',
+  };
+
+  const gridStyle: React.CSSProperties = isDesktop
+    ? { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: spacing.md }
+    : { display: 'flex', flexDirection: 'column', gap: spacing.md };
+
   return (
-    <View style={styles.root}>
-      <View style={styles.toolbar}>
-        <TextInput
+    <div style={rootStyle}>
+      <div
+        style={{
+          paddingLeft: spacing.lg,
+          paddingRight: spacing.lg,
+          paddingTop: spacing.lg,
+          gap: spacing.md,
+          paddingBottom: spacing.sm,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <PageHeader title="Orders" subtitle="Track, confirm and advance customer orders." />
+        <SearchInput
           value={search}
           onChangeText={setSearch}
           placeholder="Search by order number, name or phone…"
-          placeholderTextColor={colors.muted}
-          style={styles.search}
         />
-        <View style={styles.tabs}>
-          {TABS.map((t) => {
-            const count = tabCount(t);
-            return (
-              <Pressable
-                key={t}
-                onPress={() => setTab(t)}
-                style={[styles.tab, tab === t && styles.tabActive]}
-              >
-                <AppText variant="label" color={tab === t ? 'bg' : 'mutedBright'}>
-                  {t}
-                </AppText>
-                {count !== undefined && count > 0 ? (
-                  <View style={[styles.badge, tab === t && styles.badgeActive]}>
-                    <AppText variant="caption" color={tab === t ? 'bg' : 'aqua'}>
-                      {count}
-                    </AppText>
-                  </View>
-                ) : null}
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
+        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
+          {TABS.map((t) => (
+            <FilterChip
+              key={t}
+              label={t}
+              active={tab === t}
+              count={tabCount(t)}
+              onPress={() => setTab(t)}
+            />
+          ))}
+        </div>
+      </div>
 
       {isLoading ? (
-        <LoadingState />
+        <div
+          style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', padding: spacing.lg }}
+        >
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              style={
+                isDesktop
+                  ? {
+                      width: '50%',
+                      paddingLeft: spacing.xs,
+                      paddingRight: spacing.xs,
+                      paddingBottom: spacing.md,
+                    }
+                  : { width: '100%', paddingBottom: spacing.md }
+              }
+            >
+              <OrderCardSkeleton />
+            </div>
+          ))}
+        </div>
       ) : isError || !data ? (
-        <ErrorState message={error?.message ?? null} onRetry={refetch} />
+        <div style={{ padding: spacing.lg }}>
+          <ErrorState message={errorToMessage(error)} onRetry={refetch} />
+        </div>
       ) : shown.length === 0 ? (
-        <EmptyState title="No orders" hint="Orders in this bucket will appear here." />
+        <div style={{ padding: spacing.lg }}>
+          <EmptyState
+            title={query ? 'No orders found' : 'No orders yet'}
+            hint={
+              query
+                ? 'Try a different search term or status.'
+                : 'Orders placed on the storefront will appear here.'
+            }
+          />
+        </div>
       ) : (
-        <FlatList
-          data={shown}
-          keyExtractor={(o) => o.id}
-          contentContainerStyle={styles.list}
-          renderItem={({ item }) => {
+        <div style={{ padding: spacing.lg, ...gridStyle }}>
+          {shown.map((item) => {
             const expanded = expandedId === item.id;
             const next = NEXT_MOVE[item.status];
+            const itemCount = item.items?.length ?? 0;
+            const address = item.shippingSnapshot;
+            const paid = item.payment?.paidAmount?.amount ?? null;
             return (
-              <Card style={styles.card}>
-                <Pressable onPress={() => setExpandedId(expanded ? null : item.id)}>
-                  <View style={styles.row}>
-                    <View style={styles.meta}>
-                      <AppText variant="bodySemiBold">{item.orderNumber}</AppText>
-                      <AppText variant="caption" color="muted">
-                        {item.customerSnapshot?.name ?? 'Guest'} ·{' '}
-                        {formatDate(new Date(item.createdAt).getTime())} ·{' '}
-                        {formatTime(new Date(item.createdAt).getTime())}
-                      </AppText>
-                    </View>
-                    <View style={styles.right}>
-                      <AppText variant="bodyMedium">
-                        {formatCurrency(item.totals?.grandTotal?.amount ?? 0)}
+              <Card
+                key={item.id}
+                style={{ display: 'flex', flexDirection: 'column', gap: spacing.sm }}
+              >
+                <button
+                  type="button"
+                  className="of-btn"
+                  onClick={() => setExpandedId(expanded ? null : item.id)}
+                  aria-expanded={expanded}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: spacing.md,
+                    width: '100%',
+                    textAlign: 'left',
+                  }}
+                >
+                  <div
+                    style={{
+                      flex: 1,
+                      gap: 3,
+                      minWidth: 0,
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: spacing.sm,
+                        flexWrap: 'wrap',
+                      }}
+                    >
+                      <AppText variant="bodySemiBold" color="cream">
+                        {item.orderNumber}
                       </AppText>
                       <StatusBadge status={item.status} />
-                    </View>
-                  </View>
-                </Pressable>
+                    </div>
+                    <AppText variant="caption" color="muted" numberOfLines={1}>
+                      {item.customerSnapshot?.name ?? 'Guest'}
+                      {item.customerSnapshot?.phone ? ` · ${item.customerSnapshot.phone}` : ''}
+                    </AppText>
+                    <AppText variant="caption" color="muted">
+                      {formatDate(new Date(item.createdAt).getTime())} ·{' '}
+                      {formatTime(new Date(item.createdAt).getTime())} · {itemCount} item
+                      {itemCount !== 1 ? 's' : ''}
+                    </AppText>
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'flex-end',
+                      gap: spacing.xs,
+                    }}
+                  >
+                    <AppText variant="bodyMedium" color="cream">
+                      {formatCurrency(item.totals?.grandTotal?.amount ?? 0)}
+                    </AppText>
+                    <Icon
+                      name={expanded ? 'chevron-up' : 'chevron-down'}
+                      size={16}
+                      color={colors.muted}
+                    />
+                  </div>
+                </button>
 
                 {expanded ? (
-                  <View style={styles.details}>
-                    <AppText variant="caption" color="muted">
-                      {item.customerSnapshot?.name} · {item.customerSnapshot?.phone}
-                      {'\n'}
-                      {item.shippingSnapshot?.address}, {item.shippingSnapshot?.city}{' '}
-                      {item.shippingSnapshot?.pincode}
-                    </AppText>
-                    <View style={styles.items}>
-                      {item.items?.map((line) => (
-                        <View key={line.id} style={styles.itemRow}>
-                          <AppText variant="body" numberOfLines={1} style={{ flex: 1 }}>
-                            {line.quantity} × {line.snapshot?.name}
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: spacing.md,
+                      paddingTop: spacing.md,
+                      borderTop: `1px solid ${colors.border}`,
+                    }}
+                  >
+                    {handleStatusError ? (
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          gap: spacing.sm,
+                          backgroundColor: colors.warnDim,
+                          border: `1px solid ${colors.warn}`,
+                          borderRadius: radius.md,
+                          padding: spacing.md,
+                        }}
+                      >
+                        <Icon name="alert-circle" size={16} color={colors.warn} />
+                        <AppText variant="caption" color="warn" style={{ flex: 1, lineHeight: 18 }}>
+                          {handleStatusError}
+                        </AppText>
+                      </div>
+                    ) : null}
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <AppText
+                        variant="caption"
+                        color="muted"
+                        style={{ letterSpacing: 1.4, textTransform: 'uppercase', marginBottom: 2 }}
+                      >
+                        CUSTOMER
+                      </AppText>
+                      <AppText variant="body">
+                        {item.customerSnapshot?.name ?? 'Guest'}
+                        {item.customerSnapshot?.phone ? ` · ${item.customerSnapshot.phone}` : ''}
+                      </AppText>
+                      {address ? (
+                        <AppText variant="caption" color="muted" style={{ lineHeight: 18 }}>
+                          {address.address}
+                          {address.city ? `, ${address.city}` : ''}
+                          {address.pincode ? ` ${address.pincode}` : ''}
+                        </AppText>
+                      ) : null}
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <AppText
+                        variant="caption"
+                        color="muted"
+                        style={{ letterSpacing: 1.4, textTransform: 'uppercase', marginBottom: 2 }}
+                      >
+                        ITEMS
+                      </AppText>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: spacing.xs }}>
+                        {item.items?.map((line) => (
+                          <div
+                            key={line.id}
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              gap: spacing.md,
+                            }}
+                          >
+                            <AppText
+                              variant="body"
+                              numberOfLines={1}
+                              style={{ flex: 1, minWidth: 0 }}
+                            >
+                              {line.quantity} × {line.snapshot?.name}
+                            </AppText>
+                            <AppText variant="bodyMedium">
+                              {formatCurrency(line.subtotal?.amount ?? 0)}
+                            </AppText>
+                          </div>
+                        ))}
+                      </div>
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 2,
+                          marginTop: spacing.sm,
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            gap: spacing.md,
+                          }}
+                        >
+                          <AppText variant="caption" color="muted">
+                            Subtotal
                           </AppText>
-                          <AppText variant="bodyMedium">
-                            {formatCurrency(line.subtotal?.amount ?? 0)}
+                          <AppText variant="caption" color="mutedBright">
+                            {formatCurrency(item.totals?.subtotal?.amount ?? 0)}
                           </AppText>
-                        </View>
-                      ))}
-                    </View>
+                        </div>
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            gap: spacing.md,
+                          }}
+                        >
+                          <AppText variant="caption" color="muted">
+                            Delivery
+                          </AppText>
+                          <AppText variant="caption" color="mutedBright">
+                            {formatCurrency(item.totals?.shipping?.amount ?? 0)}
+                          </AppText>
+                        </div>
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            gap: spacing.md,
+                            borderTop: `1px solid ${colors.border}`,
+                            paddingTop: spacing.sm,
+                            marginTop: spacing.xs,
+                          }}
+                        >
+                          <AppText variant="bodySemiBold">Total</AppText>
+                          <AppText variant="bodySemiBold">
+                            {formatCurrency(item.totals?.grandTotal?.amount ?? 0)}
+                          </AppText>
+                        </div>
+                      </div>
+                    </div>
+
+                    {item.payment?.method ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <AppText
+                          variant="caption"
+                          color="muted"
+                          style={{
+                            letterSpacing: 1.4,
+                            textTransform: 'uppercase',
+                            marginBottom: 2,
+                          }}
+                        >
+                          PAYMENT
+                        </AppText>
+                        <AppText variant="caption" color="mutedBright">
+                          {item.payment.method}
+                          {paid != null ? ` · ${formatCurrency(paid)}` : ''}
+                        </AppText>
+                      </div>
+                    ) : null}
+
                     {next ? (
                       <Button
-                        label={`Advance to ${next.replace('_', ' ').toLowerCase()}`}
+                        label={`Advance to ${next.replace(/_/g, ' ').toLowerCase()}`}
                         variant="primary"
                         loading={updateStatus.isPending && updateStatus.variables?.id === item.id}
                         onPress={() =>
@@ -171,61 +420,13 @@ export function OrdersScreen() {
                         }
                       />
                     ) : null}
-                  </View>
+                  </div>
                 ) : null}
               </Card>
             );
-          }}
-        />
+          })}
+        </div>
       )}
-    </View>
+    </div>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.bg },
-  toolbar: { paddingHorizontal: spacing.lg, paddingTop: spacing.md, gap: spacing.md },
-  search: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: radius.md,
-    color: colors.cream,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  tabs: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  tab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: 999,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-  },
-  tabActive: { backgroundColor: colors.aqua, borderColor: colors.aqua },
-  badge: {
-    minWidth: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: colors.aquaDim,
-    paddingHorizontal: spacing.xs,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badgeActive: { backgroundColor: 'rgba(13,15,18,0.25)' },
-  list: { padding: spacing.lg, gap: spacing.md },
-  card: { gap: spacing.md },
-  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  meta: { flex: 1, gap: 2, paddingRight: spacing.md },
-  right: { alignItems: 'flex-end', gap: spacing.xs },
-  details: { gap: spacing.md, paddingTop: spacing.sm },
-  items: { gap: spacing.xs },
-  itemRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.md },
-});

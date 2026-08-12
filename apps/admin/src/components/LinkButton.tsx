@@ -1,52 +1,49 @@
-import {
-  ActivityIndicator,
-  Pressable,
-  type PressableProps,
-  type StyleProp,
-  StyleSheet,
-  type ViewStyle,
-} from 'react-native';
+import type { ButtonHTMLAttributes, CSSProperties } from 'react';
 
 import { colors, spacing } from '../theme';
 import { AppText } from './AppText';
+import { Spinner } from './Spinner';
 
-interface LinkButtonProps extends PressableProps {
+interface LinkButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'style'> {
   label: string;
   variant?: 'aqua' | 'muted';
   loading?: boolean;
+  /** RN-compatible handler kept so existing call sites stay unchanged. */
+  onPress?: () => void;
+  style?: CSSProperties;
 }
 
 export function LinkButton({
   label,
   variant = 'aqua',
   loading = false,
+  onPress,
   style,
   ...rest
 }: LinkButtonProps) {
-  const resolvedStyle: StyleProp<ViewStyle> =
-    typeof style === 'function' ? undefined : (style as StyleProp<ViewStyle>);
-
+  const color = variant === 'aqua' ? colors.aqua : colors.mutedBright;
   return (
-    <Pressable
+    <button
       {...rest}
+      type={rest.type ?? 'button'}
+      className="of-btn"
       disabled={rest.disabled ?? loading}
-      hitSlop={8}
-      style={[styles.link, resolvedStyle]}
+      onClick={onPress ?? rest.onClick}
+      style={{
+        padding: `${spacing.sm}px`,
+        backgroundColor: 'transparent',
+        border: 'none',
+        color,
+        ...style,
+      }}
     >
       {loading ? (
-        <ActivityIndicator
-          size="small"
-          color={variant === 'aqua' ? colors.aqua : colors.mutedBright}
-        />
+        <Spinner size={14} color={color} />
       ) : (
-        <AppText variant="label" color={variant === 'aqua' ? 'aqua' : 'mutedBright'}>
+        <AppText variant="label" color={variant}>
           {label}
         </AppText>
       )}
-    </Pressable>
+    </button>
   );
 }
-
-const styles = StyleSheet.create({
-  link: { paddingVertical: spacing.sm },
-});

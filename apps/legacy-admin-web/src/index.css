@@ -1,7 +1,0 @@
-@import './styles/legacy-admin-tokens.css';
-@import './styles/legacy-admin-animations.css';
-@import './styles/legacy-admin-components.css';
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;

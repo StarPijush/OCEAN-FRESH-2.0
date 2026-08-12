@@ -1,5 +1,4 @@
-import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import type { CSSProperties, ReactNode } from 'react';
 
 import { colors, spacing } from '../theme';
 import { AppText } from './AppText';
@@ -9,46 +8,71 @@ interface ScreenProps {
   subtitle?: string;
   children: ReactNode;
   scroll?: boolean;
+  style?: CSSProperties;
 }
 
-export function Screen({ title, subtitle, children, scroll = true }: ScreenProps) {
-  if (!scroll) {
-    return (
-      <View style={styles.container}>
-        <Header title={title} subtitle={subtitle} />
-        {children}
-      </View>
-    );
-  }
-  return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-      showsVerticalScrollIndicator={false}
+export function Screen({ title, subtitle, children, scroll = true, style }: ScreenProps) {
+  const header = title ? (
+    <div
+      style={{
+        gap: spacing.xs,
+        marginBottom: spacing.sm,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
     >
-      <Header title={title} subtitle={subtitle} />
-      {children}
-    </ScrollView>
-  );
-}
-
-function Header({ title, subtitle }: { title?: string; subtitle?: string }) {
-  if (!title) return null;
-  return (
-    <View style={styles.header}>
       <AppText variant="display">{title}</AppText>
       {subtitle ? (
         <AppText variant="body" color="mutedBright">
           {subtitle}
         </AppText>
       ) : null}
-    </View>
+    </div>
+  ) : null;
+
+  const content = (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: spacing.lg,
+        padding: `${spacing.lg}px`,
+        paddingBottom: spacing.xxxl,
+        ...style,
+      }}
+    >
+      {header}
+      {children}
+    </div>
+  );
+
+  if (!scroll)
+    return (
+      <div
+        style={{
+          flex: 1,
+          backgroundColor: colors.bg,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0,
+        }}
+      >
+        {content}
+      </div>
+    );
+
+  return (
+    <div
+      style={{
+        flex: 1,
+        minHeight: 0,
+        overflowY: 'auto',
+        backgroundColor: colors.bg,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {content}
+    </div>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xxxl, gap: spacing.lg },
-  header: { gap: spacing.xs, marginBottom: spacing.sm },
-});

@@ -8,6 +8,7 @@
     "EXPO_PUBLIC_SUPABASE_ANON_KEY",
     "EXPO_PUBLIC_SUPABASE_STORAGE_BUCKET",
     "EXPO_PUBLIC_STOREFRONT_URL",
+    "VITE_STOREFRONT_URL",
     "NODE_ENV"
   ],
   "globalDependencies": ["tsconfig.json", ".env"],
@@ -23,7 +24,8 @@
         "EXPO_PUBLIC_SUPABASE_URL",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY",
         "EXPO_PUBLIC_SUPABASE_STORAGE_BUCKET",
-        "EXPO_PUBLIC_STOREFRONT_URL"
+        "EXPO_PUBLIC_STOREFRONT_URL",
+        "VITE_STOREFRONT_URL"
       ]
     },
     "build:analyze": {

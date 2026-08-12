@@ -1,48 +1,102 @@
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { AppText } from '../components/AppText';
 import { BrandMark } from '../components/BrandMark';
 import { Button } from '../components/Button';
 import { LinkButton } from '../components/LinkButton';
 import { Screen } from '../components/Screen';
-import type { RootStackParamList } from '../navigation/types';
 import { resendEmailOtp, verifyEmailOtp } from '../services/auth.service';
-import { colors, radius, spacing, typography } from '../theme';
-import { maskEmail, sanitizeOtpInput } from '../utils/otp';
+import { colors, spacing } from '../theme';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'OtpVerify'>;
+function OtpInput({
+  value,
+  autoFocus,
+  onDigitChange,
+  onSubmit,
+}: {
+  value: string;
+  autoFocus?: boolean;
+  onDigitChange: (value: string) => void;
+  onSubmit: () => void;
+}) {
+  const ref = useRef<HTMLInputElement>(null);
+  return (
+    <input
+      ref={ref}
+      value={value}
+      autoFocus={autoFocus}
+      onChange={(e) => {
+        const digits = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+        onDigitChange(digits);
+        if (digits.length === 6) onSubmit();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Backspace' && value.length === 0) {
+          onDigitChange('');
+        }
+      }}
+      inputMode="numeric"
+      autoComplete="one-time-code"
+      aria-label="6-digit passcode"
+      placeholder="••••••"
+      style={{
+        width: '100%',
+        textAlign: 'center',
+        letterSpacing: spacing.lg * 1.4,
+        fontSize: 28,
+        fontWeight: '600',
+        padding: `${spacing.md}px ${spacing.lg}px`,
+        borderRadius: 12,
+        border: `1px solid ${colors.borderStrong}`,
+        backgroundColor: colors.surface,
+        color: colors.cream,
+        fontFamily: 'inherit',
+      }}
+    />
+  );
+}
 
-const OTP_LENGTH = 6;
+export function OtpVerifyScreen() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const email = searchParams.get('email') ?? '';
 
-export function OtpVerifyScreen({ navigation, route }: Props) {
-  const { email } = route.params;
-  const [otp, setOtp] = useState('');
+  const [code, setCode] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
-  const inputRef = useRef<TextInput>(null);
+  const [countdown, setCountdown] = useState(0);
+  const [justVerified, setJustVerified] = useState(false);
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    if (countdown <= 0) return;
+    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [countdown]);
+
+  useEffect(() => {
+    if (!justVerified) return;
+    const t = setTimeout(() => {
+      navigate(`/reset-password?email=${encodeURIComponent(email)}`);
+    }, 700);
+    return () => clearTimeout(t);
+  }, [justVerified, navigate, email]);
 
   const handleVerify = async () => {
-    if (otp.length !== OTP_LENGTH) {
-      setError(`Enter the ${OTP_LENGTH}-digit passcode.`);
+    if (code.length !== 6) {
+      setError('Enter the 6-digit passcode.');
       return;
     }
-    setSubmitting(true);
+    setVerifying(true);
     setError(null);
     try {
-      await verifyEmailOtp(email, otp);
-      navigation.replace('ResetPassword', { email });
+      await verifyEmailOtp(email, code);
+      setJustVerified(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'That passcode is not valid.');
+      setError(err instanceof Error ? err.message : 'That passcode was not accepted.');
     } finally {
-      setSubmitting(false);
+      setVerifying(false);
     }
   };
 
@@ -51,8 +105,7 @@ export function OtpVerifyScreen({ navigation, route }: Props) {
     setError(null);
     try {
       await resendEmailOtp(email);
-      setOtp('');
-      inputRef.current?.focus();
+      setCountdown(30);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not resend the passcode.');
     } finally {
@@ -61,69 +114,68 @@ export function OtpVerifyScreen({ navigation, route }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
-      <View style={styles.brand}>
+    <div
+      style={{
+        minHeight: '100vh',
+        backgroundColor: colors.bg,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          flexDirection: 'column',
+          gap: spacing.sm,
+          paddingTop: spacing.xxl,
+          paddingBottom: spacing.xxl,
+        }}
+      >
         <BrandMark size={56} />
         <AppText variant="title">Enter passcode</AppText>
-        <AppText variant="body" color="mutedBright" style={styles.center}>
-          Sent to {maskEmail(email)}. It expires in a few minutes.
+        <AppText
+          variant="body"
+          color="mutedBright"
+          style={{ textAlign: 'center', padding: `0 ${spacing.xl}px` }}
+        >
+          {justVerified
+            ? 'Passcode accepted — taking you to reset your password.'
+            : `We sent a 6-digit passcode to ${email || 'your email'}.`}
         </AppText>
-      </View>
+      </div>
 
       <Screen scroll={false}>
-        <TextInput
-          ref={inputRef}
-          value={otp}
-          onChangeText={(v) => setOtp(sanitizeOtpInput(v, OTP_LENGTH))}
-          keyboardType="number-pad"
-          maxLength={OTP_LENGTH}
+        <OtpInput
+          value={code}
           autoFocus
-          style={styles.otpInput}
-          placeholder="------"
-          placeholderTextColor={colors.muted}
+          onDigitChange={setCode}
+          onSubmit={() => void handleVerify()}
         />
         {error ? (
-          <AppText variant="caption" color="warn" style={styles.error}>
+          <AppText variant="caption" color="warn" style={{ marginBottom: spacing.lg }}>
             {error}
           </AppText>
         ) : null}
-        <Button label="Verify & continue" fullWidth loading={submitting} onPress={handleVerify} />
-        <View style={styles.row}>
-          <LinkButton label="Resend passcode" onPress={handleResend} loading={resending} />
-          <LinkButton label="Change email" onPress={() => navigation.goBack()} />
-        </View>
+        <Button label="Verify" fullWidth loading={verifying} onPress={() => void handleVerify()} />
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: spacing.xl,
+          }}
+        >
+          <LinkButton
+            label={countdown > 0 ? `Resend in ${countdown}s` : 'Resend passcode'}
+            disabled={resending || countdown > 0}
+            loading={resending}
+            onPress={() => void handleResend()}
+          />
+          <LinkButton label="Back" onPress={() => navigate('/forgot-password')} />
+        </div>
       </Screen>
-    </SafeAreaView>
+    </div>
   );
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.bg },
-  brand: {
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingTop: spacing.xxl,
-    paddingBottom: spacing.xl,
-  },
-  center: { textAlign: 'center', paddingHorizontal: spacing.xl },
-  otpInput: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.borderStrong,
-    borderRadius: radius.md,
-    color: colors.cream,
-    fontSize: 24,
-    lineHeight: 32,
-    letterSpacing: 14,
-    textAlign: 'center',
-    fontFamily: typography.body.fontFamily,
-    paddingVertical: spacing.lg,
-    marginBottom: spacing.lg,
-  },
-  error: { marginBottom: spacing.lg },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: spacing.xl,
-  },
-});
