@@ -1,0 +1,520 @@
+/* OceanFresh CardNav — React Bits base adapted to premium navy/cream/aqua */
+
+.card-nav-container {
+  position: fixed;
+  top: 12px;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0);
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.card-nav-container .card-nav {
+  width: min(100%, 860px);
+  flex-shrink: 0;
+}
+
+.card-nav {
+  display: block;
+  height: 56px;
+  padding: 0;
+  background: rgba(10, 22, 40, 0.92);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(6, 14, 26, 0.28);
+  position: relative;
+  overflow: hidden;
+  will-change: height;
+  pointer-events: auto;
+  transition:
+    background 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)),
+    border-color 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)),
+    box-shadow 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.card-nav::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(74, 184, 193, 0.15) 50%, transparent);
+  opacity: 0;
+  transition: opacity 0.35s;
+  pointer-events: none;
+}
+
+.card-nav.light {
+  background: rgba(245, 240, 232, 0.96);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 24px rgba(10, 22, 40, 0.12);
+}
+
+.card-nav.light::after {
+  opacity: 1;
+}
+
+.card-nav.light .of-wordmark {
+  color: var(--ink, #0d0d0d);
+}
+
+.card-nav.light .hamburger-menu,
+.card-nav.light .card-nav-cart-btn {
+  color: var(--ink, #0d0d0d);
+}
+
+.card-nav.light .card-nav-cart-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.card-nav.light .hamburger-menu:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* ── Top bar ── */
+.card-nav-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px 6px 10px;
+  z-index: 2;
+}
+
+/* hamburger — 44x44 premium touch target */
+.hamburger-menu {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  gap: 6px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--cream, #f5f0e8);
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.hamburger-menu:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.hamburger-menu:active {
+  transform: scale(0.96);
+}
+
+.hamburger-menu:focus-visible {
+  outline: 2px solid var(--aqua, #4ab8c1);
+  outline-offset: 2px;
+}
+
+.hamburger-line {
+  width: 22px;
+  height: 1.6px;
+  background-color: currentColor;
+  border-radius: 1px;
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.2s ease;
+  transform-origin: 50% 50%;
+  display: block;
+}
+
+.hamburger-menu.open .hamburger-line:first-child {
+  transform: translateY(3.8px) rotate(45deg);
+}
+
+.hamburger-menu.open .hamburger-line:last-child {
+  transform: translateY(-3.8px) rotate(-45deg);
+}
+
+/* centered wordmark */
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: none;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.logo-container:hover {
+  opacity: 0.9;
+}
+
+.logo-container:active {
+  transform: translate(-50%, -50%) scale(0.98);
+}
+
+.logo-container:focus-visible {
+  outline: 2px solid var(--aqua, #4ab8c1);
+  outline-offset: 2px;
+}
+
+.of-wordmark {
+  font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
+  font-size: 1.32rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: var(--cream, #f5f0e8);
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* cart — 44x44 premium */
+.card-nav-cart-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--cream, #f5f0e8);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
+}
+
+.card-nav-cart-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.card-nav-cart-btn:active {
+  transform: scale(0.96);
+}
+
+.card-nav-cart-btn:focus-visible {
+  outline: 2px solid var(--aqua, #4ab8c1);
+  outline-offset: 2px;
+}
+
+.card-nav-cart-btn .nav-cart-count {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: var(--aqua, #4ab8c1);
+  color: var(--deep, #0a1628);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 0.55rem;
+  font-weight: 700;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body, 'Instrument Sans', sans-serif);
+  line-height: 1;
+}
+
+.card-nav-cart-btn .nav-cart-count.show {
+  display: flex;
+}
+
+/* ── Expanded content ── */
+.card-nav-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 56px;
+  bottom: 0;
+  padding: 10px 10px 12px;
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card-nav.open .card-nav-content {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.nav-card {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: 10px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 16px 14px;
+  gap: 10px;
+  user-select: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  /* subtle depth */
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+
+.nav-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.nav-card-label {
+  font-family: var(--font-body, 'Instrument Sans', sans-serif);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.9;
+  line-height: 1;
+  position: relative;
+}
+
+.nav-card-links {
+  margin-top: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative;
+}
+
+.nav-card-link {
+  font-family: var(--font-body, 'Instrument Sans', sans-serif);
+  font-size: 0.92rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 0;
+  border: none;
+  background: none;
+  text-align: left;
+  width: 100%;
+  border-radius: 4px;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.2s ease;
+  line-height: 1.3;
+}
+
+.nav-card-link:hover {
+  opacity: 0.88;
+  transform: translateX(2px);
+}
+
+.nav-card-link:active {
+  transform: translateX(1px) scale(0.98);
+  opacity: 0.75;
+}
+
+.nav-card-link:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 2px;
+}
+
+.nav-card-link-icon {
+  flex-shrink: 0;
+  opacity: 0.75;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.nav-card-link:hover .nav-card-link-icon {
+  transform: translate(1px, -1px);
+  opacity: 1;
+}
+
+/* overlay */
+.card-nav-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: rgba(6, 14, 26, 0.32);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-nav-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Responsive: mobile primary ── */
+@media (max-width: 768px) {
+  .card-nav-container {
+    top: 10px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .card-nav {
+    border-radius: 10px;
+  }
+
+  .card-nav-top {
+    padding: 6px 8px;
+  }
+
+  .of-wordmark {
+    font-size: 1.18rem;
+    letter-spacing: 0.12em;
+  }
+
+  .card-nav-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 8px 8px 10px;
+    bottom: 0;
+    justify-content: flex-start;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav-card {
+    flex: 0 0 auto;
+    min-height: 0;
+    padding: 14px 16px;
+  }
+
+  .nav-card-label {
+    font-size: 0.66rem;
+  }
+
+  .nav-card-link {
+    font-size: 0.9rem;
+    padding: 6px 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .card-nav-container {
+    top: 8px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .of-wordmark {
+    font-size: 1.08rem;
+    letter-spacing: 0.1em;
+  }
+
+  .card-nav-content {
+    padding: 6px 6px 8px;
+    gap: 6px;
+  }
+
+  .nav-card {
+    padding: 12px 14px;
+  }
+}
+
+/* desktop spacious */
+@media (min-width: 1024px) {
+  .card-nav-container {
+    top: 14px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .card-nav.open {
+    box-shadow: 0 12px 40px rgba(6, 14, 26, 0.32);
+  }
+
+  .nav-card {
+    padding: 18px 18px 16px;
+  }
+
+  .nav-card-label {
+    font-size: 0.7rem;
+  }
+
+  .nav-card-link {
+    font-size: 0.95rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  .card-nav-container {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+  .card-nav-container .card-nav {
+    width: min(100%, 900px);
+  }
+}
+
+/* ── Page offset for fixed floating pill ── */
+#page-products,
+#page-order {
+  padding-top: 72px;
+}
+
+#page-contact {
+  padding-top: 0;
+}
+
+#page-contact .contact-hero {
+  padding-top: 96px;
+}
+
+.page-header {
+  top: 72px !important;
+}
+
+/* hero stays edge-to-edge behind pill — no extra offset needed, pill overlays hero */
+.hero {
+  padding-top: 56px;
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .card-nav,
+  .hamburger-line,
+  .nav-card-link,
+  .card-nav-overlay {
+    transition-duration: 0.01ms !important;
+  }
+}

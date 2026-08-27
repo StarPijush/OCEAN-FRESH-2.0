@@ -2,7 +2,7 @@ import { getCategoryRepository } from '@oceanfresh/category/repository';
 import type { Category } from '@oceanfresh/shared';
 import { useEffect, useMemo, useState } from 'react';
 
-import { showToast } from '../components/ui/toast.js';
+import { showToast } from '../components/ui/toastController.js';
 import { useReveal } from '../hooks/useReveal.js';
 import { productService, type ProductVM, useCartStore } from '../services/index.js';
 

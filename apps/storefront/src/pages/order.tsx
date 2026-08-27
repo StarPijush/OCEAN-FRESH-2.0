@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { showToast } from '../components/ui/toast.js';
+import { showToast } from '../components/ui/toastController.js';
 import { useSettings } from '../context/settings-context.js';
 import {
   type OrderCartEntry,

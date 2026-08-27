@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { productService, type ProductVM, useCartStore } from '../../services/index.js';
-import { showToast } from '../ui/toast.js';
+import { showToast } from '../ui/toastController.js';
 
 export function FeaturedCards() {
   const [featured, setFeatured] = useState<ProductVM[]>([]);

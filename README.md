@@ -25,10 +25,35 @@ oceanfresh/
 
 ## Quick Start
 
+**Prerequisites:** Node `>=20.0.0`, pnpm `>=9.0.0` (see `package.json:engines`, `packageManager: pnpm@9.15.4`)
+
 ```bash
-pnpm install
-pnpm dev
+# 1. Install (frozen lockfile for reproducible builds)
+pnpm install --frozen-lockfile
+
+# 2. Configure environment (copy placeholders, never commit real secrets)
+cp .env.example .env.development
+cp apps/admin/.env.example apps/admin/.env
+# then fill VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY etc.
+
+# 3. Run both apps (Turborepo)
+pnpm dev                 # storefront http://localhost:3000 + admin http://localhost:3001
+# or individually:
+pnpm --filter @oceanfresh/storefront dev   # http://localhost:3000
+pnpm --filter @oceanfresh/admin dev        # http://localhost:3001
+
+# 4. Build
+pnpm build               # turbo run build (both apps)
+pnpm --filter @oceanfresh/storefront build
+pnpm --filter @oceanfresh/admin build
+
+# 5. Quality
+pnpm typecheck
+pnpm lint
+pnpm test
 ```
+
+**Environment:** See `.env.example` and `apps/admin/.env.example` for required `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_STOREFRONT_URL=http://localhost:3000`, `VITE_SUPABASE_STORAGE_BUCKET`. Real `.env*` files are git-ignored and must never be committed.
 
 ## Documentation
 

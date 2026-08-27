@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { setShowToastFn } from './toast.js';
+import { setShowToastFn } from './toastController.js';
 
 export function Toast() {
   const [message, setMessage] = useState('');

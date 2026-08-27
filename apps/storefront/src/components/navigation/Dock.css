@@ -1,0 +1,290 @@
+/* OceanFresh Dock — React Bits interaction foundation, OceanFresh visual system */
+
+.dock-outer {
+  position: fixed;
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
+  max-width: 440px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 180;
+  pointer-events: none;
+}
+
+.dock-panel {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  width: 100%;
+  gap: 2px;
+  border-radius: 12px;
+  background: rgba(10, 22, 40, 0.92);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(6, 14, 26, 0.28);
+  padding: 4px 6px;
+  pointer-events: auto;
+  transition:
+    background 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)),
+    border-color 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)),
+    box-shadow 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.dock-panel.light {
+  background: rgba(245, 240, 232, 0.96);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 24px rgba(10, 22, 40, 0.12);
+}
+
+/* Each dock item — centered vertical unit, equal columns */
+.dock-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+  border-radius: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  flex: 1;
+  min-width: 0;
+  max-width: none;
+  color: rgba(245, 240, 232, 0.58);
+  transition:
+    color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.22s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  padding: 2px 1px;
+  min-height: 46px;
+}
+
+.dock-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  transition: background 0.18s ease;
+}
+
+.dock-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: inherit;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+
+/* label — always visible static, Instrument Sans */
+.dock-item::after {
+  content: none;
+}
+
+/* We inject label via DOM sibling after icon — style here */
+.dock-item .dock-icon + div {
+  /* placeholder for tooltip label - hidden on mobile, static label handled via BottomNav extra */
+}
+
+.dock-item .dock-icon {
+  flex-shrink: 0;
+}
+
+/* Static label — compact */
+.dock-item .dock-static-label {
+  font-family: var(--font-body, 'Instrument Sans', sans-serif);
+  font-size: 0.48rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* Active state — cream on dark, ink on light */
+.dock-item.active {
+  color: var(--cream, #f5f0e8);
+}
+
+.dock-panel.light .dock-item.active {
+  color: var(--ink, #0d0d0d);
+}
+
+.dock-item.active .dock-icon {
+  color: inherit;
+}
+
+/* Inactive colors adapt to theme */
+.dock-panel.light .dock-item {
+  color: rgba(13, 13, 13, 0.58);
+}
+
+.dock-panel.light .dock-item:hover {
+  color: var(--ink, #0d0d0d);
+}
+
+.dock-panel.light .dock-item:hover .dock-icon-wrap {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Dark hover */
+.dock-item:hover {
+  color: rgba(245, 240, 232, 0.92);
+}
+
+.dock-item:hover .dock-icon-wrap {
+  background: rgba(245, 240, 232, 0.06);
+}
+
+.dock-item:focus-visible {
+  outline: 2px solid var(--aqua, #4ab8c1);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+.dock-item:active {
+  transform: scale(0.97);
+}
+
+/* Badge — compact */
+.dock-badge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: var(--aqua, #4ab8c1);
+  color: var(--deep, #0a1628);
+  font-family: var(--font-body, 'Instrument Sans', sans-serif);
+  font-size: 0.5rem;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Tooltip label from React Bits — keep for desktop hover, hide on mobile (static label is primary) */
+.dock-label {
+  position: absolute;
+  top: -1.5rem;
+  left: 50%;
+  width: fit-content;
+  white-space: pre;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 22, 40, 0.96);
+  backdrop-filter: blur(12px);
+  padding: 3px 8px;
+  font-family: var(--font-body, 'Instrument Sans', sans-serif);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--cream, #f5f0e8);
+  transform: translateX(-50%);
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+
+@media (max-width: 768px) {
+  .dock-label {
+    display: none;
+  }
+}
+
+/* Ensure dock-panel items get even 25% width */
+.dock-panel .dock-item {
+  flex: 1 1 25%;
+}
+
+/* Small phones 320 */
+@media (max-width: 360px) {
+  .dock-outer {
+    width: calc(100% - 16px);
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    max-width: 440px;
+  }
+  .dock-panel {
+    border-radius: 12px;
+    padding: 3px 4px;
+    gap: 1px;
+  }
+  .dock-item .dock-static-label {
+    font-size: 0.44rem;
+    letter-spacing: 0.06em;
+  }
+  .dock-icon {
+    width: 18px;
+    height: 18px;
+  }
+  .dock-badge {
+    min-width: 12px;
+    height: 12px;
+    font-size: 0.46rem;
+  }
+}
+
+@media (min-width: 380px) and (max-width: 430px) {
+  .dock-panel {
+    padding: 4px 6px;
+  }
+}
+
+/* Legacy #bottom-nav wrapper — when BottomNav renders Dock inside, neutralize old fixed bar */
+#bottom-nav {
+  position: static !important;
+  height: auto !important;
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 !important;
+  display: contents !important;
+}
+
+/* Desktop — hidden, respect existing 1024 breakpoint */
+@media (min-width: 1024px) {
+  .dock-outer {
+    display: none !important;
+  }
+  #bottom-nav {
+    display: none !important;
+  }
+}
+
+/* Page already has .page {padding-bottom:72px} legacy — sufficient for 64px dock + 12 gap.
+   No global increase until verified hidden content in manual QA. */
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .dock-item,
+  .dock-icon,
+  .dock-panel {
+    transition-duration: 0.01ms !important;
+  }
+}

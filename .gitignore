@@ -8,14 +8,19 @@ build/
 .next/
 .turbo/
 .vite/
+.cache/
 
 # Environment
-.env*
+.env
+.env.*
 !.env.example
+!.env.template
 
 # IDE
 .idea/
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 *.swp
 *.swo
 *~
@@ -31,6 +36,7 @@ firebase-debug.log
 *.log
 logs/
 *.tmp
+*.temp
 *.bak
 
 # Coverage & Testing
@@ -61,3 +67,8 @@ Desktop.ini
 *.sqlite
 *.sqlite3
 generated-reports/
+
+# Local machine / opencode
+.agents/
+skills-lock.json
+.opencode/

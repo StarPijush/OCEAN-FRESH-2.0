@@ -1,0 +1,164 @@
+/* ── OceanFresh Social Section — footer connect element ────────── */
+.social-section {
+  background: var(--cream);
+  padding: var(--space-10) var(--gutter-mobile) var(--space-12);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.social-section-inner {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.social-eyebrow {
+  font-size: var(--text-eyebrow);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* ── Card container — structural reference preserved, OceanFresh skin ── */
+.social-card {
+  width: fit-content;
+  max-width: 100%;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+  gap: 20px;
+  background: var(--white);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.055);
+}
+
+/* ── Buttons — 52px square, dark default, platform color on hover/active ── */
+.social-btn {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(44, 44, 44);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition:
+    background-color 0.2s var(--ease-out),
+    transform 0.15s var(--ease-out);
+  /* isolate touch highlight */
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.social-btn svg {
+  width: 17px;
+  height: 17px;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Desktop hover + programmatic mobile active */
+.social-btn--instagram:hover,
+.social-btn--instagram.is-active,
+.social-btn--instagram:focus-visible {
+  background-color: #d62976;
+}
+
+.social-btn--x:hover,
+.social-btn--x.is-active,
+.social-btn--x:focus-visible {
+  background-color: #00acee;
+}
+
+.social-btn--linkedin:hover,
+.social-btn--linkedin.is-active,
+.social-btn--linkedin:focus-visible {
+  background-color: #0072b1;
+}
+
+.social-btn--whatsapp:hover,
+.social-btn--whatsapp.is-active,
+.social-btn--whatsapp:focus-visible {
+  background-color: #128c7e;
+}
+
+/* icon slide-in-top — 0.3s as per reference */
+.social-btn:hover svg,
+.social-btn.is-active svg,
+.social-btn:focus-visible svg {
+  animation: social-slide-in-top 0.3s var(--ease-out) both;
+}
+
+@keyframes social-slide-in-top {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* press scale — subtle */
+.social-btn:active {
+  transform: scale(0.9);
+}
+
+.social-btn:focus-visible {
+  outline: 2px solid var(--aqua);
+  outline-offset: 2px;
+}
+
+/* ── Responsive: keep 52px buttons, shrink gap/padding only ── */
+@media (max-width: 360px) {
+  .social-section {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .social-card {
+    padding: 20px 16px;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 320px) {
+  .social-card {
+    padding: 18px 12px;
+    gap: 10px;
+    max-width: calc(100vw - 32px);
+  }
+}
+
+/* Ensure section never causes horizontal overflow */
+.social-section,
+.social-section-inner,
+.social-card {
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .social-btn,
+  .social-btn svg {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+  .social-btn:active {
+    transform: none !important;
+  }
+}
