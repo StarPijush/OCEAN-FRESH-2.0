@@ -1,14 +1,19 @@
+import type { Order } from '@oceanfresh/shared';
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { AppText } from '../components/AppText';
-import { Card } from '../components/Card';
+import {
+  PerformanceChart,
+  RecentOrdersList,
+  StatGrid,
+  TopProductsList,
+} from '../components/dashboard';
 import { Icon } from '../components/Icon';
 import { PageHeader } from '../components/PageHeader';
 import { Skeleton } from '../components/Skeleton';
-import { StatCard, StatTile } from '../components/StatCard';
-import { EmptyState, ErrorState } from '../components/StateViews';
-import { StatusBadge } from '../components/StatusBadge';
+import { StatTile } from '../components/StatCard';
+import { ErrorState } from '../components/StateViews';
 import { useAdminSession } from '../hooks/use-auth-session';
 import { useBreakpoint } from '../hooks/use-breakpoint';
 import { useDashboardStats } from '../hooks/use-dashboard-stats';
@@ -16,7 +21,6 @@ import { useOrders } from '../hooks/use-orders';
 import { useAdminProfile } from '../hooks/use-settings';
 import { colors, radius, spacing, STAT_GUTTER, statTileWidth } from '../theme';
 import { errorToMessage } from '../utils/error';
-import { formatCurrency, formatTime } from '../utils/format';
 
 type ChartMode = 'income' | 'sales';
 
@@ -101,13 +105,6 @@ export function DashboardScreen() {
     );
   }
 
-  const maxDay = Math.max(
-    ...stats.chart.map((d) => (chartMode === 'income' ? d.income : d.sales)),
-    1,
-  );
-
-  const recentOrders = orders.isLoading ? [] : (orders.data?.items ?? []).slice(0, 5);
-
   return (
     <div style={{ padding: spacing.lg, paddingBottom: spacing.xxxl }}>
       <div style={contentStyle}>
@@ -129,6 +126,7 @@ export function DashboardScreen() {
                 onClick={() => void onRefresh()}
                 aria-label="Refresh dashboard"
                 title="Refresh"
+                disabled={refreshing}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -172,322 +170,20 @@ export function DashboardScreen() {
         />
 
         {/* Stat cards */}
-        <div style={tilesStyle}>
-          <StatCard
-            label="Today's Sales"
-            value={String(stats.todaySales)}
-            tone="aqua"
-            icon="cart-outline"
-          />
-          <StatCard
-            label="Today's Income"
-            value={formatCurrency(stats.todayIncome)}
-            tone="green"
-            icon="cash-outline"
-          />
-          <StatCard
-            label="This Week"
-            value={formatCurrency(stats.weekIncome)}
-            tone="gold"
-            icon="trending-up-outline"
-          />
-          <StatCard
-            label="Pending Orders"
-            value={String(stats.pendingOrders)}
-            tone="warn"
-            icon="time-outline"
-          />
-          <StatCard
-            label="Total Orders"
-            value={String(stats.totalOrders)}
-            tone="muted"
-            icon="receipt-outline"
-          />
-          <StatCard
-            label="Total Revenue"
-            value={formatCurrency(stats.totalIncome)}
-            tone="green"
-            icon="wallet-outline"
-          />
-          <StatCard
-            label="Products Active"
-            value={`${stats.availableProducts} / ${stats.totalProducts}`}
-            tone="aqua"
-            icon="fish-outline"
-          />
-        </div>
+        <StatGrid stats={stats} />
 
         {/* 7-day chart */}
-        <Card>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: spacing.md,
-              flexWrap: 'wrap',
-            }}
-          >
-            <AppText variant="title">7-Day Performance</AppText>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                borderRadius: radius.md,
-                overflow: 'hidden',
-                border: `1px solid ${colors.borderStrong}`,
-              }}
-            >
-              {(['income', 'sales'] as const).map((mode) => (
-                <button
-                  key={mode}
-                  type="button"
-                  onClick={() => setChartMode(mode)}
-                  aria-pressed={chartMode === mode}
-                  className="of-btn"
-                  style={{
-                    paddingLeft: spacing.md,
-                    paddingRight: spacing.md,
-                    paddingTop: spacing.sm + 2,
-                    paddingBottom: spacing.sm + 2,
-                    backgroundColor: chartMode === mode ? colors.aqua : 'transparent',
-                  }}
-                >
-                  <AppText variant="label" color={chartMode === mode ? 'bg' : 'mutedBright'}>
-                    {mode === 'income' ? 'Income' : 'Sales'}
-                  </AppText>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'flex-end',
-              gap: spacing.sm,
-              marginTop: spacing.lg,
-              height: 140,
-            }}
-          >
-            {stats.chart.map((day) => {
-              const value = chartMode === 'income' ? day.income : day.sales;
-              const pct = maxDay > 0 ? (value / maxDay) * 96 : 0;
-              return (
-                <div
-                  key={day.label}
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: spacing.xs,
-                    minWidth: 0,
-                  }}
-                >
-                  <AppText
-                    variant="caption"
-                    color="muted"
-                    numberOfLines={1}
-                    style={{ height: 16, maxWidth: '100%' }}
-                  >
-                    {value > 0
-                      ? chartMode === 'income'
-                        ? `₹${Math.round(value / 1000)}k`
-                        : String(value)
-                      : ''}
-                  </AppText>
-                  <div
-                    style={{
-                      flex: 1,
-                      width: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'flex-end',
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: '70%',
-                        height: Math.max(4, pct),
-                        borderTopLeftRadius: radius.sm,
-                        borderTopRightRadius: radius.sm,
-                        backgroundColor: value > 0 ? colors.aqua : colors.borderStrong,
-                      }}
-                    />
-                  </div>
-                  <AppText variant="caption" color="muted" style={{ marginTop: 2 }}>
-                    {day.label}
-                  </AppText>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
+        <PerformanceChart chart={stats.chart} mode={chartMode} onModeChange={setChartMode} />
 
         {/* Top products */}
-        <Card>
-          <AppText variant="title">Top Products · This Month</AppText>
-          {stats.topProducts.length ? (
-            <div
-              style={{
-                marginTop: spacing.lg,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: spacing.md,
-              }}
-            >
-              {stats.topProducts.map((p, i) => {
-                const max = stats.topProducts[0]?.qty ?? 1;
-                return (
-                  <div
-                    key={p.name}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: spacing.md,
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 26,
-                        height: 26,
-                        borderRadius: 13,
-                        backgroundColor: colors.aquaDim,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <AppText variant="label" color="aqua">
-                        {i + 1}
-                      </AppText>
-                    </div>
-                    <AppText variant="bodyMedium" numberOfLines={1} style={{ flex: 1 }}>
-                      {p.name}
-                    </AppText>
-                    <div
-                      style={{
-                        width: 72,
-                        height: 4,
-                        borderRadius: 2,
-                        backgroundColor: colors.surfaceAlive,
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <div
-                        style={{
-                          height: '100%',
-                          backgroundColor: colors.aqua,
-                          width: `${Math.round((p.qty / max) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                    <AppText
-                      variant="caption"
-                      color="mutedBright"
-                      style={{ width: 48, textAlign: 'right' }}
-                    >
-                      {p.qty} kg
-                    </AppText>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <EmptyState title="No data yet" hint="Sales data will appear once orders arrive." />
-          )}
-        </Card>
+        <TopProductsList topProducts={stats.topProducts} />
 
         {/* Recent orders */}
-        <Card>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: spacing.md,
-              flexWrap: 'wrap',
-            }}
-          >
-            <AppText variant="title">Recent Orders</AppText>
-            <button type="button" className="of-btn" onClick={() => navigate('/orders')}>
-              <AppText variant="label" color="aqua">
-                View All
-              </AppText>
-            </button>
-          </div>
-          {orders.isLoading ? (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: spacing.md,
-                marginTop: spacing.lg,
-              }}
-            >
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} height={40} />
-              ))}
-            </div>
-          ) : recentOrders.length ? (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: spacing.md,
-                marginTop: spacing.lg,
-              }}
-            >
-              {recentOrders.map((order) => (
-                <button
-                  key={order.id}
-                  type="button"
-                  className="of-btn"
-                  onClick={() => navigate('/orders')}
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: spacing.md,
-                    paddingTop: spacing.sm,
-                    paddingBottom: spacing.sm,
-                    borderBottom: `1px solid ${colors.border}`,
-                    width: '100%',
-                    textAlign: 'left',
-                  }}
-                >
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
-                    <AppText variant="bodyMedium">{order.orderNumber}</AppText>
-                    <AppText variant="caption" color="muted">
-                      {formatTime(new Date(order.createdAt).getTime())} ·{' '}
-                      {order.customerSnapshot?.name ?? 'Guest'}
-                    </AppText>
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'flex-end',
-                      gap: spacing.xs,
-                    }}
-                  >
-                    <AppText variant="bodyMedium">
-                      {formatCurrency(order.totals?.grandTotal?.amount ?? 0)}
-                    </AppText>
-                    <StatusBadge status={order.status} />
-                  </div>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <EmptyState title="No orders yet" hint="New orders will appear here." />
-          )}
-        </Card>
+        <RecentOrdersList
+          orders={(orders.data?.items as Order[]) ?? []}
+          isLoading={orders.isLoading}
+          onViewAll={() => navigate('/orders')}
+        />
       </div>
     </div>
   );

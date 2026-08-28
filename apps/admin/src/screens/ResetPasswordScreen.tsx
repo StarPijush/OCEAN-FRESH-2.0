@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { AppText } from '../components/AppText';
-import { BrandMark } from '../components/BrandMark';
+import { authErrorStyle, authLinkStyle } from '../components/auth-styles';
+import { AuthCard } from '../components/AuthCard';
 import { Button } from '../components/Button';
-import { Screen } from '../components/Screen';
 import { TextField } from '../components/TextField';
 import { resetPassword } from '../services/auth.service';
-import { colors, spacing } from '../theme';
+import { spacing } from '../theme';
 
 export function ResetPasswordScreen() {
   const navigate = useNavigate();
@@ -45,76 +45,56 @@ export function ResetPasswordScreen() {
     }
   };
 
-  return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: colors.bg,
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          flexDirection: 'column',
-          gap: spacing.sm,
-          paddingTop: spacing.xxl,
-          paddingBottom: spacing.xxl,
-        }}
+  if (done) {
+    return (
+      <AuthCard
+        eyebrow="Set New Password"
+        title="Password updated"
+        subtitle="Sign in with your new password."
       >
-        <BrandMark size={56} />
-        <AppText variant="title">{done ? 'Password updated' : 'Set a new password'}</AppText>
-        <AppText
-          variant="body"
-          color="mutedBright"
-          style={{ textAlign: 'center', padding: `0 ${spacing.xl}px` }}
-        >
-          {done ? 'Sign in with your new password.' : `For ${email || 'your account'}.`}
-        </AppText>
-      </div>
+        <Button label="Sign in →" fullWidth onPress={() => navigate('/login')} />
+      </AuthCard>
+    );
+  }
 
-      <Screen scroll={false}>
-        {done ? (
-          <Button label="Sign in" fullWidth onPress={() => navigate('/login')} />
-        ) : (
-          <>
-            <TextField
-              label="New password"
-              value={password}
-              onChangeText={setPassword}
-              placeholder="At least 8 characters"
-              secureTextEntry
-            />
-            <TextField
-              label="Confirm password"
-              value={confirm}
-              onChangeText={setConfirm}
-              placeholder="Repeat your password"
-              secureTextEntry
-            />
-            {error ? (
-              <AppText variant="caption" color="warn" style={{ marginBottom: spacing.lg }}>
-                {error}
-              </AppText>
-            ) : null}
-            <Button
-              label="Update password"
-              fullWidth
-              loading={submitting}
-              onPress={() => void handleReset()}
-            />
-            <Button
-              label="Back to sign in"
-              variant="ghost"
-              fullWidth
-              onPress={() => navigate('/login')}
-              style={{ marginTop: spacing.md }}
-            />
-          </>
-        )}
-      </Screen>
-    </div>
+  return (
+    <AuthCard
+      eyebrow="Set New Password"
+      title="New password"
+      subtitle={
+        email
+          ? `For ${email} — choose a strong password, minimum 8 characters.`
+          : 'Choose a strong password, minimum 8 characters.'
+      }
+    >
+      <TextField
+        label="New password"
+        value={password}
+        onChangeText={setPassword}
+        placeholder="At least 8 characters"
+        secureTextEntry
+      />
+      <TextField
+        label="Confirm password"
+        value={confirm}
+        onChangeText={setConfirm}
+        placeholder="Repeat your password"
+        secureTextEntry
+      />
+      {error ? <div style={authErrorStyle}>{error}</div> : null}
+      <Button
+        label="Update password →"
+        fullWidth
+        loading={submitting}
+        onPress={() => void handleReset()}
+      />
+      <div style={{ textAlign: 'center', marginTop: spacing.md }}>
+        <button type="button" style={authLinkStyle} onClick={() => navigate('/login')}>
+          <AppText variant="caption" color="aqua">
+            ← Back to login
+          </AppText>
+        </button>
+      </div>
+    </AuthCard>
   );
 }

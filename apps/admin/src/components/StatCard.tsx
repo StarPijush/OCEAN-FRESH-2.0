@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 import { useBreakpoint } from '../hooks/use-breakpoint';
-import { colors, radius, shadows, spacing, STAT_GUTTER, statTileWidth, typography } from '../theme';
+import { colors, radius, spacing, STAT_GUTTER, statTileWidth, typography } from '../theme';
 import { AppText } from './AppText';
 import { Icon, type IconName } from './Icon';
 
@@ -40,6 +40,7 @@ export function StatCard({ label, value, tone, icon, hint }: StatCardData) {
   return (
     <StatTile width={statTileWidth(width)}>
       <div
+        className="of-stat-card"
         style={{
           backgroundColor: colors.surface,
           borderRadius: radius.lg,
@@ -50,7 +51,8 @@ export function StatCard({ label, value, tone, icon, hint }: StatCardData) {
           flexDirection: 'column',
           overflow: 'hidden',
           position: 'relative',
-          boxShadow: `0 4px 12px rgba(0, 0, 0, ${shadows.card.shadowOpacity})`,
+          boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
+          transition: 'transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease',
         }}
       >
         <div

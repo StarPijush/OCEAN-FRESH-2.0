@@ -13,3 +13,4 @@ export {
 } from './use-auth.js';
 export type { AuthFormOptions } from './use-auth-form.js';
 export { useAuthForm } from './use-auth-form.js';
+export { withTimeout } from './withTimeout.js';

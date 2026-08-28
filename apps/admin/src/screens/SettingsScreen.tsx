@@ -6,6 +6,7 @@ import { Button } from '../components/Button';
 import { Icon, type IconName } from '../components/Icon';
 import { PageHeader } from '../components/PageHeader';
 import { TextField } from '../components/TextField';
+import { toast } from '../components/Toast';
 import { STOREFRONT_URL } from '../env';
 import { useAdminSession } from '../hooks/use-auth-session';
 import {
@@ -171,8 +172,11 @@ export function SettingsScreen() {
         freeDeliveryAbove: parseAmount(freeDeliveryAbove),
       });
       setStoreState({ kind: 'saved' });
+      toast('Store settings saved', 'success');
     } catch (err) {
-      setStoreState({ kind: 'error', message: errorToMessage(err) });
+      const msg = errorToMessage(err);
+      setStoreState({ kind: 'error', message: msg });
+      toast(msg, 'error');
     }
   };
 
@@ -182,8 +186,11 @@ export function SettingsScreen() {
     try {
       await updateProfile.mutateAsync({ fullName: fullName.trim(), mobile: mobile.trim() });
       setProfileState({ kind: 'saved' });
+      toast('Profile saved', 'success');
     } catch (err) {
-      setProfileState({ kind: 'error', message: errorToMessage(err) });
+      const msg = errorToMessage(err);
+      setProfileState({ kind: 'error', message: msg });
+      toast(msg, 'error');
     }
   };
 
@@ -202,8 +209,11 @@ export function SettingsScreen() {
       setPassword('');
       setPasswordConfirm('');
       setPasswordState({ kind: 'saved' });
+      toast('Password updated', 'success');
     } catch (err) {
-      setPasswordState({ kind: 'error', message: errorToMessage(err) });
+      const msg = errorToMessage(err);
+      setPasswordState({ kind: 'error', message: msg });
+      toast(msg, 'error');
     }
   };
 

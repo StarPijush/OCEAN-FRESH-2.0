@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { AppText } from '../components/AppText';
-import { BrandMark } from '../components/BrandMark';
+import { authErrorStyle, authLinkStyle } from '../components/auth-styles';
+import { AuthCard } from '../components/AuthCard';
 import { Button } from '../components/Button';
-import { Screen } from '../components/Screen';
 import { TextField } from '../components/TextField';
 import { sendEmailOtp } from '../services/auth.service';
-import { colors, spacing } from '../theme';
+import { spacing } from '../theme';
 
 export function ForgotPasswordScreen() {
   const navigate = useNavigate();
@@ -34,64 +34,29 @@ export function ForgotPasswordScreen() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: colors.bg,
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+    <AuthCard
+      eyebrow="Password Recovery"
+      title="Reset password"
+      subtitle="Enter your registered email to receive a one-time passcode."
     >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          flexDirection: 'column',
-          gap: spacing.sm,
-          paddingTop: spacing.xxl,
-          paddingBottom: spacing.xxl,
-        }}
-      >
-        <BrandMark size={56} />
-        <AppText variant="title">Recover password</AppText>
-        <AppText
-          variant="body"
-          color="mutedBright"
-          style={{ textAlign: 'center', padding: `0 ${spacing.xl}px` }}
-        >
-          Enter your email — we will send a one-time passcode.
-        </AppText>
-      </div>
-
-      <Screen scroll={false}>
-        <TextField
-          label="Email Address"
-          value={email}
-          onChangeText={setEmail}
-          placeholder="admin@oceanfresh.in"
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-        />
-        {error ? (
-          <AppText variant="caption" color="warn" style={{ marginBottom: spacing.lg }}>
-            {error}
+      <TextField
+        label="Email Address"
+        value={email}
+        onChangeText={setEmail}
+        placeholder="admin@oceanfresh.in"
+        autoCapitalize="none"
+        autoCorrect={false}
+        keyboardType="email-address"
+      />
+      {error ? <div style={authErrorStyle}>{error}</div> : null}
+      <Button label="Send OTP →" fullWidth loading={submitting} onPress={() => void handleSend()} />
+      <div style={{ textAlign: 'center', marginTop: spacing.md }}>
+        <button type="button" style={authLinkStyle} onClick={() => navigate('/login')}>
+          <AppText variant="caption" color="aqua">
+            ← Back to login
           </AppText>
-        ) : null}
-        <Button
-          label="Send passcode"
-          fullWidth
-          loading={submitting}
-          onPress={() => void handleSend()}
-        />
-        <Button
-          label="Back to sign in"
-          variant="ghost"
-          fullWidth
-          onPress={() => navigate(-1)}
-          style={{ marginTop: spacing.md }}
-        />
-      </Screen>
-    </div>
+        </button>
+      </div>
+    </AuthCard>
   );
 }

@@ -1,5 +1,5 @@
 import type { UserIdentity } from '@oceanfresh/shared';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { SupabaseAuthProvider } from '../providers/index.js';
 import { type AdminProfile, getAuthRepository } from '../repository/index.js';
@@ -45,6 +45,7 @@ const INITIAL_STATE: AdminSessionState = {
 export function useAdminSession(): AdminSessionState {
   const [reloadKey, setReloadKey] = useState(0);
   const [state, setState] = useState<AdminSessionState>(INITIAL_STATE);
+  const refreshInProgressRef = useRef(false);
 
   const retry = useCallback(() => {
     setReloadKey((key) => key + 1);
@@ -56,11 +57,17 @@ export function useAdminSession(): AdminSessionState {
     let mounted = true;
 
     const refresh = async (): Promise<void> => {
-      let user: UserIdentity | null;
+      if (refreshInProgressRef.current) {
+        return;
+      }
+      refreshInProgressRef.current = true;
+
       try {
-        user = await provider.getCurrentUser();
-      } catch (err) {
-        if (mounted) {
+        let user: UserIdentity | null;
+        try {
+          user = await provider.getCurrentUser();
+        } catch (err) {
+          if (!mounted) return;
           setState({
             status: 'error',
             user: null,
@@ -69,30 +76,29 @@ export function useAdminSession(): AdminSessionState {
             error: (err as Error).message ?? 'Failed to resolve the current session',
             retry,
           });
+          return;
         }
-        return;
-      }
 
-      if (!user) {
-        if (mounted) {
-          setState({
-            status: 'unauthenticated',
-            user: null,
-            adminProfile: null,
-            isAdmin: false,
-            error: null,
-            retry,
-          });
+        if (!user) {
+          if (mounted) {
+            setState({
+              status: 'unauthenticated',
+              user: null,
+              adminProfile: null,
+              isAdmin: false,
+              error: null,
+              retry,
+            });
+          }
+          return;
         }
-        return;
-      }
 
-      let adminProfile: AdminProfile | null;
-      try {
-        const repository = getAuthRepository();
-        adminProfile = await repository.getAdminProfile(user.id);
-      } catch (err) {
-        if (mounted) {
+        let adminProfile: AdminProfile | null;
+        try {
+          const repository = getAuthRepository();
+          adminProfile = await repository.getAdminProfile(user.id);
+        } catch (err) {
+          if (!mounted) return;
           setState({
             status: 'error',
             user,
@@ -101,23 +107,25 @@ export function useAdminSession(): AdminSessionState {
             error: (err as Error).message ?? 'Failed to resolve admin profile',
             retry,
           });
+          return;
         }
-        return;
-      }
 
-      const isAdmin =
-        adminProfile !== null &&
-        (adminProfile.role === 'admin' || adminProfile.role === 'super_admin');
+        const isAdmin =
+          adminProfile !== null &&
+          (adminProfile.role === 'admin' || adminProfile.role === 'super_admin');
 
-      if (mounted) {
-        setState({
-          status: 'authenticated',
-          user,
-          adminProfile,
-          isAdmin,
-          error: null,
-          retry,
-        });
+        if (mounted) {
+          setState({
+            status: 'authenticated',
+            user,
+            adminProfile,
+            isAdmin,
+            error: null,
+            retry,
+          });
+        }
+      } finally {
+        refreshInProgressRef.current = false;
       }
     };
 

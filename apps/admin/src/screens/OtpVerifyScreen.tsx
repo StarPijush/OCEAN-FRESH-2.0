@@ -2,58 +2,101 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { AppText } from '../components/AppText';
-import { BrandMark } from '../components/BrandMark';
+import { authErrorStyle, authLinkStyle } from '../components/auth-styles';
+import { AuthCard } from '../components/AuthCard';
 import { Button } from '../components/Button';
-import { LinkButton } from '../components/LinkButton';
-import { Screen } from '../components/Screen';
 import { resendEmailOtp, verifyEmailOtp } from '../services/auth.service';
 import { colors, spacing } from '../theme';
 
-function OtpInput({
+function OtpBoxes({
   value,
-  autoFocus,
-  onDigitChange,
-  onSubmit,
+  onChange,
+  onComplete,
 }: {
   value: string;
-  autoFocus?: boolean;
-  onDigitChange: (value: string) => void;
-  onSubmit: () => void;
+  onChange: (v: string) => void;
+  onComplete: () => void;
 }) {
-  const ref = useRef<HTMLInputElement>(null);
+  const refs = useRef<Array<HTMLInputElement | null>>([]);
+  const digits = value.padEnd(6, '').slice(0, 6).split('');
+
+  const setDigit = (idx: number, char: string) => {
+    const arr = value.padEnd(6, '').split('').slice(0, 6);
+    arr[idx] = char;
+    const next = arr.join('').trimEnd();
+    onChange(next);
+    return next;
+  };
+
   return (
-    <input
-      ref={ref}
-      value={value}
-      autoFocus={autoFocus}
-      onChange={(e) => {
-        const digits = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
-        onDigitChange(digits);
-        if (digits.length === 6) onSubmit();
-      }}
-      onKeyDown={(e) => {
-        if (e.key === 'Backspace' && value.length === 0) {
-          onDigitChange('');
-        }
-      }}
-      inputMode="numeric"
-      autoComplete="one-time-code"
-      aria-label="6-digit passcode"
-      placeholder="••••••"
+    <div
       style={{
-        width: '100%',
-        textAlign: 'center',
-        letterSpacing: spacing.lg * 1.4,
-        fontSize: 28,
-        fontWeight: '600',
-        padding: `${spacing.md}px ${spacing.lg}px`,
-        borderRadius: 12,
-        border: `1px solid ${colors.borderStrong}`,
-        backgroundColor: colors.surface,
-        color: colors.cream,
-        fontFamily: 'inherit',
+        display: 'flex',
+        gap: 10,
+        justifyContent: 'center',
+        margin: `8px 0 ${spacing.md}px`,
       }}
-    />
+    >
+      {Array.from({ length: 6 }).map((_, i) => (
+        <input
+          key={i}
+          ref={(el) => {
+            refs.current[i] = el;
+          }}
+          value={digits[i] ?? ''}
+          autoFocus={i === 0}
+          inputMode="numeric"
+          autoComplete={i === 0 ? 'one-time-code' : 'off'}
+          aria-label={`Digit ${i + 1}`}
+          maxLength={1}
+          onChange={(e) => {
+            const ch = e.target.value.replace(/[^0-9]/g, '').slice(-1);
+            if (!ch) {
+              setDigit(i, '');
+              return;
+            }
+            const next = setDigit(i, ch);
+            if (i < 5) refs.current[i + 1]?.focus();
+            if (next.replace(/\s/g, '').length === 6) onComplete();
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Backspace' && !digits[i] && i > 0) refs.current[i - 1]?.focus();
+          }}
+          onPaste={(e) => {
+            const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+            if (pasted) {
+              e.preventDefault();
+              onChange(pasted);
+              const idx = Math.min(pasted.length, 5);
+              refs.current[idx]?.focus();
+              if (pasted.length === 6) onComplete();
+            }
+          }}
+          style={{
+            width: 44,
+            height: 56,
+            textAlign: 'center',
+            fontSize: 22,
+            fontWeight: 700,
+            backgroundColor: colors.surfaceAlive,
+            border: `1px solid ${colors.border}`,
+            borderRadius: 8,
+            color: colors.cream,
+            outline: 'none',
+            transition: 'border-color 0.2s, transform 0.2s',
+            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.12)',
+          }}
+          onFocus={(e) => {
+            (e.target as HTMLInputElement).style.borderColor = colors.aqua;
+            (e.target as HTMLInputElement).style.transform = 'translateY(-2px)';
+          }}
+          onBlur={(e) => {
+            (e.target as HTMLInputElement).style.borderColor = colors.border;
+            (e.target as HTMLInputElement).style.transform = 'none';
+          }}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -114,68 +157,48 @@ export function OtpVerifyScreen() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: colors.bg,
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+    <AuthCard
+      eyebrow="Two-Step Verification"
+      title="Enter OTP"
+      subtitle={
+        justVerified
+          ? 'Passcode accepted — taking you to reset your password.'
+          : `A 6-digit OTP has been sent to ${email || 'your email'}. Check your inbox.`
+      }
     >
+      <OtpBoxes value={code} onChange={setCode} onComplete={() => void handleVerify()} />
+      {error ? <div style={authErrorStyle}>{error}</div> : null}
+      <Button
+        label="Verify OTP →"
+        fullWidth
+        loading={verifying}
+        onPress={() => void handleVerify()}
+      />
       <div
         style={{
           display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
           alignItems: 'center',
-          flexDirection: 'column',
-          gap: spacing.sm,
-          paddingTop: spacing.xxl,
-          paddingBottom: spacing.xxl,
+          marginTop: spacing.md,
         }}
       >
-        <BrandMark size={56} />
-        <AppText variant="title">Enter passcode</AppText>
-        <AppText
-          variant="body"
-          color="mutedBright"
-          style={{ textAlign: 'center', padding: `0 ${spacing.xl}px` }}
+        <button
+          type="button"
+          style={{ ...authLinkStyle, opacity: resending || countdown > 0 ? 0.5 : 1 }}
+          disabled={resending || countdown > 0}
+          onClick={() => void handleResend()}
         >
-          {justVerified
-            ? 'Passcode accepted — taking you to reset your password.'
-            : `We sent a 6-digit passcode to ${email || 'your email'}.`}
-        </AppText>
-      </div>
-
-      <Screen scroll={false}>
-        <OtpInput
-          value={code}
-          autoFocus
-          onDigitChange={setCode}
-          onSubmit={() => void handleVerify()}
-        />
-        {error ? (
-          <AppText variant="caption" color="warn" style={{ marginBottom: spacing.lg }}>
-            {error}
+          <AppText variant="caption" color="aqua">
+            {countdown > 0 ? `Resend in ${countdown}s` : 'Resend OTP'}
           </AppText>
-        ) : null}
-        <Button label="Verify" fullWidth loading={verifying} onPress={() => void handleVerify()} />
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: spacing.xl,
-          }}
-        >
-          <LinkButton
-            label={countdown > 0 ? `Resend in ${countdown}s` : 'Resend passcode'}
-            disabled={resending || countdown > 0}
-            loading={resending}
-            onPress={() => void handleResend()}
-          />
-          <LinkButton label="Back" onPress={() => navigate('/forgot-password')} />
-        </div>
-      </Screen>
-    </div>
+        </button>
+        <button type="button" style={authLinkStyle} onClick={() => navigate('/login')}>
+          <AppText variant="caption" color="aqua">
+            ← Back to login
+          </AppText>
+        </button>
+      </div>
+    </AuthCard>
   );
 }

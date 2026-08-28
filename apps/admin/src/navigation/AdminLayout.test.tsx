@@ -96,6 +96,6 @@ describe('AdminLayout', () => {
     fireEvent.resize(window);
     renderLayout();
     expect(screen.queryByLabelText('Open navigation menu')).not.toBeInTheDocument();
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Dashboard' })).toBeInTheDocument();
   });
 });

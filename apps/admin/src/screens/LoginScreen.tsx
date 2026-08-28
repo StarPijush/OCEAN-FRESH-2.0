@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { AppText } from '../components/AppText';
-import { BrandMark } from '../components/BrandMark';
+import { authErrorStyle, authLinkStyle } from '../components/auth-styles';
+import { AuthCard } from '../components/AuthCard';
 import { Button } from '../components/Button';
-import { LinkButton } from '../components/LinkButton';
 import { TextField } from '../components/TextField';
 import { STOREFRONT_URL } from '../env';
 import { getAuthProvider } from '../services/auth.service';
-import { colors, spacing, typography } from '../theme';
+import { spacing } from '../theme';
 
 export function LoginScreen() {
   const navigate = useNavigate();
@@ -36,39 +36,13 @@ export function LoginScreen() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: colors.bg,
-        display: 'flex',
-        flexDirection: 'column',
-      }}
+    <AuthCard
+      eyebrow="Admin Panel · Secure Login"
+      title="Welcome back"
+      subtitle="Sign in with your registered email and password."
     >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          flexDirection: 'column',
-          gap: spacing.md,
-          paddingTop: spacing.xxxl,
-          paddingBottom: spacing.xxl,
-        }}
-      >
-        <BrandMark size={72} />
-        <AppText variant="display" style={{ fontFamily: typography.display.fontFamily }}>
-          OceanFresh Admin
-        </AppText>
-        <AppText variant="body" color="mutedBright" style={{ textAlign: 'center' }}>
-          Manage your store from anywhere.
-        </AppText>
-      </div>
-
       <form
-        style={{
-          padding: `${spacing.lg}px ${spacing.xl}px`,
-          display: 'flex',
-          flexDirection: 'column',
-        }}
+        style={{ display: 'flex', flexDirection: 'column' }}
         onSubmit={(e) => {
           e.preventDefault();
           void handleLogin();
@@ -92,29 +66,42 @@ export function LoginScreen() {
           secureTextEntry
           textContentType="password"
         />
-        {error ? (
-          <AppText variant="caption" color="warn" style={{ marginBottom: spacing.lg }}>
-            {error}
-          </AppText>
-        ) : null}
-        <Button label="Sign in" fullWidth loading={submitting} onPress={handleLogin} />
+        {error ? <div style={authErrorStyle}>{error}</div> : null}
+        <Button
+          label="Sign in"
+          fullWidth
+          loading={submitting}
+          onPress={handleLogin}
+          style={{ marginTop: spacing.sm }}
+        />
         <div
           style={{
             display: 'flex',
             flexDirection: 'row',
             justifyContent: 'space-between',
-            marginTop: spacing.xl,
+            marginTop: spacing.md,
+            flexWrap: 'wrap',
+            gap: spacing.md,
           }}
         >
-          <LinkButton label="Forgot password?" onPress={() => navigate('/forgot-password')} />
-          <LinkButton
-            label="Open storefront"
-            onPress={() => {
-              if (STOREFRONT_URL) window.open(STOREFRONT_URL, '_blank', 'noopener');
-            }}
-          />
+          <button type="button" style={authLinkStyle} onClick={() => navigate('/forgot-password')}>
+            <AppText variant="caption" color="aqua">
+              Forgot password?
+            </AppText>
+          </button>
+          {STOREFRONT_URL ? (
+            <button
+              type="button"
+              style={authLinkStyle}
+              onClick={() => window.open(STOREFRONT_URL, '_blank', 'noopener')}
+            >
+              <AppText variant="caption" color="aqua">
+                View store →
+              </AppText>
+            </button>
+          ) : null}
         </div>
       </form>
-    </div>
+    </AuthCard>
   );
 }

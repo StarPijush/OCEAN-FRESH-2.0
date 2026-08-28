@@ -7,6 +7,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 import App from './app';
 import { bootstrapApp } from './bootstrap';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,7 +19,44 @@ const queryClient = new QueryClient({
   },
 });
 
-bootstrapApp();
+try {
+  bootstrapApp();
+} catch (error) {
+  console.error('[ADMIN] Bootstrap failed:', error);
+  const rootEl = document.getElementById('root');
+  if (rootEl) {
+    rootEl.innerHTML = `
+      <div style="
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: #0a1628;
+        color: #f5f0e8;
+        font-family: system-ui, sans-serif;
+        padding: 2rem;
+        text-align: center;
+      ">
+        <h1 style="margin-bottom: 1rem; color: #c8513a;">Admin Panel Failed to Initialize</h1>
+        <pre style="
+          background: #1a3a5c;
+          padding: 1rem;
+          border-radius: 8px;
+          overflow: auto;
+          max-width: 600px;
+          text-align: left;
+          white-space: pre-wrap;
+          word-break: break-word;
+        ">${error instanceof Error ? error.message : String(error)}</pre>
+        <p style="margin-top: 1rem; color: #8a8070; font-size: 0.875rem;">
+          Check browser console for details. Ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are configured.
+        </p>
+      </div>
+    `;
+  }
+  throw error;
+}
 
 const root = document.getElementById('root');
 if (!root) throw new Error('Root element not found');
@@ -27,7 +65,9 @@ ReactDOM.createRoot(root).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <App />
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>,

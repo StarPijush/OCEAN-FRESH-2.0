@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { AppText } from '../components/AppText';
@@ -81,6 +81,53 @@ function initialsOf(name: string): string {
     .join('')
     .slice(0, 2)
     .toUpperCase();
+}
+
+// Focus trap hook for mobile drawer
+function useFocusTrap(enabled: boolean) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!enabled || !containerRef.current) return;
+
+    const container = containerRef.current;
+    previousActiveElement.current = document.activeElement as HTMLElement;
+
+    // Get all focusable elements
+    const focusableElements = container.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    const firstElement = focusableElements[0];
+    const lastElement = focusableElements[focusableElements.length - 1];
+
+    // Focus first element
+    firstElement?.focus();
+
+    function handleTab(e: KeyboardEvent) {
+      if (e.key !== 'Tab') return;
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          e.preventDefault();
+          lastElement?.focus();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          e.preventDefault();
+          firstElement?.focus();
+        }
+      }
+    }
+
+    container.addEventListener('keydown', handleTab);
+    return () => {
+      container.removeEventListener('keydown', handleTab);
+      previousActiveElement.current?.focus();
+    };
+  }, [enabled]);
+
+  return containerRef;
 }
 
 function NavItem({
@@ -290,6 +337,63 @@ function SidebarContent({ onNavigate }: SidebarContentProps) {
   );
 }
 
+function DesktopHeader() {
+  const location = useLocation();
+  const titles: Record<string, string> = {
+    '/dashboard': 'Dashboard',
+    '/products': 'Products',
+    '/orders': 'Orders',
+    '/settings': 'Settings',
+  };
+  const title = titles[location.pathname] ?? 'Dashboard';
+  const [date, setDate] = useState('');
+  useEffect(() => {
+    const upd = () =>
+      setDate(
+        new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }),
+      );
+    upd();
+    const id = setInterval(upd, 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <header
+      style={{
+        height: 56,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: `0 ${spacing.lg}px`,
+        backgroundColor: 'transparent',
+        borderBottom: `1px solid ${colors.borderSubtle}`,
+        flexShrink: 0,
+        gap: spacing.md,
+      }}
+    >
+      <AppText variant="title" style={{ fontSize: 18, letterSpacing: 0.4 }}>
+        {title}
+      </AppText>
+      <div style={{ display: 'flex', alignItems: 'center', gap: spacing.md }}>
+        <AppText variant="caption" color="muted">
+          {date}
+        </AppText>
+        <span
+          aria-label="Live"
+          title="Live"
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: 999,
+            backgroundColor: colors.green,
+            display: 'inline-block',
+            animation: 'of-pulse-dot 2s infinite',
+          }}
+        />
+      </div>
+    </header>
+  );
+}
+
 /** Lightweight mobile header: hamburger · brand · status. */
 function MobileHeader({
   onToggle,
@@ -300,6 +404,23 @@ function MobileHeader({
   pendingCount: number;
   drawerOpen: boolean;
 }) {
+  const [currentDate, setCurrentDate] = useState('');
+
+  useEffect(() => {
+    const updateDate = () => {
+      setCurrentDate(
+        new Date().toLocaleDateString('en-IN', {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'short',
+        }),
+      );
+    };
+    updateDate();
+    const interval = setInterval(updateDate, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <header
       style={{
@@ -310,13 +431,13 @@ function MobileHeader({
         height: 56,
         padding: `0 ${spacing.md}px`,
         backgroundColor: colors.bg,
-        borderBottom: `1px solid ${colors.border}`,
+        borderBottom: `1px solid ${colors.borderSubtle}`,
       }}
     >
       <button
         type="button"
         onClick={onToggle}
-        aria-label="Open navigation menu"
+        aria-label={drawerOpen ? 'Close navigation menu' : 'Open navigation menu'}
         aria-expanded={drawerOpen}
         style={{
           width: 44,
@@ -330,7 +451,7 @@ function MobileHeader({
           color: colors.cream,
         }}
       >
-        <Icon name="menu" size={26} color={colors.cream} />
+        <Icon name={drawerOpen ? 'close' : 'menu'} size={26} color={colors.cream} />
       </button>
       <AppText
         variant="title"
@@ -344,35 +465,65 @@ function MobileHeader({
           Fresh
         </AppText>
       </AppText>
-      {pendingCount > 0 ? (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: spacing.sm,
+          minWidth: 80,
+          justifyContent: 'flex-end',
+        }}
+      >
+        {pendingCount > 0 ? (
+          <div
+            role="status"
+            aria-label={`${pendingCount} orders pending`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              minWidth: 44,
+              justifyContent: 'flex-end',
+            }}
+          >
+            <Icon name="alert-circle" size={16} color={colors.gold} />
+            <AppText variant="caption" color="gold" style={{ fontWeight: '700' }}>
+              {pendingCount}
+            </AppText>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              minWidth: 44,
+              justifyContent: 'flex-end',
+            }}
+          >
+            <Icon name="checkmark-circle" size={16} color={colors.green} />
+          </div>
+        )}
         <div
-          role="status"
-          aria-label={`${pendingCount} orders pending`}
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 4,
-            minWidth: 44,
-            justifyContent: 'flex-end',
+            gap: spacing.sm,
+            backgroundColor: colors.surface,
+            border: `1px solid ${colors.borderStrong}`,
+            borderRadius: radius.full,
+            paddingLeft: spacing.md,
+            paddingRight: spacing.md,
+            paddingTop: spacing.sm,
+            paddingBottom: spacing.sm,
+            marginLeft: spacing.sm,
           }}
         >
-          <Icon name="alert-circle" size={16} color={colors.gold} />
-          <AppText variant="caption" color="gold" style={{ fontWeight: '700' }}>
-            {pendingCount}
+          <Icon name="calendar-outline" size={14} color={colors.mutedBright} />
+          <AppText variant="caption" color="mutedBright">
+            {currentDate}
           </AppText>
         </div>
-      ) : (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            minWidth: 44,
-            justifyContent: 'flex-end',
-          }}
-        >
-          <Icon name="checkmark-circle" size={16} color={colors.green} />
-        </div>
-      )}
+      </div>
     </header>
   );
 }
@@ -380,13 +531,19 @@ function MobileHeader({
 /**
  * Admin shell: permanent sidebar on desktop, overlay drawer on mobile.
  * The drawer is closed by default on mobile; it closes on navigation,
- * Escape and outside click, and locks background scrolling while open.
+ * Escape and outside click, swipe-to-close, and locks background scrolling while open.
  */
 export function AdminLayout() {
   const navigate = useNavigate();
   const { isDesktop } = useBreakpoint();
   const { data: pendingCount = 0 } = usePendingOrderCount();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const touchStartX = useRef<number>(0);
+  const touchCurrentX = useRef<number>(0);
+  const isDragging = useRef(false);
+
+  const drawerContainerRef = useFocusTrap(drawerOpen);
 
   // Close the drawer with Escape (mobile only).
   useEffect(() => {
@@ -408,6 +565,38 @@ export function AdminLayout() {
     };
   }, [isDesktop, drawerOpen]);
 
+  // Swipe-to-close gesture
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (isDesktop || !drawerOpen) return;
+    touchStartX.current = e.touches[0].clientX;
+    touchCurrentX.current = e.touches[0].clientX;
+    isDragging.current = true;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (isDesktop || !drawerOpen || !isDragging.current) return;
+    touchCurrentX.current = e.touches[0].clientX;
+    const deltaX = touchCurrentX.current - touchStartX.current;
+    if (deltaX < 0 && drawerRef.current) {
+      // Only allow swiping right-to-left (closing)
+      drawerRef.current.style.transform = `translateX(${deltaX}px)`;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (isDesktop || !drawerOpen || !isDragging.current) return;
+    isDragging.current = false;
+    const deltaX = touchCurrentX.current - touchStartX.current;
+    const threshold = 100; // Minimum swipe distance to close
+
+    if (deltaX < -threshold) {
+      setDrawerOpen(false);
+    } else if (drawerRef.current) {
+      // Snap back
+      drawerRef.current.style.transform = '';
+    }
+  };
+
   const handleNav = (id: NavId) => {
     if (id === '__store') {
       if (STOREFRONT_URL) window.open(STOREFRONT_URL, '_blank', 'noopener');
@@ -427,13 +616,15 @@ export function AdminLayout() {
       ) : null}
 
       <div className="of-main">
-        {!isDesktop ? (
+        {isDesktop ? (
+          <DesktopHeader />
+        ) : (
           <MobileHeader
             onToggle={() => setDrawerOpen((open) => !open)}
             pendingCount={pendingCount}
             drawerOpen={drawerOpen}
           />
-        ) : null}
+        )}
         <main className="of-content">
           <Outlet />
         </main>
@@ -446,7 +637,33 @@ export function AdminLayout() {
             aria-hidden="true"
             onClick={() => setDrawerOpen(false)}
           />
-          <div className={`of-drawer${drawerOpen ? ' open' : ''}`} aria-hidden={!drawerOpen}>
+          <div
+            ref={(el) => {
+              drawerRef.current = el;
+              if (drawerContainerRef.current) drawerContainerRef.current = el;
+            }}
+            className={`of-drawer${drawerOpen ? ' open' : ''}`}
+            aria-hidden={!drawerOpen}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            style={{
+              // Smooth transition when not dragging
+              transition: isDragging.current ? 'none' : 'transform var(--of-motion) ease',
+            }}
+          >
+            {/* Drag handle for bottom-sheet feel */}
+            <div
+              className="of-drawer-handle"
+              style={{
+                width: 40,
+                height: 4,
+                borderRadius: 2,
+                backgroundColor: colors.borderStrong,
+                margin: `${spacing.md}px auto ${spacing.sm}px`,
+                cursor: 'grab',
+              }}
+            />
             <SidebarContent onNavigate={handleNav} />
           </div>
         </>

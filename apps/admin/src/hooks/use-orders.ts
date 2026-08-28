@@ -2,7 +2,9 @@ import { getOrderRepository } from '@oceanfresh/order/repository';
 import type { Order, OrderQuery, OrderStatus, PaginatedResult } from '@oceanfresh/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { toast } from '../components/Toast';
 import { PENDING_STATUSES } from '../services/dashboard-stats';
+import { errorToMessage } from '../utils/error';
 
 export const ORDERS_KEY = ['orders'] as const;
 export const PENDING_ORDERS_KEY = ['orders', 'pending-count'] as const;
@@ -32,9 +34,13 @@ export function useUpdateOrderStatus() {
       changedBy: string;
       note?: string;
     }) => getOrderRepository().updateStatus(input.id, input.status, input.changedBy, input.note),
-    onSuccess: () => {
+    onSuccess: (_data, vars) => {
       queryClient.invalidateQueries({ queryKey: ORDERS_KEY });
       queryClient.invalidateQueries({ queryKey: PENDING_ORDERS_KEY });
+      toast(`Order → ${vars.status}`, 'success');
+    },
+    onError: (err) => {
+      toast(errorToMessage(err), 'error');
     },
   });
 }

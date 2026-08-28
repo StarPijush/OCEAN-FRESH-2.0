@@ -1,6 +1,6 @@
 import type { CSSProperties, HTMLAttributes } from 'react';
 
-import { colors, radius, shadows } from '../theme';
+import { colors, radius } from '../theme';
 
 export function Card({
   style,
@@ -9,6 +9,7 @@ export function Card({
   return (
     <div
       {...rest}
+      className={`of-card ${rest.className ?? ''}`.trim()}
       style={{
         backgroundColor: colors.surface,
         borderRadius: radius.lg,
@@ -16,7 +17,7 @@ export function Card({
         borderStyle: 'solid',
         borderColor: colors.border,
         padding: 16,
-        boxShadow: `0 4px 12px rgba(0, 0, 0, ${shadows.card.shadowOpacity})`,
+        boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
         ...style,
       }}
     />

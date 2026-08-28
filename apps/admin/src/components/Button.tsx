@@ -28,7 +28,7 @@ export function Button({
 }: ButtonProps) {
   const isPrimary = variant === 'primary';
   const isLink = variant === 'link';
-  const tone = isLink ? 'aqua' : isPrimary ? 'white' : 'aqua';
+  const tone = isLink ? 'aqua' : isPrimary ? 'ink' : variant === 'danger' ? 'white' : 'aqua';
 
   return (
     <button
@@ -48,26 +48,32 @@ export function Button({
         backgroundColor: isPrimary
           ? colors.aqua
           : variant === 'secondary'
-            ? colors.aquaDim
+            ? colors.surface2
             : variant === 'ghost'
-              ? colors.surface
+              ? 'transparent'
               : variant === 'danger'
-                ? colors.warnDim
+                ? colors.warn
                 : 'transparent',
         border:
           variant === 'link'
             ? 'none'
             : variant === 'primary'
               ? 'none'
-              : `1px solid ${colors.borderStrong}`,
+              : variant === 'danger'
+                ? 'none'
+                : `1px solid ${colors.border}`,
+        boxShadow: isPrimary ? '0 0 20px rgba(33,200,200,0.10)' : undefined,
         gap: spacing.sm,
         ...style,
       }}
     >
       {loading ? (
         <>
-          <Spinner size={16} color={isPrimary ? colors.white : colors.aqua} />
-          <AppText variant="label" color={isPrimary ? 'white' : 'aqua'}>
+          <Spinner
+            size={16}
+            color={isPrimary ? colors.ink : variant === 'danger' ? colors.white : colors.aqua}
+          />
+          <AppText variant="label" color={tone}>
             {label}
           </AppText>
         </>

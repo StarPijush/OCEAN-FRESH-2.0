@@ -102,6 +102,7 @@ export function TextField({
       <input
         {...rest}
         id={inputId}
+        className="of-input"
         type={secureTextEntry ? 'password' : 'text'}
         inputMode={inputModeFor(keyboardType)}
         autoCapitalize={autoCapitalize}
@@ -113,7 +114,7 @@ export function TextField({
           backgroundColor: colors.surface,
           borderWidth: 1,
           borderStyle: 'solid',
-          borderColor: error ? colors.warn : colors.borderStrong,
+          borderColor: error ? colors.warn : colors.border,
           borderRadius: 12,
           padding: `${spacing.md}px ${spacing.lg}px`,
           color: colors.cream,
