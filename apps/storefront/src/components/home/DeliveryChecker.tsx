@@ -30,7 +30,7 @@ export function DeliveryChecker() {
       <p
         style={{
           fontSize: '0.8rem',
-          color: 'rgba(245,240,232,0.5)',
+          color: 'var(--color-text-secondary)',
           lineHeight: 1.7,
           marginBottom: '24px',
         }}

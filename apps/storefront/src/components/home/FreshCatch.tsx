@@ -42,7 +42,7 @@ export function FreshCatch() {
         ))}
       </div>
       <div style={{ marginTop: '24px' }} className="reveal">
-        <button className="btn btn-outline-dark" onClick={() => navigate('/products')}>
+        <button className="btn btn-outline-navy" onClick={() => navigate('/products')}>
           Order Now
         </button>
       </div>

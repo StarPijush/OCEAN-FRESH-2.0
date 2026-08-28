@@ -18,14 +18,14 @@ const promises = [
 
 export function AboutSection() {
   return (
-    <section className="section" style={{ background: '#f7f9fb', padding: '60px 24px' }}>
+    <section className="section" style={{ background: 'var(--color-ivory)', padding: '60px 24px' }}>
       <div className="section-eyebrow reveal">About OceanFresh</div>
       <h2 className="section-title-lg reveal">Trusted by families in Jhargram</h2>
       <p
         style={{
           maxWidth: '680px',
           margin: '12px auto 24px',
-          color: 'var(--muted)',
+          color: 'var(--color-text-light-secondary)',
           lineHeight: 1.7,
         }}
         className="reveal"

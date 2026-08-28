@@ -1,17 +1,18 @@
 :root {
-  --ink: #0d0d0d;
-  --cream: #f5f0e8;
-  --sand: #e8e0d0;
-  --deep: #0a1628;
-  --ocean: #1a3a5c;
-  --aqua: #4ab8c1;
-  --muted: #8a8070;
-  --white: #ffffff;
-  --warn: #c8513a;
+  /* Legacy aliases mapped to new premium token system */
+  --ink: var(--color-text-light-primary);
+  --cream: var(--color-text-primary);
+  --sand: var(--color-text-secondary);
+  --deep: var(--color-navy-deep);
+  --ocean: var(--color-navy-surface);
+  --aqua: var(--color-teal);
+  --muted: var(--color-text-muted);
+  --white: var(--color-ivory-card);
+  --warn: var(--color-warning);
 
   --font-display: 'Cormorant Garamond', Georgia, serif;
   --font-body: 'Instrument Sans', sans-serif;
 
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: var(--ease-out);
   --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
 }

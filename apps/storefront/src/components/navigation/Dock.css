@@ -1,12 +1,12 @@
-/* OceanFresh Dock — React Bits interaction foundation, OceanFresh visual system */
+/* OceanFresh Dock — Premium mobile navigation system */
 
 .dock-outer {
   position: fixed;
-  bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100% - 24px);
-  max-width: 440px;
+  width: calc(100% - 32px);
+  max-width: 420px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -15,29 +15,18 @@
 }
 
 .dock-panel {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
   width: 100%;
-  gap: 2px;
-  border-radius: 12px;
-  background: rgba(10, 22, 40, 0.92);
-  backdrop-filter: blur(20px) saturate(1.5);
-  -webkit-backdrop-filter: blur(20px) saturate(1.5);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px rgba(6, 14, 26, 0.28);
-  padding: 4px 6px;
+  height: 66px;
+  gap: 6px;
+  border-radius: 16px;
+  background: var(--color-navy-deep); /* #071526 */
+  border: 1px solid rgba(216, 199, 166, 0.18); /* Champagne 18% */
+  box-shadow: var(--shadow-lg);
+  padding: 6px;
   pointer-events: auto;
-  transition:
-    background 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)),
-    border-color 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)),
-    box-shadow 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
-}
-
-.dock-panel.light {
-  background: rgba(245, 240, 232, 0.96);
-  border-color: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 6px 24px rgba(10, 22, 40, 0.12);
 }
 
 /* Each dock item — centered vertical unit, equal columns */
@@ -49,22 +38,21 @@
   justify-content: center;
   gap: 4px;
   height: 100%;
-  border-radius: 10px;
+  border-radius: 12px;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
   outline: none;
-  flex: 1;
   min-width: 0;
-  max-width: none;
-  color: rgba(245, 240, 232, 0.58);
+  color: #8d9db3; /* Inactive icons/labels — exact spec */
   transition:
     color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-    background 0.22s ease;
+    background 0.22s ease,
+    border-color 0.22s ease;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
-  padding: 2px 1px;
-  min-height: 46px;
+  padding: 4px 0;
+  min-height: 44px;
 }
 
 .dock-icon-wrap {
@@ -83,8 +71,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   color: inherit;
   transition:
     background 0.18s ease,
@@ -96,7 +84,6 @@
   content: none;
 }
 
-/* We inject label via DOM sibling after icon — style here */
 .dock-item .dock-icon + div {
   /* placeholder for tooltip label - hidden on mobile, static label handled via BottomNav extra */
 }
@@ -105,90 +92,74 @@
   flex-shrink: 0;
 }
 
-/* Static label — compact */
+/* Static label — always visible, never truncated */
 .dock-item .dock-static-label {
   font-family: var(--font-body, 'Instrument Sans', sans-serif);
-  font-size: 0.48rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   line-height: 1;
   color: inherit;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   max-width: 100%;
 }
 
-/* Active state — cream on dark, ink on light */
+/* Active state — exact spec */
 .dock-item.active {
-  color: var(--cream, #f5f0e8);
-}
-
-.dock-panel.light .dock-item.active {
-  color: var(--ink, #0d0d0d);
+  color: var(--color-teal); /* #27C3C8 */
+  background: #0d2a3a; /* Exact spec */
+  border-color: rgba(39, 195, 200, 0.3); /* Teal 30% */
 }
 
 .dock-item.active .dock-icon {
   color: inherit;
 }
 
-/* Inactive colors adapt to theme */
-.dock-panel.light .dock-item {
-  color: rgba(13, 13, 13, 0.58);
-}
-
-.dock-panel.light .dock-item:hover {
-  color: var(--ink, #0d0d0d);
-}
-
-.dock-panel.light .dock-item:hover .dock-icon-wrap {
-  background: rgba(0, 0, 0, 0.05);
-}
-
-/* Dark hover */
+/* Hover — subtle */
 .dock-item:hover {
-  color: rgba(245, 240, 232, 0.92);
+  color: var(--color-text-secondary); /* #AEB9C8 */
 }
 
 .dock-item:hover .dock-icon-wrap {
-  background: rgba(245, 240, 232, 0.06);
+  background: var(--grid-dark);
 }
 
 .dock-item:focus-visible {
-  outline: 2px solid var(--aqua, #4ab8c1);
+  outline: 2px solid var(--color-teal);
   outline-offset: 2px;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 .dock-item:active {
-  transform: scale(0.97);
+  transform: none;
 }
 
-/* Badge — compact */
+/* Badge — exact spec */
 .dock-badge {
   position: absolute;
-  top: -3px;
-  right: -3px;
-  min-width: 14px;
-  height: 14px;
-  padding: 0 3px;
+  top: -4px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
   border-radius: 999px;
-  background: var(--aqua, #4ab8c1);
-  color: var(--deep, #0a1628);
+  background: var(--color-teal); /* #27C3C8 */
+  color: var(--color-navy-deep); /* #071526 */
   font-family: var(--font-body, 'Instrument Sans', sans-serif);
-  font-size: 0.5rem;
-  font-weight: 700;
+  font-size: 0.62rem;
+  font-weight: 800;
   line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-sm);
   pointer-events: none;
   z-index: 1;
+  border: 1px solid var(--color-navy-deep);
 }
 
-/* Tooltip label from React Bits — keep for desktop hover, hide on mobile (static label is primary) */
+/* Tooltip label — desktop hover only */
 .dock-label {
   position: absolute;
   top: -1.5rem;
@@ -196,18 +167,18 @@
   width: fit-content;
   white-space: pre;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(10, 22, 40, 0.96);
+  border: 1px solid rgba(216, 199, 166, 0.2);
+  background: rgba(7, 21, 38, 0.96);
   backdrop-filter: blur(12px);
   padding: 3px 8px;
   font-family: var(--font-body, 'Instrument Sans', sans-serif);
   font-size: 0.68rem;
   font-weight: 500;
   letter-spacing: 0.04em;
-  color: var(--cream, #f5f0e8);
+  color: var(--color-text-primary); /* #F2EEE6 */
   transform: translateX(-50%);
   pointer-events: none;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-md);
 }
 
 @media (max-width: 768px) {
@@ -216,12 +187,7 @@
   }
 }
 
-/* Ensure dock-panel items get even 25% width */
-.dock-panel .dock-item {
-  flex: 1 1 25%;
-}
-
-/* Small phones 320 */
+/* Small phones 320 — keep PRODUCTS fully visible */
 @media (max-width: 360px) {
   .dock-outer {
     width: calc(100% - 16px);
@@ -230,16 +196,18 @@
   }
   .dock-panel {
     border-radius: 12px;
-    padding: 3px 4px;
-    gap: 1px;
+    padding: 4px;
+    gap: 2px;
+    height: 64px;
   }
   .dock-item .dock-static-label {
-    font-size: 0.44rem;
-    letter-spacing: 0.06em;
+    font-size: 10px;
+    letter-spacing: 0.04em;
   }
-  .dock-icon {
-    width: 18px;
-    height: 18px;
+  .dock-icon,
+  .dock-icon-wrap {
+    width: 20px;
+    height: 20px;
   }
   .dock-badge {
     min-width: 12px;
@@ -277,8 +245,52 @@
   }
 }
 
-/* Page already has .page {padding-bottom:72px} legacy — sufficient for 64px dock + 12 gap.
-   No global increase until verified hidden content in manual QA. */
+/* Page offset to keep content above floating dock */
+.page {
+  padding-bottom: 96px;
+}
+@media (max-width: 768px) {
+  .page {
+    padding-bottom: 100px;
+  }
+}
+
+/* Light theme for dock panel */
+.dock-panel.light {
+  background: #f5f2ea;
+  border-color: rgba(7, 21, 38, 0.1);
+  box-shadow: 0 8px 30px rgba(7, 21, 38, 0.06);
+}
+
+.dock-panel.light .dock-item {
+  color: #6f8198;
+}
+
+.dock-panel.light .dock-item:hover {
+  color: #071526;
+}
+
+.dock-panel.light .dock-item:hover .dock-icon-wrap {
+  background: rgba(7, 21, 38, 0.05);
+}
+
+.dock-panel.light .dock-item.active {
+  color: #159ea5;
+  background: rgba(21, 158, 165, 0.08);
+  border-color: rgba(21, 158, 165, 0.3);
+}
+
+.dock-panel.light .dock-badge {
+  background: var(--color-teal);
+  color: var(--color-navy-deep);
+  border-color: var(--color-navy-deep);
+}
+
+.dock-panel.light .dock-label {
+  border-color: rgba(7, 21, 38, 0.1);
+  background: rgba(245, 242, 234, 0.96);
+  color: #071526;
+}
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {

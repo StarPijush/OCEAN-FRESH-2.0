@@ -2,7 +2,7 @@ import './CardNav.css';
 
 import { gsap } from 'gsap';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { useCartStore } from '../../services/cart.service.js';
 import { CartIcon, ChevronRightIcon } from '../ui/Icons.js';
@@ -29,6 +29,9 @@ interface CardNavProps {
 
 export function CardNav({ items, className = '', ease = 'power3.out' }: CardNavProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isLightPage =
+    location.pathname.startsWith('/products') || location.pathname.startsWith('/order');
   const count = useCartStore((s) => Object.values(s.items).reduce((a, b) => a + b, 0));
 
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
@@ -229,7 +232,7 @@ export function CardNav({ items, className = '', ease = 'power3.out' }: CardNavP
       <nav
         ref={navRef}
         id="card-nav"
-        className={`card-nav ${isExpanded ? 'open' : ''}`}
+        className={`card-nav ${isLightPage ? 'light' : ''} ${isExpanded ? 'open' : ''}`}
         aria-label="Primary navigation"
       >
         <div className="card-nav-top">
@@ -276,7 +279,7 @@ export function CardNav({ items, className = '', ease = 'power3.out' }: CardNavP
               count > 0 ? `Cart, ${count} items — View order` : 'Cart, empty — View order'
             }
           >
-            <CartIcon size={21} aria-hidden="true" />
+            <CartIcon size={28} aria-hidden="true" />
             <span className={`nav-cart-count ${count > 0 ? 'show' : ''}`} aria-hidden="true">
               {count}
             </span>

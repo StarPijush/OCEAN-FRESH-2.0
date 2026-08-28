@@ -64,7 +64,7 @@ export function FeaturedCards() {
                     </button>
                   </div>
                   <button
-                    className="btn btn-aqua btn-sm"
+                    className="btn btn-teal btn-sm"
                     onClick={() => {
                       addItem(p.id);
                       showToast('Added to order');

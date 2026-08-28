@@ -17,7 +17,7 @@ export function CTASection() {
       <p
         style={{
           fontSize: '0.8rem',
-          color: 'var(--muted)',
+          color: 'var(--color-text-secondary)',
           maxWidth: '260px',
           margin: '0 auto 32px',
           lineHeight: 1.7,
@@ -27,14 +27,12 @@ export function CTASection() {
         Place your order in under a minute via WhatsApp.
       </p>
       <button
-        className="btn btn-dark btn-wa-cta reveal"
+        className="btn btn-navy btn-wa-cta reveal"
         onClick={() => navigate('/order')}
         style={{
           fontSize: '0.72rem',
           padding: '14px 36px',
           borderRadius: '2px',
-          background: 'var(--deep)',
-          color: 'var(--cream)',
         }}
       >
         Start Order &rarr;

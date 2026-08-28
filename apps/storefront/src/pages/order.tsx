@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { OrderSuccessModal } from '../components/order/OrderSuccessModal.js';
 import { showToast } from '../components/ui/toastController.js';
 import { useSettings } from '../context/settings-context.js';
 import {
@@ -25,6 +26,9 @@ export function OrderPage() {
   const [address, setAddress] = useState('');
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locStatus, setLocStatus] = useState('');
+  const [orderSuccess, setOrderSuccess] = useState<{ orderNumber: string; total: number } | null>(
+    null,
+  );
 
   useEffect(() => {
     productService.getAll().then(setProducts);
@@ -88,24 +92,28 @@ export function OrderPage() {
     );
 
     try {
-      await persistOrder({ name, phone, address }, entries, orderPricing, location);
+      const result = await persistOrder({ name, phone, address }, entries, orderPricing, location);
+      const msg = orderService.buildWhatsAppMessage(
+        { name, phone, address },
+        entries,
+        orderPricing,
+        location ?? undefined,
+      );
+      orderService.sendViaWhatsApp(msg, settings.orderWhatsApp);
+
+      setOrderSuccess({ orderNumber: result.orderNumber, total: result.total });
+      return;
     } catch (err) {
       console.error('Order could not be saved to the database.', err);
       showToast('Order failed to save. Please try again.');
       return;
     }
+  }
 
-    const msg = orderService.buildWhatsAppMessage(
-      { name, phone, address },
-      entries,
-      orderPricing,
-      location ?? undefined,
-    );
-    orderService.sendViaWhatsApp(msg, settings.orderWhatsApp);
-
+  function handleOrderSuccessClose() {
     clear();
     navigate('/');
-    showToast('Order sent!');
+    setOrderSuccess(null);
   }
 
   return (
@@ -257,6 +265,14 @@ export function OrderPage() {
           </>
         )}
       </div>
+
+      {orderSuccess && (
+        <OrderSuccessModal
+          orderNumber={orderSuccess.orderNumber}
+          total={orderSuccess.total}
+          onClose={handleOrderSuccessClose}
+        />
+      )}
     </div>
   );
 }

@@ -47,7 +47,7 @@ export async function persistOrder(
   entries: OrderCartEntry[],
   pricing: OrderPricing,
   location: LocationData | null,
-): Promise<void> {
+): Promise<{ orderNumber: string; total: number }> {
   const now = new Date();
 
   const items: OrderItem[] = entries.map(({ product, quantity }) => ({
@@ -69,9 +69,11 @@ export async function persistOrder(
     subtotal: money(product.price * quantity),
   }));
 
+  const orderNumber = `OF-${now.getFullYear()}-${String(Date.now()).slice(-6)}`;
+
   const order: Order = {
     id: generateId(),
-    orderNumber: `OF-${now.getFullYear()}-${String(Date.now()).slice(-6)}`,
+    orderNumber,
     idempotencyKey: `cod-${generateId()}`,
     source: OrderSource.CHECKOUT,
     status: OrderStatus.VALIDATING,
@@ -130,6 +132,7 @@ export async function persistOrder(
   };
 
   await getOrderRepository().create(order);
+  return { orderNumber, total: pricing.total };
 }
 
 export const orderService = {

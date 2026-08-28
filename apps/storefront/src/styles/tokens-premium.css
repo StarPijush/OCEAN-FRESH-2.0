@@ -1,0 +1,148 @@
+/* OceanFresh Premium — $10M editorial commerce palette
+   Deep Navy foundation + Champagne Pearl luxury + Controlled Ocean Teal + Warm Ivory */
+
+:root {
+  /* === DEEP NAVY FOUNDATION === */
+  --color-navy-deep: #071526; /* Primary: hero, header, dock, major sections */
+  --color-navy-surface: #0d2035; /* Cards, elevated surfaces, nav containers */
+  --color-navy-deepest: #04101d; /* Footer, contrast sections (sparingly) */
+
+  /* === CHAMPAGNE PEARL (Luxury Secondary - 10%) === */
+  --color-champagne: #d8c7a6; /* Editorial headings, premium labels, accents */
+  --color-champagne-muted: #9b8357; /* Decorative text on light sections */
+
+  /* === OCEAN TEAL (Brand Accent - 5%) === */
+  --color-teal: #27c3c8; /* Active nav, badges, CTAs, links, cart badge */
+  --color-teal-hover: #1faaae;
+  --color-teal-dim: rgba(39, 195, 200, 0.1);
+  --color-teal-glow: rgba(39, 195, 200, 0.15);
+  --color-teal-border: rgba(39, 195, 200, 0.3);
+
+  /* === WARM IVORY SURFACES (Light Sections - 25%) === */
+  --color-ivory: #f3f0e9; /* Primary warm page background */
+  --color-ivory-card: #f8f6f1; /* Card surfaces on light sections */
+  --color-ivory-border: rgba(7, 21, 38, 0.1); /* Subtle card borders */
+
+  /* === DARK SECTION TEXT HIERARCHY === */
+  --color-text-primary: #f2eee6; /* Primary text on navy */
+  --color-text-heading: #d8c7a6; /* Editorial headings (champagne) */
+  --color-text-secondary: #aeb9c8; /* Descriptions, metadata, inactive nav */
+  --color-text-muted: #8291a5; /* Low priority, disabled states */
+
+  /* === LIGHT SECTION TEXT HIERARCHY === */
+  --color-text-light-primary: #071526; /* Deep navy */
+  --color-text-light-secondary: #52657d; /* Slate blue */
+  --color-text-light-accent: #159ea5; /* Teal accent on light */
+  --color-text-light-premium: #9b8357; /* Champagne decorative */
+
+  /* === BACKGROUND GRID (Subtle - Discovered, not noticed) === */
+  --grid-dark: rgba(39, 195, 200, 0.055); /* On navy sections */
+  --grid-light: rgba(7, 21, 38, 0.035); /* On ivory sections */
+
+  /* === SEMANTIC STATUS (Preserve Accessibility) === */
+  --color-success: #22c55e;
+  --color-success-dim: rgba(34, 197, 94, 0.1);
+  --color-warning: #f5a524;
+  --color-warning-dim: rgba(245, 165, 36, 0.1);
+  --color-danger: #ef4444;
+  --color-danger-dim: rgba(239, 68, 68, 0.1);
+  --color-info: #38bdf8;
+  --color-info-dim: rgba(56, 189, 248, 0.1);
+
+  /* === SHADOWS (Restrained) === */
+  --shadow-sm: 0 2px 8px rgba(7, 21, 38, 0.12);
+  --shadow-md: 0 8px 24px rgba(7, 21, 38, 0.15);
+  --shadow-lg: 0 18px 50px rgba(7, 21, 38, 0.2);
+  --shadow-teal: 0 0 20px rgba(39, 195, 200, 0.1);
+
+  /* === MOTION === */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+}
+
+/* === PAGE ACCENTS (via data-theme on <html>) === */
+/* Default (home): teal. Other pages keep semantic accents. */
+:root {
+  --page-accent: var(--color-teal);
+  --page-accent-soft: var(--color-teal-dim);
+  --page-accent-border: var(--color-teal-border);
+  --page-accent-glow: var(--color-teal-glow);
+}
+html[data-theme='products'] {
+  --page-accent: #38bdf8;
+  --page-accent-soft: rgba(56, 189, 248, 0.1);
+  --page-accent-border: rgba(56, 189, 248, 0.25);
+  --page-accent-glow: rgba(56, 189, 248, 0.12);
+}
+html[data-theme='orders'] {
+  --page-accent: #22c55e;
+  --page-accent-soft: rgba(34, 197, 94, 0.1);
+  --page-accent-border: rgba(34, 197, 94, 0.25);
+  --page-accent-glow: rgba(34, 197, 94, 0.12);
+}
+html[data-theme='contact'] {
+  --page-accent: #38bdf8;
+  --page-accent-soft: rgba(56, 189, 248, 0.1);
+  --page-accent-border: rgba(56, 189, 248, 0.25);
+  --page-accent-glow: rgba(56, 189, 248, 0.12);
+}
+
+/* === SUBTLE EDITORIAL GRID (Background texture) === */
+/* Applied via utility classes on section wrappers, not body::before */
+.grid-pattern-dark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-dark) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-dark) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+.grid-pattern-light::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-light) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-light) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Legacy aliases for any remaining legacy CSS */
+:root {
+  --deep: var(--color-navy-deep);
+  --surface-1: var(--color-navy-surface);
+  --surface-2: var(--color-navy-surface);
+  --surface-3: var(--color-navy-surface);
+  --sidebar: var(--color-navy-deep);
+  --cream: var(--color-text-primary);
+  --sand: var(--color-text-secondary);
+  --muted: var(--color-text-muted);
+  --disabled: var(--color-text-muted);
+  --ink: var(--color-text-light-primary);
+  --aqua: var(--color-teal);
+  --brand: var(--color-teal);
+  --ocean: var(--color-teal);
+  --warn: var(--color-warning);
+  --border: var(--color-ivory-border);
+  --border-subtle: var(--grid-dark);
+  --border-strong: var(--grid-dark);
+  --border-hover: var(--color-teal-border);
+  --border-active: var(--color-teal-border);
+  --aqua-hover: var(--color-teal-hover);
+  --brand-hover: var(--color-teal-hover);
+  --aqua-dim: var(--color-teal-dim);
+  --brand-dim: var(--color-teal-dim);
+  --aqua-glow: var(--color-teal-glow);
+  --brand-glow: var(--color-teal-glow);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-teal: var(--shadow-teal);
+  --ease-out: var(--ease-out);
+}

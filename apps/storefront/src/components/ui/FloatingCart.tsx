@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 
 import { useCartStore } from '../../services/cart.service.js';
+import { CartIcon } from '../ui/Icons.js';
 
 export function FloatingCart() {
   const navigate = useNavigate();
@@ -8,9 +9,8 @@ export function FloatingCart() {
 
   return (
     <div id="floating-cart" className={count > 0 ? 'show' : ''} onClick={() => navigate('/order')}>
-      <span>{'\u{1F6D2}'}</span>
+      <CartIcon size={20} aria-hidden="true" />
       <span id="floating-cart-count">{count}</span>
-      <span style={{ letterSpacing: '0.06em' }}>View Order</span>
     </div>
   );
 }

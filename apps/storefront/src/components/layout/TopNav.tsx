@@ -1,6 +1,8 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { useCartStore } from '../../services/cart.service.js';
+import { CartIcon } from '../ui/Icons.js';
 
 interface TopNavProps {
   onMenuToggle: () => void;
@@ -9,19 +11,22 @@ interface TopNavProps {
 
 export function TopNav({ onMenuToggle, isDrawerOpen }: TopNavProps) {
   const navigate = useNavigate();
-  const location = useLocation();
   const count = useCartStore((s) => Object.values(s.items).reduce((a, b) => a + b, 0));
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
-  const isHome = location.pathname === '/';
+  useEffect(() => {
+    const htmlTheme = document.documentElement.getAttribute('data-theme');
+    setTheme(htmlTheme === 'products' || htmlTheme === 'orders' ? 'light' : 'dark');
+  }, []);
 
   return (
-    <header id="top-nav" className={!isHome ? 'light' : undefined}>
+    <header id="top-nav" className={theme === 'light' ? 'light' : ''}>
       <div className="nav-logo" onClick={() => navigate('/')}>
         OceanFresh
       </div>
       <div className="nav-right">
         <button className="nav-cart-btn" onClick={() => navigate('/order')} aria-label="Cart">
-          {'\u{1F6D2}'}
+          <CartIcon size={22} />
           <span className={`nav-cart-count ${count > 0 ? 'show' : ''}`} id="nav-cart-count">
             {count}
           </span>

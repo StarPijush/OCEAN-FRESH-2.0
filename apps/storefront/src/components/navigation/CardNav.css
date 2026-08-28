@@ -1,4 +1,16 @@
-/* OceanFresh CardNav — React Bits base adapted to premium navy/cream/aqua */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* OceanFresh CardNav — Premium navy/champagne/teal */
 
 .card-nav-container {
   position: fixed;
@@ -24,20 +36,18 @@
   display: block;
   height: 56px;
   padding: 0;
-  background: rgba(10, 22, 40, 0.92);
-  backdrop-filter: blur(20px) saturate(1.5);
-  -webkit-backdrop-filter: blur(20px) saturate(1.5);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(6, 14, 26, 0.28);
+  background: var(--color-navy-deep);
+  border: 1px solid var(--grid-dark);
+  border-radius: 14px;
+  box-shadow: var(--shadow-lg);
   position: relative;
   overflow: hidden;
   will-change: height;
   pointer-events: auto;
   transition:
-    background 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)),
-    border-color 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)),
-    box-shadow 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+    background 0.35s var(--ease-out),
+    border-color 0.35s var(--ease-out),
+    box-shadow 0.35s var(--ease-out);
 }
 
 .card-nav::after {
@@ -47,16 +57,16 @@
   right: 0;
   bottom: 0;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(74, 184, 193, 0.15) 50%, transparent);
+  background: linear-gradient(to right, transparent, var(--color-teal-border) 50%, transparent);
   opacity: 0;
   transition: opacity 0.35s;
   pointer-events: none;
 }
 
 .card-nav.light {
-  background: rgba(245, 240, 232, 0.96);
-  border-color: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 6px 24px rgba(10, 22, 40, 0.12);
+  background: var(--color-ivory);
+  border-color: var(--color-ivory-border);
+  box-shadow: var(--shadow-md);
 }
 
 .card-nav.light::after {
@@ -64,20 +74,20 @@
 }
 
 .card-nav.light .of-wordmark {
-  color: var(--ink, #0d0d0d);
+  color: var(--color-text-light-primary);
 }
 
 .card-nav.light .hamburger-menu,
 .card-nav.light .card-nav-cart-btn {
-  color: var(--ink, #0d0d0d);
+  color: var(--color-text-light-primary);
 }
 
 .card-nav.light .card-nav-cart-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--color-ivory-border);
 }
 
 .card-nav.light .hamburger-menu:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--color-ivory-border);
 }
 
 /* ── Top bar ── */
@@ -109,7 +119,7 @@
   background: none;
   border: none;
   border-radius: 6px;
-  color: var(--cream, #f5f0e8);
+  color: var(--color-text-primary);
   transition:
     background 0.2s ease,
     transform 0.15s ease;
@@ -117,7 +127,7 @@
 }
 
 .hamburger-menu:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--grid-dark);
 }
 
 .hamburger-menu:active {
@@ -125,7 +135,7 @@
 }
 
 .hamburger-menu:focus-visible {
-  outline: 2px solid var(--aqua, #4ab8c1);
+  outline: 2px solid var(--color-teal);
   outline-offset: 2px;
 }
 
@@ -177,22 +187,22 @@
 }
 
 .logo-container:focus-visible {
-  outline: 2px solid var(--aqua, #4ab8c1);
+  outline: 2px solid var(--color-teal);
   outline-offset: 2px;
 }
 
 .of-wordmark {
   font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
-  font-size: 1.32rem;
-  font-weight: 400;
+  font-size: clamp(1.7rem, 5vw, 2rem);
+  font-weight: 600;
   letter-spacing: 0.14em;
-  color: var(--cream, #f5f0e8);
+  color: var(--color-champagne); /* Champagne Pearl for premium logo */
   text-transform: uppercase;
   line-height: 1;
   white-space: nowrap;
 }
 
-/* cart — 44x44 premium */
+/* cart — 44x44 premium, icon 28-32 */
 .card-nav-cart-btn {
   position: relative;
   width: 44px;
@@ -205,7 +215,7 @@
   background: none;
   border: none;
   border-radius: 6px;
-  color: var(--cream, #f5f0e8);
+  color: var(--color-text-primary);
   cursor: pointer;
   flex-shrink: 0;
   transition:
@@ -214,7 +224,7 @@
 }
 
 .card-nav-cart-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--grid-dark);
 }
 
 .card-nav-cart-btn:active {
@@ -222,26 +232,27 @@
 }
 
 .card-nav-cart-btn:focus-visible {
-  outline: 2px solid var(--aqua, #4ab8c1);
+  outline: 2px solid var(--color-teal);
   outline-offset: 2px;
 }
 
 .card-nav-cart-btn .nav-cart-count {
   position: absolute;
-  top: 2px;
-  right: 2px;
-  background: var(--aqua, #4ab8c1);
-  color: var(--deep, #0a1628);
-  width: 16px;
-  height: 16px;
+  top: -2px;
+  right: -2px;
+  background: var(--color-teal);
+  color: var(--color-navy-deep);
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  font-size: 0.55rem;
-  font-weight: 700;
+  font-size: 0.7rem;
+  font-weight: 800;
   display: none;
   align-items: center;
   justify-content: center;
   font-family: var(--font-body, 'Instrument Sans', sans-serif);
   line-height: 1;
+  border: 2px solid var(--color-navy-deep);
 }
 
 .card-nav-cart-btn .nav-cart-count.show {
@@ -279,17 +290,16 @@
   padding: 16px 16px 14px;
   gap: 10px;
   user-select: none;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--grid-dark);
   overflow: hidden;
-  /* subtle depth */
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-sm);
 }
 
 .nav-card::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 55%);
+  background: linear-gradient(180deg, var(--grid-dark) 0%, transparent 55%);
   pointer-events: none;
 }
 
@@ -299,6 +309,7 @@
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--color-teal); /* Teal for section labels */
   opacity: 0.9;
   line-height: 1;
   position: relative;
@@ -333,11 +344,13 @@
     transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
     background 0.2s ease;
   line-height: 1.3;
+  color: var(--color-text-primary);
 }
 
 .nav-card-link:hover {
   opacity: 0.88;
   transform: translateX(2px);
+  color: var(--color-teal);
 }
 
 .nav-card-link:active {
@@ -346,13 +359,14 @@
 }
 
 .nav-card-link:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline: 2px solid var(--color-teal);
   outline-offset: 2px;
 }
 
 .nav-card-link-icon {
   flex-shrink: 0;
   opacity: 0.75;
+  color: var(--color-text-secondary);
   transition:
     transform 0.2s ease,
     opacity 0.2s ease;
@@ -361,6 +375,7 @@
 .nav-card-link:hover .nav-card-link-icon {
   transform: translate(1px, -1px);
   opacity: 1;
+  color: var(--color-teal);
 }
 
 /* overlay */
@@ -368,9 +383,7 @@
   position: fixed;
   inset: 0;
   z-index: -1;
-  background: rgba(6, 14, 26, 0.32);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  background: rgba(7, 21, 38, 0.32);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.32s cubic-bezier(0.16, 1, 0.3, 1);
@@ -379,6 +392,8 @@
 .card-nav-overlay.open {
   opacity: 1;
   pointer-events: auto;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 /* ── Responsive: mobile primary ── */
@@ -460,7 +475,7 @@
   }
 
   .card-nav.open {
-    box-shadow: 0 12px 40px rgba(6, 14, 26, 0.32);
+    box-shadow: var(--shadow-lg);
   }
 
   .nav-card {
