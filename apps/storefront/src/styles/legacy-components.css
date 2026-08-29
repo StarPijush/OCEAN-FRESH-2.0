@@ -14,14 +14,31 @@
 }
 html {
   scroll-behavior: smooth;
+  background: var(--color-ivory);
+  min-height: 100%;
+}
+html[data-theme='home'],
+html[data-theme='contact'] {
+  background: var(--color-navy-deep);
+}
+html[data-theme='products'],
+html[data-theme='orders'] {
+  background: var(--color-ivory);
 }
 body {
   font-family: var(--font-body);
-  background: var(--color-ivory);
+  background: inherit;
   color: var(--color-text-light-primary);
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
   overflow-x: hidden;
+  min-height: 100dvh;
+}
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: inherit;
 }
 img {
   display: block;
@@ -92,18 +109,45 @@ textarea {
   animation: bar-slide 1.4s 0.4s var(--ease-out) forwards;
 }
 
-/* ── Pages ── */
+/* ── Pages — global shell: intentional background, 100dvh, dock offset ── */
 .page {
   display: none;
+  flex: 1;
   min-height: 100dvh;
-  padding-bottom: 72px;
+  background: var(--color-ivory);
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
 }
 .page.active {
   display: block;
 }
+#page-home {
+  background: var(--color-navy-deep);
+}
+#page-contact {
+  background: var(--color-navy-deep);
+}
 #page-products,
 #page-order {
-  padding-top: 56px;
+  background: var(--color-ivory);
+  padding-top: 72px;
+}
+#page-not-found {
+  background: var(--color-ivory);
+}
+
+/* ── Home — page ends navy (Footer), so light sections must stay explicit ivory ── */
+#page-home .section:not(.section-alt):not(.hero):not(.ticker-wrap) {
+  background: var(--color-ivory);
+}
+#page-home .section.section-alt,
+#page-home .hero {
+  background: var(--color-navy-deep);
+}
+
+/* ── Contact — page ends navy, middle sections stay ivory ── */
+#page-contact .contact-list {
+  background: var(--color-ivory);
 }
 
 /* ── Reveal animations ── */

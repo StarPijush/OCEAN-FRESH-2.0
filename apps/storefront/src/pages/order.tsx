@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { OrderSuccessModal } from '../components/order/OrderSuccessModal.js';
+import { OrderSummary } from '../components/order/OrderSummary.js';
 import { showToast } from '../components/ui/toastController.js';
 import { useSettings } from '../context/settings-context.js';
 import {
@@ -169,35 +170,6 @@ export function OrderPage() {
             })}
 
             <div id="cart-total-section" style={{ display: 'block' }}>
-              <div className="price-summary">
-                <div className="price-row">
-                  <span>Subtotal</span>
-                  <span id="subtotal-val">
-                    {'\u20B9'}
-                    {subtotal}
-                  </span>
-                </div>
-                <div className="price-row">
-                  <span>Delivery</span>
-                  <span id="delivery-val" className="free">
-                    {deliveryAmt > 0 ? `\u20B9${deliveryAmt}` : 'Free'}
-                    {deliveryAmt > 0 && subtotal < settings.freeDeliveryAbove ? (
-                      <span style={{ fontSize: '0.6rem', color: 'var(--muted)' }}>
-                        {' '}
-                        (free above \u20B9{settings.freeDeliveryAbove})
-                      </span>
-                    ) : null}
-                  </span>
-                </div>
-                <div className="price-row total">
-                  <span>Total</span>
-                  <span id="total-val">
-                    {'\u20B9'}
-                    {total}
-                  </span>
-                </div>
-              </div>
-
               <div className="order-section-label">Your Details</div>
               <div style={{ paddingTop: '16px' }}>
                 <div className="form-field">
@@ -240,6 +212,13 @@ export function OrderPage() {
                 </button>
                 <div id="location-status" dangerouslySetInnerHTML={{ __html: locStatus }} />
               </div>
+
+              <OrderSummary
+                subtotal={subtotal}
+                deliveryAmt={deliveryAmt}
+                total={total}
+                freeDeliveryAbove={settings.freeDeliveryAbove}
+              />
 
               <div className="order-section-label">Place Order</div>
               <div style={{ paddingTop: '16px', marginBottom: '8px' }}>

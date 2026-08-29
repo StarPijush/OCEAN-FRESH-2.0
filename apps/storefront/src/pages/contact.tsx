@@ -81,7 +81,7 @@ export function ContactPage() {
         </div>
       </div>
 
-      <div style={{ padding: '0 20px 32px' }}>
+      <div style={{ padding: '0 20px 32px', background: 'var(--color-ivory)' }}>
         <div
           style={{
             fontSize: '0.6rem',

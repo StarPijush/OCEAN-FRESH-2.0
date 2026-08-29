@@ -2,6 +2,9 @@ import { getCategoryRepository } from '@oceanfresh/category/repository';
 import type { Category } from '@oceanfresh/shared';
 import { useEffect, useMemo, useState } from 'react';
 
+import { ProductFilterButton } from '../components/products/ProductFilterButton.js';
+import { ProductFilterDrawer } from '../components/products/ProductFilterDrawer.js';
+import { ProductSearch } from '../components/products/ProductSearch.js';
 import { showToast } from '../components/ui/toastController.js';
 import { useReveal } from '../hooks/useReveal.js';
 import { productService, type ProductVM, useCartStore } from '../services/index.js';
@@ -9,7 +12,8 @@ import { productService, type ProductVM, useCartStore } from '../services/index.
 const ALL_FILTER = { key: 'all', label: 'All' };
 
 export function ProductsPage() {
-  const [filter, setFilter] = useState('all');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [products, setProducts] = useState<ProductVM[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -57,7 +61,9 @@ export function ProductsPage() {
 
   const filtered = useMemo(() => {
     let list = products;
-    if (filter !== 'all') list = list.filter((p) => p.category === filter);
+    if (selectedCategories.length > 0) {
+      list = list.filter((p) => selectedCategories.includes(p.category));
+    }
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(
@@ -65,32 +71,29 @@ export function ProductsPage() {
       );
     }
     return list;
-  }, [filter, search, products]);
+  }, [selectedCategories, search, products]);
 
   return (
     <div id="page-products" className="page active">
       <div className="page-header" style={{ top: '56px' }}>
-        <div className="filter-scroll">
-          {filters.map((f) => (
-            <div
-              key={f.key}
-              className={`filter-chip${filter === f.key ? ' active' : ''}`}
-              onClick={() => setFilter(f.key)}
-            >
-              {f.label}
-            </div>
-          ))}
-        </div>
-        <div className="search-wrap">
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search fish\u2026"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        <div className="product-controls">
+          <div className="search-wrapper">
+            <ProductSearch value={search} onChange={setSearch} />
+          </div>
+          <div className="filter-wrapper">
+            <ProductFilterButton onClick={() => setFilterOpen(true)} />
+          </div>
         </div>
       </div>
+
+      <ProductFilterDrawer
+        open={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        options={filters}
+        selected={selectedCategories}
+        onSelectedChange={setSelectedCategories}
+        resultCount={filtered.length}
+      />
 
       <div
         id="prod-count-label"
@@ -136,65 +139,84 @@ export function ProductsPage() {
             const hasPhoto = p.image && !p.image.startsWith('data:image/svg');
             return (
               <div
-                className="prod-item"
+                className="prod-item prod-premium"
                 key={p.id}
-                style={p.available ? undefined : { opacity: 0.5 }}
+                style={p.available ? undefined : { opacity: 0.52 }}
               >
-                {hasPhoto ? (
-                  <div className="prod-emoji-box">
+                <div className="prod-media">
+                  {hasPhoto ? (
                     <img
+                      className="prod-media-img"
                       src={p.image ?? ''}
                       alt={p.name}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        borderRadius: '2px',
-                      }}
+                      loading="lazy"
                     />
-                  </div>
-                ) : (
-                  <div className="prod-emoji-box">{p.emoji}</div>
-                )}
-                <div className="prod-info">
-                  <div className="prod-sub">{p.sub}</div>
-                  <div className="prod-name">{p.name}</div>
-                  {p.available ? (
-                    <div className="prod-price">
-                      {'\u20B9'}
-                      {p.price} / kg
-                    </div>
                   ) : (
-                    <div className="prod-oos">Out of stock</div>
+                    <div className="prod-media-fallback" aria-hidden="true">
+                      <span className="prod-media-emoji">{p.emoji}</span>
+                    </div>
                   )}
+                  {!p.available ? <span className="prod-badge oos">Out of stock</span> : null}
                 </div>
-                <div className="prod-actions">
+
+                <div className="prod-body">
+                  <div className="prod-info">
+                    <div className="prod-name">{p.name}</div>
+                    <div className="prod-sub">{p.sub}</div>
+                    {p.available ? (
+                      <div className="prod-price-row">
+                        <span className="prod-price">
+                          {'\u20B9'}
+                          {p.price}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="prod-oos">Out of stock</div>
+                    )}
+                  </div>
+
                   {p.available ? (
                     <>
-                      <div className="qty-row">
+                      <div className="prod-qty">
+                        <div className="prod-qty-row">
+                          <button
+                            className="qty-btn"
+                            type="button"
+                            aria-label={`Decrease ${p.name} quantity`}
+                            onClick={() => updateQty(p.id, -1)}
+                          >
+                            −
+                          </button>
+                          <span className="qty-val" aria-live="polite">
+                            {qty}
+                          </span>
+                          <button
+                            className="qty-btn"
+                            type="button"
+                            aria-label={`Increase ${p.name} quantity`}
+                            onClick={() => updateQty(p.id, 1)}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                      <div className="prod-cta">
                         <button
-                          className="qty-btn qty-btn-dark"
-                          onClick={() => updateQty(p.id, -1)}
+                          className="btn btn-teal"
+                          type="button"
+                          onClick={() => {
+                            addItem(p.id);
+                            showToast('Added to order');
+                          }}
                         >
-                          &minus;
-                        </button>
-                        <span className="qty-val qty-val-dark">{qty}</span>
-                        <button className="qty-btn qty-btn-dark" onClick={() => updateQty(p.id, 1)}>
-                          +
+                          ADD TO CART
                         </button>
                       </div>
-                      <button
-                        className="btn btn-aqua btn-sm"
-                        onClick={() => {
-                          addItem(p.id);
-                          showToast('Added to order');
-                        }}
-                      >
-                        Add
-                      </button>
                     </>
                   ) : (
-                    <span className="tag-pill">Unavailable</span>
+                    <div className="prod-unavailable">
+                      <span className="tag-pill">Unavailable</span>
+                    </div>
                   )}
                 </div>
               </div>

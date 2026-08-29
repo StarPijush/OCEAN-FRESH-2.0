@@ -1,0 +1,246 @@
+/* ═══════════════════════════════════════════════════════
+   OceanFresh — Contact Cards Premium Refinement
+   Isolated override for #page-contact .contact-list / .contact-item
+   Goal: 12px rounded soft card, same footprint, premium breathing
+   Preserves: colors, typography, content, dimensions, tokens
+   Inspired by shadcn Card SHAPE only — not colors/typo/dims
+   ═══════════════════════════════════════════════════════ */
+
+/* ── List container: introduce isolated gap, keep ivory page bg ── */
+#page-contact .contact-list {
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* was 1px connected — now isolated soft cards with breathing */
+  background: var(--color-ivory);
+}
+
+/* ── Card: same size/footprint, now 12px premium radius ──
+   Shared height — all 4 cards equal via common min-height.
+   Value chosen as smallest that fits largest-content (Address/Shop Hours)
+   without clipping at 320px, with centered flex alignment. */
+#page-contact .contact-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 16px;
+  min-height: 104px;
+  background: var(--color-ivory-card);
+  border: 1px solid var(--color-ivory-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  text-decoration: none;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s var(--ease-out),
+    background 0.2s var(--ease-out),
+    box-shadow 0.2s var(--ease-out);
+  overflow: hidden; /* clip inner radius cleanly */
+}
+
+/* Override legacy stacked-list tricks — every card is independent now */
+#page-contact .contact-item + .contact-item {
+  border-top: 1px solid var(--color-ivory-border);
+}
+#page-contact .contact-item:first-child {
+  border-radius: 12px;
+}
+#page-contact .contact-item:last-child {
+  border-radius: 12px;
+}
+
+#page-contact .contact-item:hover {
+  border-color: var(--color-teal-border);
+  background: var(--color-ivory-card);
+  box-shadow: 0 4px 12px rgba(7, 21, 38, 0.08);
+}
+
+#page-contact .contact-item:active {
+  transform: scale(0.99);
+}
+
+/* Non-interactive cards (Hours/Address) keep default cursor but same premium feel */
+#page-contact .contact-item[style*='cursor: default'],
+#page-contact .contact-item[style*='cursor:default'] {
+  cursor: default;
+}
+#page-contact .contact-item[style*='cursor: default']:hover,
+#page-contact .contact-item[style*='cursor:default']:hover {
+  border-color: var(--color-ivory-border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Left cluster: icon + text ── */
+#page-contact .contact-item-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ── Icon container: subtle border, soft bg, 10px radius, same 40px size ── */
+#page-contact .contact-item-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 10px; /* 8-10px prompt */
+  background: var(--color-ivory);
+  border: 1px solid var(--color-ivory-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* WhatsApp inline style background #dcfce7 — preserve but add matching border/radius */
+#page-contact .contact-item .contact-item-icon[style*='background'] {
+  border-color: rgba(7, 21, 38, 0.08);
+}
+
+/* ── Text hierarchy: preserve fonts/colors, improve wrapping ── */
+#page-contact .contact-item-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-light-primary);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+#page-contact .contact-item-value {
+  font-size: 0.75rem;
+  color: var(--color-text-light-secondary);
+  margin-top: 2px;
+  line-height: 1.4;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* WhatsApp Chat now teal accent handled inline — keep but ensure hierarchy */
+
+/* ── Arrow: breathing room, centered, never touches border ── */
+#page-contact .contact-item-arrow {
+  color: var(--color-text-light-secondary);
+  font-size: 1.1rem;
+  line-height: 1;
+  flex-shrink: 0;
+  padding-left: 12px; /* breathing between text cluster and arrow */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
+  transition:
+    color 0.2s var(--ease-out),
+    transform 0.2s var(--ease-out);
+}
+
+#page-contact .contact-item:hover .contact-item-arrow {
+  color: var(--color-text-light-primary);
+  transform: translateX(2px);
+}
+
+/* Non-clickable cards have no arrow — ensure centered alignment keeps */
+#page-contact .contact-item:not(:has(.contact-item-arrow)) .contact-item-left {
+  /* keeps text vertically balanced when no arrow */
+}
+
+/* ── Responsive: 320px primary — ensure no overflow/clipping ──
+   Shared height kept identical at 320px — increased only if wrapping demands. */
+@media (max-width: 320px) {
+  #page-contact .contact-list {
+    padding: 20px 14px;
+    gap: 10px;
+  }
+
+  #page-contact .contact-item {
+    padding: 16px 14px;
+    min-height: 104px;
+    border-radius: 12px;
+  }
+
+  #page-contact .contact-item-left {
+    gap: 12px;
+  }
+
+  #page-contact .contact-item-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    border-radius: 9px;
+    font-size: 1rem;
+  }
+
+  #page-contact .contact-item-title {
+    font-size: 0.82rem;
+  }
+
+  #page-contact .contact-item-value {
+    font-size: 0.72rem;
+  }
+
+  #page-contact .contact-item-arrow {
+    font-size: 1rem;
+    padding-left: 8px;
+  }
+}
+
+@media (min-width: 321px) and (max-width: 375px) {
+  #page-contact .contact-list {
+    padding: 22px 16px;
+  }
+
+  #page-contact .contact-item {
+    padding: 18px 16px;
+    min-height: 104px;
+  }
+}
+
+@media (min-width: 390px) {
+  #page-contact .contact-list {
+    padding: 24px 20px;
+  }
+}
+
+/* ── Desktop: centered max-width-ish but still respects existing gutters ──
+   Slightly taller shared height to match larger icon/padding. */
+@media (min-width: 768px) {
+  #page-contact .contact-list {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    gap: 14px;
+  }
+
+  #page-contact .contact-item {
+    padding: 20px 18px;
+    min-height: 110px;
+  }
+
+  #page-contact .contact-item-icon {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  #page-contact .contact-item,
+  #page-contact .contact-item-arrow {
+    transition: none;
+  }
+  #page-contact .contact-item:active {
+    transform: none;
+  }
+}

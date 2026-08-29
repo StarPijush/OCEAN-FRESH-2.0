@@ -1,4 +1,5 @@
 import { useSettings } from '../../context/settings-context.js';
+import { SocialLinks } from '../social/SocialLinks.js';
 
 export function Footer() {
   const s = useSettings();
@@ -30,6 +31,9 @@ export function Footer() {
         <br />
         {s.email}
       </div>
+
+      <SocialLinks />
+
       <div
         style={{
           marginTop: '24px',
