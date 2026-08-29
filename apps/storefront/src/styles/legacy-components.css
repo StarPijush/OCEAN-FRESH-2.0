@@ -1489,3 +1489,29 @@ textarea {
   color: var(--color-text-light-secondary);
   margin-top: 8px;
 }
+
+/* ── Master mobile content alignment ── */
+@media (max-width: 768px) {
+  :root {
+    --mobile-gutter: 20px;
+  }
+  .hero-content {
+    padding-left: var(--mobile-gutter);
+    padding-right: var(--mobile-gutter);
+  }
+  .section {
+    padding-left: var(--mobile-gutter);
+    padding-right: var(--mobile-gutter);
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+  /* Hide Live Availability on mobile */
+  .fresh-catch-section {
+    display: none !important;
+  }
+  /* Left-align hero View Order button to master gutter */
+  .hero-actions {
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+}

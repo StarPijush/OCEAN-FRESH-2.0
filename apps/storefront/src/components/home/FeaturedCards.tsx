@@ -1,83 +1,67 @@
-import { useEffect, useState } from 'react';
+import './FeaturedCards.css';
 
-import { productService, type ProductVM, useCartStore } from '../../services/index.js';
-import { showToast } from '../ui/toastController.js';
+import { useCallback, useEffect, useState } from 'react';
+
+import { useMediaQuery } from '../../hooks/useMediaQuery.js';
+import { productService, type ProductVM } from '../../services/index.js';
+import { DepthCarousel } from './DepthCarousel.js';
 
 export function FeaturedCards() {
   const [featured, setFeatured] = useState<ProductVM[]>([]);
-  const cart = useCartStore((s) => s.items);
-  const addItem = useCartStore((s) => s.addItem);
-  const updateQty = useCartStore((s) => s.updateQty);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
     productService.getFeatured(6).then(setFeatured);
   }, []);
 
+  const renderCard = useCallback(
+    (item: { image: string; alt?: string }, index: number, isActive: boolean) => {
+      const p = featured[index];
+      if (!p) return null;
+      const hasPhoto = p.image && !p.image.startsWith('data:image/svg');
+      return (
+        <div className="editorial-card" data-active={isActive}>
+          <div className="editorial-card__media">
+            {hasPhoto ? (
+              <img src={p.image ?? ''} alt={p.name} className="editorial-card__img" />
+            ) : (
+              <div className="editorial-card__img editorial-card__img--emoji">{p.emoji}</div>
+            )}
+          </div>
+        </div>
+      );
+    },
+    [featured],
+  );
+
   return (
-    <section className="section section-alt">
+    <section className="section section-alt featured-cards-root">
       <div className="section-eyebrow reveal">Featured Selection</div>
       <h2 className="section-title-lg reveal">
-        Today&apos;s
-        <br />
-        <em style={{ fontStyle: 'italic' }}>Finest</em>
+        Today&apos;s <em style={{ fontStyle: 'italic' }}>Finest</em>
       </h2>
       <div className="section-rule reveal"></div>
-      <div
-        id="featured-cards"
-        className="h-scroll"
-        style={{ margin: '0 -24px', padding: '4px 24px 16px' }}
-      >
-        {featured.map((p) => {
-          const qty = cart[p.id] ?? 0;
-          const hasPhoto = p.image && !p.image.startsWith('data:image/svg');
-          return (
-            <div className="feat-card" key={p.id}>
-              {hasPhoto ? (
-                <img
-                  src={p.image ?? ''}
-                  alt={p.name}
-                  className="feat-card-img feat-card-img-photo"
-                />
-              ) : (
-                <div className="feat-card-img">{p.emoji}</div>
-              )}
-              <div className="feat-card-body">
-                <div className="feat-card-name">{p.name}</div>
-                <div className="feat-card-sub">{p.sub}</div>
-                <div className="feat-card-price">
-                  {'\u20B9'}
-                  {p.price}{' '}
-                  <span style={{ fontSize: '0.65rem', color: 'var(--muted)', fontWeight: 400 }}>
-                    / kg
-                  </span>
-                </div>
-                <div className="feat-card-footer">
-                  <div className="qty-row">
-                    <button className="qty-btn" onClick={() => updateQty(p.id, -1)}>
-                      &minus;
-                    </button>
-                    <span className="qty-val" id={`feat-qty-${p.id}`}>
-                      {qty}
-                    </span>
-                    <button className="qty-btn" onClick={() => updateQty(p.id, 1)}>
-                      +
-                    </button>
-                  </div>
-                  <button
-                    className="btn btn-teal btn-sm"
-                    onClick={() => {
-                      addItem(p.id);
-                      showToast('Added to order');
-                    }}
-                  >
-                    Add
-                  </button>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      <DepthCarousel
+        items={featured.map((p) => ({ image: p.image ?? '', alt: p.name }))}
+        cardWidth={isMobile ? 240 : 300}
+        cardHeight={isMobile ? 300 : 400}
+        radius={16}
+        depth={isMobile ? 80 : 120}
+        spread={isMobile ? 14 : 20}
+        tilt={0}
+        perspective={1200}
+        visibleCards={2.5}
+        falloff={0.15}
+        blur={3}
+        duration={600}
+        autoplay={true}
+        autoplayDelay={4000}
+        loop={true}
+        showControls={true}
+        showIndicators={true}
+        renderCard={renderCard}
+        isMobile={isMobile}
+      />
       <div className="section-action reveal">
         <button
           className="btn btn-ghost btn-sm"

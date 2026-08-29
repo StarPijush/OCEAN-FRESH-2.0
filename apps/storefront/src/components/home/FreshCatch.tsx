@@ -12,7 +12,7 @@ export function FreshCatch() {
   }, []);
 
   return (
-    <section className="section">
+    <section className="section fresh-catch-section">
       <div className="section-eyebrow reveal">Live Availability</div>
       <h2 className="section-title-lg reveal">
         Today&apos;s

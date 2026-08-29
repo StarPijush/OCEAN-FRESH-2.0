@@ -1,0 +1,290 @@
+.depth-carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: var(--dc-perspective, 1400px);
+  perspective-origin: 50% 50%;
+  touch-action: pan-y;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+
+.depth-carousel:active {
+  cursor: grabbing;
+}
+
+.depth-carousel:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+.depth-carousel__stage {
+  position: relative;
+  width: 100%;
+  transform-style: preserve-3d;
+}
+
+.depth-carousel__card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+  overflow: hidden;
+  background: #0b0d12;
+  box-shadow:
+    0 30px 60px -20px rgba(0, 0, 0, 0.65),
+    0 8px 20px -10px rgba(0, 0, 0, 0.5);
+  will-change: transform, opacity, filter;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+}
+
+.depth-carousel__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.depth-carousel__tint {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.depth-carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3000;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(18, 20, 26, 0.55);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.depth-carousel__arrow:hover {
+  background: rgba(28, 31, 40, 0.85);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.depth-carousel__arrow:active {
+  transform: translateY(-50%) scale(0.94);
+}
+
+.depth-carousel__arrow--prev {
+  left: 16px;
+}
+
+.depth-carousel__arrow--next {
+  right: 16px;
+}
+
+.depth-carousel__dots {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3000;
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(14, 16, 22, 0.4);
+  backdrop-filter: blur(6px);
+}
+
+.depth-carousel__dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.32);
+  cursor: pointer;
+  transition:
+    width 0.25s ease,
+    background 0.25s ease;
+}
+
+.depth-carousel__dot.is-active {
+  width: 20px;
+  background: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .depth-carousel__card {
+    will-change: auto;
+  }
+  .depth-carousel__arrow,
+  .depth-carousel__dot {
+    transition: none;
+  }
+}
+
+/* Mobile editorial carousel — ≤768px */
+@media (max-width: 768px) {
+  /* Carousel root: full width, no center justify, collapse to content */
+  .depth-carousel {
+    justify-content: flex-start;
+    min-height: 0;
+    height: auto;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* Stage: JS sets exact height = scaled card height, no fixed CSS height */
+  .depth-carousel__stage {
+    height: auto;
+    min-height: 0;
+  }
+
+  /* Card: image IS the card */
+  .depth-carousel__card {
+    background: transparent;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+  }
+
+  .depth-carousel__img {
+    border-radius: 16px;
+  }
+
+  /* Arrows: absolutely positioned inside stage, beside active card */
+  .depth-carousel__arrows-stage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .depth-carousel__arrows-stage .depth-carousel__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+    border-radius: 50%;
+    background: var(--color-navy-deep);
+    border: 1px solid var(--color-champagne);
+    color: var(--color-champagne);
+    display: grid;
+    place-items: center;
+    transition: all 0.2s var(--ease-out);
+    pointer-events: auto;
+  }
+
+  .depth-carousel__arrows-stage .depth-carousel__arrow:hover {
+    background: var(--color-champagne);
+    color: var(--color-navy-deep);
+    border-color: var(--color-champagne);
+  }
+
+  .depth-carousel__arrows-stage .depth-carousel__arrow:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .depth-carousel__arrows-stage .depth-carousel__arrow--prev {
+    left: 0;
+  }
+
+  .depth-carousel__arrows-stage .depth-carousel__arrow--next {
+    right: 0;
+  }
+
+  .depth-carousel__arrows-stage .depth-carousel__arrow svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+  }
+
+  /* Single product: hide prev arrow, show next arrow with balanced gap from card */
+  .depth-carousel__arrows-stage--single .depth-carousel__arrow--prev {
+    display: none;
+  }
+
+  .depth-carousel__arrows-stage--single .depth-carousel__arrow--next {
+    left: 260px; /* cardWidth 240 + 20px balanced gap */
+    right: auto;
+  }
+
+  /* Multi-product: arrows at card edges */
+  .depth-carousel__arrows-stage .depth-carousel__arrow--prev {
+    left: 0;
+  }
+
+  .depth-carousel__arrows-stage .depth-carousel__arrow--next {
+    left: 260px; /* cardWidth 240 + 20px balanced gap */
+    right: auto;
+  }
+
+  /* Indicators: below stage, almost zero gap */
+  .depth-carousel__dots {
+    position: static;
+    transform: none;
+    display: flex !important;
+    justify-content: center;
+    gap: 3px;
+    margin: 1px auto 0;
+    padding: 0;
+    background: transparent;
+    backdrop-filter: none;
+    width: 100%;
+  }
+
+  .depth-carousel__dot {
+    width: 6px;
+    height: 6px;
+    background: var(--color-text-secondary);
+    border-radius: 999px;
+  }
+
+  .depth-carousel__dot.is-active {
+    width: 20px;
+    background: var(--color-teal);
+    border-radius: 999px;
+  }
+
+  /* Hide desktop arrows on mobile */
+  .depth-carousel__arrow--prev,
+  .depth-carousel__arrow--next {
+    left: auto;
+    right: auto;
+  }
+
+  /* Tight viewport: keep arrow inside viewport */
+  @media (max-width: 320px) {
+    .depth-carousel__arrows-stage--single .depth-carousel__arrow--next,
+    .depth-carousel__arrows-stage .depth-carousel__arrow--next {
+      left: 252px; /* reduced gap for 320px to stay inside */
+    }
+  }
+}

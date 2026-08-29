@@ -1,0 +1,79 @@
+/* WhyUs — champagne heading to match Today's Finest */
+.whyus-root .section-title-lg,
+.whyus-root .section-title-lg em {
+  color: var(--color-champagne);
+}
+
+/* WhyUs Mobile Editorial Refinement — mirrors Today's Finest language */
+@media (max-width: 768px) {
+  .section.whyus-root {
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+
+  .section.whyus-root .section-eyebrow {
+    margin-bottom: 2px;
+  }
+
+  .section.whyus-root .section-title-lg {
+    line-height: 0.9;
+    font-size: clamp(2.4rem, 9.5vw, 3.4rem);
+    max-width: 95%;
+    margin-bottom: 0;
+    font-weight: 300;
+    letter-spacing: -0.01em;
+    color: var(--color-champagne);
+  }
+
+  .section.whyus-root .section-title-lg em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--color-champagne);
+  }
+
+  .section.whyus-root .section-rule {
+    margin: 4px 0 4px;
+    width: 28px;
+  }
+
+  .section.whyus-root .why-grid {
+    margin-top: 24px !important;
+    gap: 12px;
+  }
+
+  .section.whyus-root .why-card {
+    background: var(--color-ivory-card);
+    border: 1px solid var(--color-ivory-border);
+    border-radius: 2px;
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .section.whyus-root .why-icon {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    font-size: 1.4rem;
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .section.whyus-root .why-name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--color-text-light-primary);
+    margin: 0;
+  }
+
+  .section.whyus-root .why-desc {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--color-text-light-secondary);
+    margin: 0;
+  }
+}
