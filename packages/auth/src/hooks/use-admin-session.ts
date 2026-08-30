@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { SupabaseAuthProvider } from '../providers/index.js';
 import { type AdminProfile, getAuthRepository } from '../repository/index.js';
+import { withTimeout } from './withTimeout.js';
 
 export type AdminSessionStatus = 'loading' | 'unauthenticated' | 'authenticated' | 'error';
 
@@ -15,8 +16,11 @@ export interface AdminSessionState {
   retry: () => void;
 }
 
+const AUTH_TIMEOUT_MS = 10_000;
+const ADMIN_PROFILE_TIMEOUT_MS = 10_000;
+
 const INITIAL_STATE: AdminSessionState = {
-  status: 'loading',
+  status: 'unauthenticated',
   user: null,
   adminProfile: null,
   isAdmin: false,
@@ -65,7 +69,7 @@ export function useAdminSession(): AdminSessionState {
       try {
         let user: UserIdentity | null;
         try {
-          user = await provider.getCurrentUser();
+          user = await withTimeout(provider.getCurrentUser(), AUTH_TIMEOUT_MS, 'auth.getUser');
         } catch (err) {
           if (!mounted) return;
           setState({
@@ -96,7 +100,11 @@ export function useAdminSession(): AdminSessionState {
         let adminProfile: AdminProfile | null;
         try {
           const repository = getAuthRepository();
-          adminProfile = await repository.getAdminProfile(user.id);
+          adminProfile = await withTimeout(
+            repository.getAdminProfile(user.id),
+            ADMIN_PROFILE_TIMEOUT_MS,
+            'adminProfile.get',
+          );
         } catch (err) {
           if (!mounted) return;
           setState({

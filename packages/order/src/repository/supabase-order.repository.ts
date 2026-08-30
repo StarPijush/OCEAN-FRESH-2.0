@@ -22,7 +22,12 @@ const TABLE_ITEMS = 'order_items';
 const TABLE_TIMELINE = 'order_timeline_entries';
 
 function toOrder(row: Record<string, unknown>): Order {
-  return rowToCamelCase<Order>(row);
+  const camel = rowToCamelCase<Record<string, unknown>>(row);
+  return {
+    ...camel,
+    createdAt: camel.createdAt ? new Date(camel.createdAt as string) : new Date(),
+    updatedAt: camel.updatedAt ? new Date(camel.updatedAt as string) : new Date(),
+  } as Order;
 }
 
 function toItems(rows: Record<string, unknown>[]): Order['items'] {
@@ -40,7 +45,13 @@ function toItems(rows: Record<string, unknown>[]): Order['items'] {
 }
 
 function toTimeline(rows: Record<string, unknown>[]): OrderTimelineEntry[] {
-  return rows.map((t: Record<string, unknown>) => rowToCamelCase<OrderTimelineEntry>(t));
+  return rows.map((t: Record<string, unknown>) => {
+    const camel = rowToCamelCase<Record<string, unknown>>(t);
+    return {
+      ...camel,
+      timestamp: camel.timestamp ? new Date(camel.timestamp as string) : new Date(),
+    } as OrderTimelineEntry;
+  });
 }
 
 /**

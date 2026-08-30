@@ -1,0 +1,555 @@
+/* ═══════════════════════════════════════════════════════
+   OceanFresh — Order Premium
+   Mirrors Contact premium system (22px cards, cream/navy/aqua)
+   Scoped to #page-order — isolated, does not affect Contact
+   Mobile-first 320 → 375/390 → 768+, type-safe
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Page shell — cream background, consistent gutters ── */
+#page-order {
+  background: var(--color-ivory);
+}
+#page-order .order-wrap {
+  padding: 20px 16px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+#page-order .order-header-inner {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 300;
+  color: var(--color-text-light-primary);
+  letter-spacing: -0.01em;
+}
+#page-order .order-section-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-text-light-secondary);
+  padding: 20px 0 12px;
+  border-bottom: 1px solid var(--color-ivory-border);
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+/* ── PREMIUM ORDER ITEM CARD — FINAL COMPACT, single row, 20-22px ──
+   DRAGON BALL Z must stay ONE LINE — compress controls/gaps, not info */
+#page-order .order-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 12px;
+  min-height: 100px;
+  background: var(--color-ivory-card);
+  border: 1px solid var(--color-ivory-border);
+  border-radius: 22px;
+  box-shadow: 0 2px 10px rgba(7, 21, 38, 0.06);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+#page-order .order-card + .order-card {
+  margin-top: 14px;
+}
+#page-order .order-card__main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+#page-order .order-card__media {
+  width: 60px;
+  height: 60px;
+  min-width: 60px;
+  min-height: 60px;
+  border-radius: 11px;
+  object-fit: cover;
+  border: 1px solid var(--color-ivory-border);
+  background: var(--color-ivory);
+  display: block;
+  flex-shrink: 0;
+}
+#page-order .order-card__media--fallback {
+  width: 60px;
+  height: 60px;
+  min-width: 60px;
+  min-height: 60px;
+  border-radius: 11px;
+  background: var(--color-ivory);
+  border: 1px solid var(--color-ivory-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+#page-order .order-card__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+#page-order .order-card__name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--color-text-light-primary);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#page-order .order-card__meta {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--color-text-light-secondary);
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#page-order .order-card__price {
+  font-family: var(--font-body);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text-light-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-top: 1px;
+}
+#page-order .order-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+#page-order .order-card__qty {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+#page-order .order-card__qty-btn {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(7, 21, 38, 0.1);
+  background: var(--color-ivory);
+  color: var(--color-text-light-primary);
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.2s var(--ease-out),
+    border-color 0.2s var(--ease-out),
+    transform 0.1s var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  flex-shrink: 0;
+}
+#page-order .order-card__qty-btn:hover {
+  background: var(--color-ivory-card);
+  border-color: var(--color-teal-border);
+}
+#page-order .order-card__qty-btn:active {
+  transform: scale(0.96);
+  background: var(--color-teal-dim);
+}
+#page-order .order-card__qty-btn:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+#page-order .order-card__qty-val {
+  min-width: 16px;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-light-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+#page-order .order-card__delete {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(7, 21, 38, 0.08);
+  background: var(--color-ivory);
+  color: var(--color-text-light-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background 0.2s var(--ease-out),
+    border-color 0.2s var(--ease-out),
+    color 0.2s var(--ease-out),
+    transform 0.1s var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+#page-order .order-card__delete:hover {
+  background: var(--color-ivory-card);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+}
+#page-order .order-card__delete:active {
+  transform: scale(0.96);
+}
+#page-order .order-card__delete:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+
+/* ── FORM — premium inputs, 12px radius, cream surface ── */
+#page-order .form-field {
+  margin-bottom: 16px;
+}
+#page-order .form-label {
+  display: block;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-text-light-secondary);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+#page-order .form-control {
+  width: 100%;
+  min-height: 48px;
+  padding: 13px 14px;
+  border: 1px solid var(--color-ivory-border);
+  border-radius: 12px;
+  background: var(--color-ivory-card);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: var(--color-text-light-primary);
+  outline: none;
+  box-shadow: 0 1px 4px rgba(7, 21, 38, 0.03);
+  transition:
+    border-color 0.2s var(--ease-out),
+    box-shadow 0.2s var(--ease-out),
+    background 0.2s var(--ease-out);
+  box-sizing: border-box;
+}
+#page-order .form-control:focus {
+  border-color: var(--color-teal-border);
+  box-shadow: 0 2px 8px rgba(7, 21, 38, 0.06);
+  background: var(--color-ivory-card);
+}
+#page-order .form-control::placeholder {
+  color: var(--color-text-light-secondary);
+  font-size: 0.84rem;
+  opacity: 0.9;
+}
+#page-order textarea.form-control {
+  min-height: 96px;
+  resize: none;
+  line-height: 1.5;
+  padding-top: 12px;
+}
+
+/* ── Location button — outlined aqua, 12px radius ── */
+#page-order .location-btn {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--color-teal-border);
+  background: var(--color-ivory-card);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-light-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(7, 21, 38, 0.03);
+  transition:
+    background 0.2s var(--ease-out),
+    border-color 0.2s var(--ease-out),
+    transform 0.1s var(--ease-out);
+}
+#page-order .location-btn:hover {
+  background: var(--color-teal-dim);
+  border-color: var(--color-teal);
+}
+#page-order .location-btn:active {
+  transform: scale(0.99);
+}
+#page-order .location-btn:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+#page-order #location-status {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--color-text-light-secondary);
+  text-align: center;
+  margin-top: 10px;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+}
+#page-order #location-status a {
+  color: var(--color-teal);
+  font-weight: 600;
+  text-decoration: none;
+}
+#page-order #location-status a:hover {
+  text-decoration: underline;
+}
+
+/* ── WhatsApp CTA — premium, full-width, 12px radius, microcopy ── */
+#page-order .btn-wa-full {
+  width: 100%;
+  min-height: 52px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  border: none;
+  background: #25d366;
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.28);
+  cursor: pointer;
+  transition:
+    background 0.2s var(--ease-out),
+    transform 0.12s var(--ease-out),
+    box-shadow 0.2s var(--ease-out);
+}
+#page-order .btn-wa-full:hover {
+  background: #20bc5b;
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.36);
+}
+#page-order .btn-wa-full:active {
+  transform: scale(0.99);
+}
+#page-order .btn-wa-full:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
+#page-order .order-wa-microcopy {
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: var(--color-text-light-secondary);
+  margin-top: 10px;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+
+/* ── Order Summary — promote to 22px premium (override 8px legacy) ── */
+#page-order .order-summary-card {
+  background: var(--color-ivory-card);
+  border: 1px solid var(--color-ivory-border);
+  border-radius: 22px;
+  box-shadow: 0 2px 10px rgba(7, 21, 38, 0.06);
+  padding: 18px 16px;
+  margin: 20px 0;
+}
+
+/* ── Divider inside order-wrap — keep subtle ── */
+#page-order .divider {
+  height: 1px;
+  background: var(--color-ivory-border);
+  margin: 0 16px;
+  border: none;
+}
+
+/* ── Empty state — keep but ensure it matches cream system ── */
+#page-order .empty-state {
+  background: var(--color-ivory-card);
+  border: 1px solid var(--color-ivory-border);
+  border-radius: 22px;
+  padding: 36px 20px 32px;
+  box-shadow: 0 2px 10px rgba(7, 21, 38, 0.04);
+}
+
+/* ── Ensure page bottom respects dock + safe-area ── */
+#page-order {
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ── 320 narrow — ultra compact, protect one-line name ── */
+@media (max-width: 320px) {
+  #page-order .order-wrap {
+    padding: 16px 12px 28px;
+  }
+  #page-order .order-card {
+    padding: 10px 10px;
+    border-radius: 18px;
+    gap: 8px;
+    min-height: 92px;
+  }
+  #page-order .order-card__main {
+    gap: 8px;
+  }
+  #page-order .order-card__media,
+  #page-order .order-card__media--fallback {
+    width: 54px;
+    height: 54px;
+    min-width: 54px;
+    min-height: 54px;
+    border-radius: 10px;
+  }
+  #page-order .order-card__media--fallback {
+    font-size: 1.4rem;
+  }
+  #page-order .order-card__name {
+    font-size: 0.92rem;
+  }
+  #page-order .order-card__meta {
+    font-size: 0.7rem;
+  }
+  #page-order .order-card__price {
+    font-size: 0.98rem;
+  }
+  #page-order .order-card__qty {
+    gap: 5px;
+  }
+  #page-order .order-card__qty-btn {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    font-size: 0.9rem;
+  }
+  #page-order .order-card__qty-val {
+    font-size: 0.88rem;
+    min-width: 14px;
+  }
+  #page-order .order-card__delete {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
+  }
+  #page-order .order-card__actions {
+    gap: 5px;
+  }
+  #page-order .form-control {
+    min-height: 44px;
+    padding: 11px 12px;
+    font-size: 0.84rem;
+    border-radius: 10px;
+  }
+  #page-order .location-btn {
+    min-height: 44px;
+    border-radius: 10px;
+    font-size: 0.68rem;
+  }
+  #page-order .btn-wa-full {
+    min-height: 48px;
+    border-radius: 10px;
+    font-size: 0.72rem;
+    padding: 12px 16px;
+  }
+  #page-order .order-summary-card {
+    border-radius: 20px;
+    padding: 16px 14px;
+  }
+  #page-order .divider {
+    margin: 0 14px;
+  }
+}
+
+/* ── 375 / 390 — slightly more breathing ── */
+@media (min-width: 375px) {
+  #page-order .order-card {
+    padding: 16px 16px;
+  }
+  #page-order .order-summary-card {
+    padding: 20px 18px;
+  }
+}
+@media (min-width: 390px) {
+  #page-order .order-wrap {
+    padding: 20px 20px 32px;
+  }
+  #page-order .order-summary-card {
+    padding: 20px 20px;
+  }
+}
+
+/* ── Desktop ≥768 — contained, still compact horizontal ── */
+@media (min-width: 768px) {
+  #page-order .order-wrap {
+    padding: 28px 24px 40px;
+  }
+  #page-order .order-card {
+    padding: 16px 18px;
+    border-radius: 24px;
+    gap: 16px;
+    min-height: 108px;
+  }
+  #page-order .order-card__media,
+  #page-order .order-card__media--fallback {
+    width: 72px;
+    height: 72px;
+    min-width: 72px;
+    min-height: 72px;
+    border-radius: 12px;
+  }
+  #page-order .order-card__name {
+    font-size: 1.18rem;
+  }
+  #page-order .order-card__meta {
+    font-size: 0.84rem;
+  }
+  #page-order .order-card__price {
+    font-size: 1.22rem;
+  }
+  #page-order .order-summary-card {
+    padding: 22px 20px;
+    border-radius: 24px;
+  }
+  #page-order .divider {
+    margin: 0 24px;
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  #page-order .order-card__qty-btn,
+  #page-order .location-btn,
+  #page-order .btn-wa-full,
+  #page-order .form-control {
+    transition: none !important;
+  }
+}

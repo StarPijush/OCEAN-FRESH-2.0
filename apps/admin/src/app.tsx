@@ -3,7 +3,6 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { AccessDenied } from './components/AccessDenied';
 import { SessionError } from './components/SessionError';
-import { SplashScreen } from './components/SplashScreen';
 import { useAdminSession } from './hooks/use-auth-session';
 import { AdminLayout } from './navigation/AdminLayout';
 import { DashboardScreen } from './screens/DashboardScreen';
@@ -49,8 +48,7 @@ function AdminRoutes() {
 }
 
 /**
- * Session gate — mirrors the previous React Navigation root gate exactly:
- *   loading         → splash
+ * Session gate:
  *   error           → SessionError (retry, never a silent logout)
  *   unauthenticated → login stack
  *   authenticated   → admin drawer (isAdmin) or AccessDenied
@@ -58,10 +56,6 @@ function AdminRoutes() {
 export default function App() {
   const session = useAdminSession();
   const [signingOut, setSigningOut] = useState(false);
-
-  if (session.status === 'loading') {
-    return <SplashScreen />;
-  }
 
   if (session.status === 'error') {
     return <SessionError message={session.error} onRetry={session.retry} />;

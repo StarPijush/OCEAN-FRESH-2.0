@@ -15,6 +15,11 @@ interface RecentOrdersListProps {
   onViewAll: () => void;
 }
 
+function formatOrderTime(order: Order): string {
+  const ts = order.createdAt instanceof Date ? order.createdAt.getTime() : NaN;
+  return Number.isFinite(ts) ? formatTime(ts) : 'Unknown time';
+}
+
 export function RecentOrdersList({ orders, isLoading, onViewAll }: RecentOrdersListProps) {
   const navigate = useNavigate();
 
@@ -125,7 +130,7 @@ export function RecentOrdersList({ orders, isLoading, onViewAll }: RecentOrdersL
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
               <AppText variant="bodyMedium">{order.orderNumber}</AppText>
               <AppText variant="caption" color="muted">
-                {formatTime(order.createdAt.getTime())} · {order.customerSnapshot?.name ?? 'Guest'}
+                {formatOrderTime(order)} · {order.customerSnapshot?.name ?? 'Guest'}
               </AppText>
             </div>
             <div

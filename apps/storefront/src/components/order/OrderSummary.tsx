@@ -23,8 +23,7 @@ export function OrderSummary({
       <div className="order-summary-row">
         <span className="order-summary-label">Subtotal</span>
         <span className="order-summary-value" style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {'\u20B9'}
-          {subtotal}
+          ₹{subtotal}
         </span>
       </div>
 
@@ -34,7 +33,7 @@ export function OrderSummary({
           className={deliveryAmt > 0 ? 'order-summary-value' : 'order-summary-value free'}
           style={{ fontVariantNumeric: 'tabular-nums' }}
         >
-          {deliveryAmt > 0 ? `\u20B9${deliveryAmt}` : 'Free'}
+          {deliveryAmt > 0 ? `₹${deliveryAmt}` : 'Free'}
         </span>
       </div>
 
@@ -47,10 +46,7 @@ export function OrderSummary({
             {unlocked ? (
               <span className="free">FREE DELIVERY UNLOCKED</span>
             ) : (
-              <>
-                <span>{'\u20B9'}</span>
-                {remaining} away from free delivery
-              </>
+              <>₹{remaining} away from free delivery</>
             )}
           </p>
         </div>
@@ -61,8 +57,7 @@ export function OrderSummary({
       <div className="order-summary-row order-summary-row--total">
         <span className="order-summary-label">Total</span>
         <span className="order-summary-value" style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {'\u20B9'}
-          {total}
+          ₹{total}
         </span>
       </div>
     </div>

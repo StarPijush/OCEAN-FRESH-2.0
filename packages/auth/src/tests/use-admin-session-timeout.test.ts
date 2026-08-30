@@ -45,11 +45,10 @@ describe('useAdminSession — timeout & guard', () => {
     mockObserveAuthState.mockReturnValue(vi.fn());
   });
 
-  it('transitions to unauthenticated when no user', async () => {
+  it('starts unauthenticated (no startup loading)', () => {
     mockGetCurrentUser.mockResolvedValue(null);
     const { result } = renderHook(() => useAdminSession());
-    expect(result.current.status).toBe('loading');
-    await waitFor(() => expect(result.current.status).toBe('unauthenticated'));
+    expect(result.current.status).toBe('unauthenticated');
   });
 
   it('transitions to authenticated+isAdmin when admin profile is admin', async () => {
@@ -94,7 +93,7 @@ describe('useAdminSession — timeout & guard', () => {
       new DOMException('auth.getUser timed out after 10000ms', 'TimeoutError'),
     );
     const { result } = renderHook(() => useAdminSession());
-    expect(result.current.status).toBe('loading');
+    expect(result.current.status).toBe('unauthenticated');
     await waitFor(() => expect(result.current.status).toBe('error'));
     expect(result.current.error).toMatch(/timed out/);
   });
@@ -119,6 +118,41 @@ describe('useAdminSession — timeout & guard', () => {
     // second attempt after retry should be able to run
     mockGetCurrentUser.mockResolvedValue(null);
     // trigger retry
+    result.current.retry();
+    await waitFor(() => expect(result.current.status).toBe('unauthenticated'));
+  });
+
+  it('transitions to error when getCurrentUser hangs forever (never-resolving promise)', async () => {
+    vi.useFakeTimers();
+    mockGetCurrentUser.mockReturnValue(new Promise(() => {}));
+    const { result } = renderHook(() => useAdminSession());
+    expect(result.current.status).toBe('unauthenticated');
+    await vi.advanceTimersByTimeAsync(10_100);
+    vi.useRealTimers();
+    await waitFor(() => expect(result.current.status).toBe('error'));
+    expect(result.current.error).toMatch(/auth\.getUser timed out after 10000ms/);
+  });
+
+  it('transitions to error when getAdminProfile hangs forever', async () => {
+    vi.useFakeTimers();
+    mockGetCurrentUser.mockResolvedValue(makeUser('u1'));
+    mockGetAdminProfile.mockReturnValue(new Promise(() => {}));
+    const { result } = renderHook(() => useAdminSession());
+    await vi.advanceTimersByTimeAsync(10_100);
+    vi.useRealTimers();
+    await waitFor(() => expect(result.current.status).toBe('error'));
+    expect(result.current.error).toMatch(/adminProfile\.get timed out after 10000ms/);
+  });
+
+  it('recovers via retry after a hanging getCurrentUser', async () => {
+    vi.useFakeTimers();
+    mockGetCurrentUser.mockReturnValueOnce(new Promise(() => {}));
+    const { result } = renderHook(() => useAdminSession());
+    await vi.advanceTimersByTimeAsync(10_100);
+    vi.useRealTimers();
+    await waitFor(() => expect(result.current.status).toBe('error'));
+
+    mockGetCurrentUser.mockResolvedValue(null);
     result.current.retry();
     await waitFor(() => expect(result.current.status).toBe('unauthenticated'));
   });

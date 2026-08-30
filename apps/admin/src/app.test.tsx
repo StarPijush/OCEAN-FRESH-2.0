@@ -15,7 +15,7 @@ import App from './app';
 
 const logout = vi.fn();
 let sessionState: AdminSessionState = {
-  status: 'loading',
+  status: 'unauthenticated',
   user: null,
   adminProfile: null,
   isAdmin: false,
@@ -131,19 +131,13 @@ function renderAt(path: string) {
 describe('App session gate and routes', () => {
   beforeEach(() => {
     sessionState = {
-      status: 'loading',
+      status: 'unauthenticated',
       user: null,
       adminProfile: null,
       isAdmin: false,
       error: null,
       retry: vi.fn(),
     };
-  });
-
-  it('shows the splash screen while the session loads', () => {
-    renderAt('/dashboard');
-    expect(screen.getByRole('status', { name: 'Loading' })).toBeInTheDocument();
-    expect(screen.queryByText('Sign in')).not.toBeInTheDocument();
   });
 
   it('shows the session error state with retry when resolution fails', () => {

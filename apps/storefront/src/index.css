@@ -5,6 +5,7 @@
 @import './styles/products-premium.css';
 @import './styles/order-summary-premium.css';
 @import './styles/contact-premium.css';
+@import './styles/order-premium.css';
 
 @tailwind base;
 @tailwind components;

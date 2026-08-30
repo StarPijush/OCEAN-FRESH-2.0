@@ -1,4 +1,5 @@
 import { registerAuthRepository } from '@oceanfresh/auth/repository';
+import { getAuthService } from '@oceanfresh/auth/service';
 import { registerCategoryRepository } from '@oceanfresh/category/repository';
 import { registerOrderRepository } from '@oceanfresh/order/repository';
 import { registerProductRepository } from '@oceanfresh/product/repository';
@@ -28,6 +29,17 @@ export function bootstrapApp(): void {
     persistSession: false,
     detectSessionInUrl: false,
   });
+
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('oceanfresh.auth.session');
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
+        localStorage.removeItem(key);
+      }
+    });
+  }
+
+  getAuthService({ persistSession: false });
 
   registerAuthRepository();
   registerCategoryRepository();

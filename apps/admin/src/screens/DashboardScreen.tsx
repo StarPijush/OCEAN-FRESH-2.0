@@ -68,42 +68,7 @@ export function DashboardScreen() {
     marginRight: -STAT_GUTTER,
   };
 
-  if (isError || (!isLoading && !stats)) {
-    return (
-      <div style={{ padding: spacing.lg, paddingBottom: spacing.xxxl }}>
-        <div style={contentStyle}>
-          <PageHeader
-            title="Dashboard"
-            subtitle={`Hello, ${firstName}. Here's what's happening in your shop today.`}
-          />
-          <ErrorState message={errorToMessage(error)} onRetry={refetch} />
-        </div>
-      </div>
-    );
-  }
-
-  if (isLoading || !stats) {
-    const tileWidth = statTileWidth(width);
-    return (
-      <div style={{ padding: spacing.lg, paddingBottom: spacing.xxxl }}>
-        <div style={contentStyle}>
-          <PageHeader
-            title="Dashboard"
-            subtitle={`Hello, ${firstName}. Here's what's happening in your shop today.`}
-          />
-          <div style={tilesStyle}>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <StatTile key={i} width={tileWidth}>
-                <Skeleton height={104} radiusValue={radius.lg} />
-              </StatTile>
-            ))}
-          </div>
-          <Skeleton height={240} radiusValue={radius.lg} />
-          <Skeleton height={180} radiusValue={radius.lg} />
-        </div>
-      </div>
-    );
-  }
+  const tileWidth = statTileWidth(width);
 
   return (
     <div style={{ padding: spacing.lg, paddingBottom: spacing.xxxl }}>
@@ -169,16 +134,38 @@ export function DashboardScreen() {
           }
         />
 
-        {/* Stat cards */}
-        <StatGrid stats={stats} />
+        {/* Stat cards — independent loading/error/empty per prompt §6 & §8 */}
+        {isLoading ? (
+          <div style={tilesStyle}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <StatTile key={i} width={tileWidth}>
+                <Skeleton height={104} radiusValue={radius.lg} />
+              </StatTile>
+            ))}
+          </div>
+        ) : isError ? (
+          <ErrorState message={errorToMessage(error)} onRetry={refetch} />
+        ) : !stats ? (
+          <ErrorState message="No dashboard data" onRetry={refetch} />
+        ) : (
+          <StatGrid stats={stats} />
+        )}
 
-        {/* 7-day chart */}
-        <PerformanceChart chart={stats.chart} mode={chartMode} onModeChange={setChartMode} />
+        {/* 7-day chart — skeleton only for this section, not full page */}
+        {isLoading ? (
+          <Skeleton height={240} radiusValue={radius.lg} />
+        ) : isError || !stats ? null : (
+          <PerformanceChart chart={stats.chart} mode={chartMode} onModeChange={setChartMode} />
+        )}
 
-        {/* Top products */}
-        <TopProductsList topProducts={stats.topProducts} />
+        {/* Top products — skeleton only for this section */}
+        {isLoading ? (
+          <Skeleton height={180} radiusValue={radius.lg} />
+        ) : isError || !stats ? null : (
+          <TopProductsList topProducts={stats.topProducts} />
+        )}
 
-        {/* Recent orders */}
+        {/* Recent orders — own query, own loading state, never blocks shell */}
         <RecentOrdersList
           orders={(orders.data?.items as Order[]) ?? []}
           isLoading={orders.isLoading}
