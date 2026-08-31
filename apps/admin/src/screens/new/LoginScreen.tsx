@@ -42,7 +42,7 @@ export function LoginScreen() {
           e.preventDefault();
           void handleLogin();
         }}
-        style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+        style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
       >
         <Input
           label="Email Address"
@@ -53,6 +53,8 @@ export function LoginScreen() {
           autoCorrect="off"
           type="email"
           autoComplete="username"
+          appearance="light"
+          size="md"
         />
         <Input
           label="Password"
@@ -62,6 +64,8 @@ export function LoginScreen() {
           type="password"
           autoComplete="current-password"
           secureToggle
+          appearance="light"
+          size="md"
         />
         {error ? <div style={errorStyle}>{error}</div> : null}
         <Button
@@ -70,7 +74,14 @@ export function LoginScreen() {
           fullWidth
           loading={submitting}
           size="lg"
-          style={{ marginTop: 8 }}
+          style={{
+            marginTop: 6,
+            borderRadius: 9999,
+            padding: '14px 24px',
+            fontSize: 12,
+            letterSpacing: '0.12em',
+            boxShadow: '0 1px 2px rgba(16,24,40,0.04), 0 4px 12px rgba(74,184,193,0.18)',
+          }}
         >
           Sign In →
         </Button>
@@ -78,17 +89,24 @@ export function LoginScreen() {
           style={{
             display: 'flex',
             justifyContent: 'space-between',
+            alignItems: 'center',
             flexWrap: 'wrap',
             gap: 12,
-            marginTop: 4,
+            marginTop: 6,
           }}
         >
-          <button type="button" style={linkStyle} onClick={() => navigate('/forgot-password')}>
+          <button
+            type="button"
+            className="auth-link"
+            style={linkStyle}
+            onClick={() => navigate('/forgot-password')}
+          >
             Forgot password?
           </button>
           {STOREFRONT_URL ? (
             <button
               type="button"
+              className="auth-link"
               style={linkStyle}
               onClick={() => window.open(STOREFRONT_URL, '_blank', 'noopener')}
             >
@@ -97,24 +115,48 @@ export function LoginScreen() {
           ) : null}
         </div>
       </form>
+
+      <style>{`
+        .auth-link:hover {
+          color: #1c1917 !important;
+          text-decoration-color: rgba(28, 25, 23, 0.45) !important;
+        }
+        .auth-link:active {
+          color: #0f172a !important;
+        }
+        @media (max-width: 360px) {
+          .auth-link {
+            font-size: 12px !important;
+          }
+        }
+      `}</style>
     </AuthLayout>
   );
 }
 
 const errorStyle: React.CSSProperties = {
-  fontSize: '0.75rem',
-  color: 'var(--color-warn)',
-  background: 'var(--color-warn-dim)',
-  borderLeft: '2px solid var(--color-warn)',
+  fontFamily: 'var(--font-ui)',
+  fontSize: '12px',
+  lineHeight: '1.5',
+  color: '#991b1b',
+  background: '#fef2f2',
+  border: '1px solid #fecaca',
+  borderLeft: '3px solid #e07a65',
   padding: '10px 12px',
-  borderRadius: 2,
+  borderRadius: 10,
 };
 
 const linkStyle: React.CSSProperties = {
-  fontSize: '0.75rem',
-  color: 'var(--color-aqua)',
+  fontFamily: 'var(--font-ui)',
+  fontSize: '12.5px',
+  fontWeight: 500,
+  color: '#78716c',
   background: 'none',
   border: 'none',
   cursor: 'pointer',
   padding: 0,
-};
+  textDecoration: 'underline',
+  textDecorationColor: 'rgba(120,113,108,0.3)',
+  textUnderlineOffset: '3px',
+  transition: 'color 150ms var(--ease-out), text-decoration-color 150ms var(--ease-out)',
+} as React.CSSProperties;

@@ -19,10 +19,11 @@ export function OtpInput({ value, onChange, onComplete }: OtpInputProps) {
   };
 
   return (
-    <div style={rowStyle}>
+    <div className="otp-row" style={rowStyle}>
       {Array.from({ length: 6 }).map((_, i) => (
         <input
           key={i}
+          className="otp-input"
           ref={(el) => {
             refs.current[i] = el;
           }}
@@ -57,18 +58,51 @@ export function OtpInput({ value, onChange, onComplete }: OtpInputProps) {
           }}
           style={inputStyle}
           onFocus={(e) => {
-            (e.target as HTMLInputElement).style.borderColor = 'var(--color-aqua)';
+            (e.target as HTMLInputElement).style.borderColor = '#4ab8c1';
             (e.target as HTMLInputElement).style.boxShadow =
-              '0 0 0 4px var(--color-aqua-dim), inset 0 2px 4px rgba(0,0,0,0.1)';
-            (e.target as HTMLInputElement).style.transform = 'translateY(-2px)';
+              '0 0 0 3px rgba(74,184,193,0.15), inset 0 1px 2px rgba(0,0,0,0.04)';
+            (e.target as HTMLInputElement).style.transform = 'translateY(-1px)';
           }}
           onBlur={(e) => {
-            (e.target as HTMLInputElement).style.borderColor = 'var(--color-border)';
-            (e.target as HTMLInputElement).style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1)';
+            (e.target as HTMLInputElement).style.borderColor = '#e7e5e4';
+            (e.target as HTMLInputElement).style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)';
             (e.target as HTMLInputElement).style.transform = 'none';
           }}
         />
       ))}
+      <style>{`
+        @media (max-width: 430px) {
+          .otp-row {
+            gap: 8px !important;
+          }
+          .otp-input {
+            width: 38px !important;
+            height: 50px !important;
+            font-size: 1.25rem !important;
+            border-radius: 10px !important;
+          }
+        }
+        @media (max-width: 360px) {
+          .otp-row {
+            gap: 6px !important;
+          }
+          .otp-input {
+            width: 34px !important;
+            height: 46px !important;
+            font-size: 1.15rem !important;
+          }
+        }
+        @media (max-width: 320px) {
+          .otp-row {
+            gap: 5px !important;
+          }
+          .otp-input {
+            width: 30px !important;
+            height: 42px !important;
+            font-size: 1rem !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
@@ -86,11 +120,11 @@ const inputStyle: React.CSSProperties = {
   textAlign: 'center',
   fontSize: '1.5rem',
   fontWeight: 700,
-  background: 'var(--color-surface2)',
-  border: '1px solid var(--color-border)',
-  borderRadius: 8,
-  color: 'var(--color-cream)',
+  background: '#ffffff',
+  border: '1px solid #e7e5e4',
+  borderRadius: 12,
+  color: '#1c1917',
   outline: 'none',
   transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
-  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)',
+  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)',
 };

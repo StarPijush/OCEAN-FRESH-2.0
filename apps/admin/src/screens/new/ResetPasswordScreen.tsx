@@ -48,7 +48,19 @@ export function ResetPasswordScreen() {
         title="Password updated"
         subtitle="Sign in with your new password."
       >
-        <Button variant="primary" fullWidth size="lg" onClick={() => navigate('/login')}>
+        <Button
+          variant="primary"
+          fullWidth
+          size="lg"
+          style={{
+            borderRadius: 9999,
+            padding: '14px 24px',
+            fontSize: 12,
+            letterSpacing: '0.12em',
+            boxShadow: '0 1px 2px rgba(16,24,40,0.04), 0 4px 12px rgba(74,184,193,0.18)',
+          }}
+          onClick={() => navigate('/login')}
+        >
           Sign in →
         </Button>
       </AuthLayout>
@@ -61,13 +73,16 @@ export function ResetPasswordScreen() {
       title="New password"
       subtitle={
         email ? (
-          <>For {email} — choose a strong password, minimum 8 characters.</>
+          <>
+            For <strong style={{ color: '#1a1d23' }}>{email}</strong> — choose a strong password,
+            minimum 8 characters.
+          </>
         ) : (
           <>Choose a strong password, minimum 8 characters.</>
         )
       }
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <Input
           label="New password"
           value={password}
@@ -75,6 +90,8 @@ export function ResetPasswordScreen() {
           placeholder="At least 8 characters"
           type="password"
           secureToggle
+          appearance="light"
+          size="md"
         />
         <Input
           label="Confirm password"
@@ -83,6 +100,8 @@ export function ResetPasswordScreen() {
           placeholder="Repeat your password"
           type="password"
           secureToggle
+          appearance="light"
+          size="md"
         />
         {error ? <div style={errorStyle}>{error}</div> : null}
         <Button
@@ -90,33 +109,61 @@ export function ResetPasswordScreen() {
           fullWidth
           loading={submitting}
           size="lg"
+          style={{
+            borderRadius: 9999,
+            padding: '14px 24px',
+            fontSize: 12,
+            letterSpacing: '0.12em',
+            boxShadow: '0 1px 2px rgba(16,24,40,0.04), 0 4px 12px rgba(74,184,193,0.18)',
+          }}
           onClick={() => void handleReset()}
         >
           Update password →
         </Button>
-        <div style={{ textAlign: 'center' }}>
-          <button type="button" style={linkStyle} onClick={() => navigate('/login')}>
+        <div style={{ textAlign: 'center', marginTop: 4 }}>
+          <button
+            type="button"
+            className="auth-link"
+            style={linkStyle}
+            onClick={() => navigate('/login')}
+          >
             ← Back to login
           </button>
         </div>
       </div>
+
+      <style>{`
+        .auth-link:hover {
+          color: #1c1917 !important;
+          text-decoration-color: rgba(28, 25, 23, 0.45) !important;
+        }
+      `}</style>
     </AuthLayout>
   );
 }
 
 const errorStyle: React.CSSProperties = {
-  fontSize: '0.75rem',
-  color: 'var(--color-warn)',
-  background: 'var(--color-warn-dim)',
-  borderLeft: '2px solid var(--color-warn)',
+  fontFamily: 'var(--font-ui)',
+  fontSize: '12px',
+  lineHeight: '1.5',
+  color: '#991b1b',
+  background: '#fef2f2',
+  border: '1px solid #fecaca',
+  borderLeft: '3px solid #e07a65',
   padding: '10px 12px',
-  borderRadius: 2,
+  borderRadius: 10,
 };
 
 const linkStyle: React.CSSProperties = {
-  fontSize: '0.75rem',
-  color: 'var(--color-aqua)',
+  fontFamily: 'var(--font-ui)',
+  fontSize: '12.5px',
+  fontWeight: 500,
+  color: '#78716c',
   background: 'none',
   border: 'none',
   cursor: 'pointer',
-};
+  padding: 0,
+  textDecoration: 'underline',
+  textDecorationColor: 'rgba(120,113,108,0.3)',
+  textUnderlineOffset: '3px',
+} as React.CSSProperties;

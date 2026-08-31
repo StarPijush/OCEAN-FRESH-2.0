@@ -3,11 +3,5 @@
   "outputDirectory": "apps/admin/dist",
   "framework": "vite",
   "installCommand": "pnpm install",
-  "devCommand": "pnpm --filter @oceanfresh/admin dev",
-  "env": {
-    "VITE_SUPABASE_URL": "@supabase_url",
-    "VITE_SUPABASE_ANON_KEY": "@supabase_anon_key",
-    "VITE_SUPABASE_STORAGE_BUCKET": "@supabase_storage_bucket",
-    "VITE_STOREFRONT_URL": "@storefront_url"
-  }
+  "devCommand": "pnpm --filter @oceanfresh/admin dev"
 }
