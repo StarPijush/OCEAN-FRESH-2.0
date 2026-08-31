@@ -31,19 +31,16 @@ export function ForgotPasswordScreen() {
   };
 
   return (
-    <AuthLayout
-      eyebrow="Password Recovery"
-      title="Reset password"
-      subtitle="Enter your registered email to receive a one-time passcode."
-    >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+    <AuthLayout eyebrow="Password Recovery" subtitle="Enter your registered email to continue.">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <Input
           label="Email Address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="admin@oceanfresh.in"
           type="email"
           autoCapitalize="none"
+          autoComplete="email"
+          autoCorrect="off"
           appearance="light"
           size="md"
         />
@@ -54,34 +51,35 @@ export function ForgotPasswordScreen() {
           loading={submitting}
           size="lg"
           style={{
-            borderRadius: 9999,
-            padding: '14px 24px',
+            borderRadius: 6,
+            padding: '15px 24px',
             fontSize: 12,
-            letterSpacing: '0.12em',
-            boxShadow: '0 1px 2px rgba(16,24,40,0.04), 0 4px 12px rgba(74,184,193,0.18)',
+            letterSpacing: '0.14em',
+            fontWeight: 600,
+            boxShadow: '0 4px 16px rgba(39,195,200,0.18), 0 1px 3px rgba(7,21,38,0.25)',
+            marginTop: 4,
           }}
           onClick={() => void handleSend()}
         >
-          Send OTP →
+          SEND OTP
         </Button>
-        <div style={{ textAlign: 'center', marginTop: 4 }}>
-          <button
-            type="button"
-            className="auth-link"
-            style={linkStyle}
-            onClick={() => navigate('/login')}
-          >
-            ← Back to login
-          </button>
-        </div>
+        <Button
+          variant="primary"
+          fullWidth
+          size="lg"
+          style={{
+            borderRadius: 6,
+            padding: '15px 24px',
+            fontSize: 12,
+            letterSpacing: '0.14em',
+            fontWeight: 600,
+            boxShadow: '0 4px 16px rgba(39,195,200,0.18), 0 1px 3px rgba(7,21,38,0.25)',
+          }}
+          onClick={() => navigate('/login')}
+        >
+          Back to login
+        </Button>
       </div>
-
-      <style>{`
-        .auth-link:hover {
-          color: #1c1917 !important;
-          text-decoration-color: rgba(28, 25, 23, 0.45) !important;
-        }
-      `}</style>
     </AuthLayout>
   );
 }
@@ -90,24 +88,10 @@ const errorStyle: React.CSSProperties = {
   fontFamily: 'var(--font-ui)',
   fontSize: '12px',
   lineHeight: '1.5',
-  color: '#991b1b',
-  background: '#fef2f2',
-  border: '1px solid #fecaca',
-  borderLeft: '3px solid #e07a65',
+  color: '#fecaca',
+  background: 'rgba(224,122,101,0.10)',
+  border: '1px solid rgba(224,122,101,0.28)',
+  borderLeft: '3px solid var(--color-warn, #e07a65)',
   padding: '10px 12px',
-  borderRadius: 10,
+  borderRadius: 8,
 };
-
-const linkStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-ui)',
-  fontSize: '12.5px',
-  fontWeight: 500,
-  color: '#78716c',
-  background: 'none',
-  border: 'none',
-  cursor: 'pointer',
-  padding: 0,
-  textDecoration: 'underline',
-  textDecorationColor: 'rgba(120,113,108,0.3)',
-  textUnderlineOffset: '3px',
-} as React.CSSProperties;

@@ -44,25 +44,30 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     const isLight = appearance === 'light';
 
+    // Unified premium sizing — editorial height ~44-46px, consistent across appearances
     const sizeStyles: Record<InputSize, React.CSSProperties> = isLight
       ? {
-          sm: { padding: '9px 14px', fontSize: '13px' },
-          md: { padding: '12px 18px', fontSize: '14px' },
-          lg: { padding: '13px 18px', fontSize: '14px' },
+          sm: { padding: '10px 14px', fontSize: '13px' },
+          md: { padding: '13px 16px', fontSize: '14px' },
+          lg: { padding: '14px 16px', fontSize: '14px' },
         }
       : {
-          sm: { padding: '8px 10px', fontSize: '13px' },
-          md: { padding: '12px 14px', fontSize: '14px' },
-          lg: { padding: '14px 16px', fontSize: '16px' },
+          sm: { padding: '8px 12px', fontSize: '13px' },
+          md: { padding: '13px 14px', fontSize: '14px' },
+          lg: { padding: '14px 16px', fontSize: '14px' },
         };
 
+    // Both appearances now render premium navy-dark inputs for the deep-navy auth shell.
+    // isLight retains a subtle distinction for legacy callers but shares the same
+    // editorial language: dark inset, teal focus, 6px radius — never 9999 pill.
     const baseStyles: React.CSSProperties = isLight
       ? {
           width: '100%',
-          background: '#ffffff',
-          border: '1px solid #e7e5e4',
-          borderRadius: '9999px',
-          color: '#1c1917',
+          background: 'rgba(7, 21, 38, 0.72)',
+          backgroundColor: 'rgba(7, 21, 38, 0.72)',
+          border: '1px solid rgba(255, 255, 255, 0.09)',
+          borderRadius: '6px',
+          color: 'var(--color-text-primary, #f2eee6)',
           fontFamily: 'var(--font-ui)',
           outline: 'none',
           transition: 'border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out)',
@@ -70,10 +75,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         }
       : {
           width: '100%',
-          background: 'var(--color-bg)',
-          border: '1px solid var(--color-border2)',
-          borderRadius: 'var(--radius-input)',
-          color: 'var(--color-cream)',
+          background: 'var(--color-bg, #0d0f12)',
+          border: '1px solid var(--color-border2, rgba(255,255,255,0.12))',
+          borderRadius: '6px',
+          color: 'var(--color-cream, #f0ebe0)',
           fontFamily: 'var(--font-ui)',
           outline: 'none',
           transition: 'border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out)',
@@ -82,22 +87,22 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
     const focusStyles: React.CSSProperties = isLight
       ? {
-          borderColor: '#4ab8c1',
-          boxShadow: '0 0 0 3px rgba(74,184,193,0.15)',
+          borderColor: 'var(--color-teal, #27c3c8)',
+          boxShadow: '0 0 0 3px rgba(39,195,200,0.16)',
         }
       : {
-          borderColor: 'var(--color-aqua)',
-          boxShadow: 'var(--shadow-focus)',
+          borderColor: 'var(--color-teal, #27c3c8)',
+          boxShadow: '0 0 0 3px rgba(39,195,200,0.16)',
         };
 
     const errorStyles: React.CSSProperties = isLight
       ? {
-          borderColor: '#e07a65',
-          boxShadow: '0 0 0 3px rgba(224,122,101,0.14)',
+          borderColor: 'var(--color-warn, #e07a65)',
+          boxShadow: '0 0 0 3px rgba(224,122,101,0.16)',
         }
       : {
-          borderColor: 'var(--color-warn)',
-          boxShadow: 'var(--shadow-focus-error)',
+          borderColor: 'var(--color-warn, #e07a65)',
+          boxShadow: '0 0 0 3px rgba(224,122,101,0.16)',
         };
 
     const disabledStyles: React.CSSProperties = {
@@ -105,21 +110,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       cursor: 'not-allowed',
     };
 
-    const labelColor = isLight ? '#78716c' : 'var(--color-muted)';
-    const toggleColor = isLight ? '#a8a29e' : 'var(--color-muted2)';
+    const labelColor = isLight ? '#aeb9c8' : 'var(--color-text-secondary, #9ca3af)';
+    const toggleColor = isLight ? '#aeb9c8' : 'var(--color-muted2)';
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', ...style }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '7px', ...style }}>
         {label && (
           <label
             htmlFor={inputId}
             style={{
               fontFamily: 'var(--font-ui)',
-              fontSize: isLight ? '10px' : 'var(--text-label-size)',
-              lineHeight: isLight ? '1.4' : 'var(--text-label-line)',
-              fontWeight: isLight ? 600 : 'var(--text-label-weight)',
-              letterSpacing: isLight ? '0.12em' : 'var(--text-label-tracking)',
-              textTransform: 'var(--text-label-transform)',
+              fontSize: '10px',
+              lineHeight: '1.5',
+              fontWeight: 600,
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
               color: labelColor,
             }}
           >
@@ -192,7 +197,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               tabIndex={-1}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.color = isLight
-                  ? '#57534e'
+                  ? 'var(--color-text-primary, #f2eee6)'
                   : 'var(--color-cream)';
               }}
               onMouseLeave={(e) => {

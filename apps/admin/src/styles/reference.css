@@ -7,35 +7,31 @@
 
 :root {
   /* ---- Colors ---- */
-  /* Core surfaces */
-  --color-bg: #0d0f12;
-  --color-surface: #141720;
-  --color-surface2: #1c2030;
-  --color-surface3: #23283a;
+  /* Core surfaces - DARK NAVY */
+  --color-bg: #071526;
+  --color-surface: #0d2035;
+  --color-surface2: #0f1f33;
+  --color-surface3: #14304d;
 
-  /* Borders */
-  --color-border: rgba(255, 255, 255, 0.07);
-  --color-border2: rgba(255, 255, 255, 0.12);
+  /* Borders - AQUA/TEAL derived */
+  --color-border: rgba(74, 184, 193, 0.09);
+  --color-border2: rgba(74, 184, 193, 0.14);
   --color-border-hover: rgba(74, 184, 193, 0.3);
   --color-border-active: rgba(74, 184, 193, 0.5);
 
-  /* Text */
-  --color-cream: #f0ebe0;
-  --color-cream-dim: rgba(240, 235, 224, 0.7);
-  --color-muted: #6b7280;
-  --color-muted2: #9ca3af;
-  --color-text-primary: #f0ebe0;
-  --color-text-secondary: #9ca3af;
-  --color-text-muted: #6b7280;
+  /* Text - NEUTRAL COOL GRAYS */
+  --color-text-primary: #e6edf5;
+  --color-text-secondary: #aeb9c8;
+  --color-text-muted: #8291a5;
 
-  /* Brand - Aqua */
+  /* Brand - AQUA/TEAL */
   --color-aqua: #4ab8c1;
   --color-aqua-hover: #5bc8d1;
   --color-aqua-dim: rgba(74, 184, 193, 0.12);
-  --color-aqua-glow: rgba(74, 184, 193, 0.2);
+  --color-aqua-glow: rgba(74, 184, 193, 0.15);
   --color-aqua-border: rgba(74, 184, 193, 0.3);
 
-  /* Status - Green */
+  /* Status - Green (teal-compatible) */
   --color-green: #4ade80;
   --color-green-hover: #5ee08a;
   --color-green-dim: rgba(74, 222, 128, 0.12);
@@ -47,17 +43,17 @@
   --color-warn-dim: rgba(224, 122, 101, 0.12);
   --color-warn-border: rgba(224, 122, 101, 0.3);
 
-  /* Status - Gold */
-  --color-gold: #f0b429;
-  --color-gold-hover: #f2c04a;
-  --color-gold-dim: rgba(240, 180, 41, 0.12);
-  --color-gold-border: rgba(240, 180, 41, 0.3);
-
-  /* Legacy OceanFresh (for transition) */
+  /* OceanFresh Premium — storefront canonical (authoritative) - NAVY/TEAL ONLY */
   --color-navy-deep: #071526;
   --color-navy-surface: #0d2035;
+  --color-navy-deepest: #04101d;
   --color-teal: #27c3c8;
-  --color-champagne: #d8c7a6;
+  --color-teal-hover: #1faaae;
+  --color-teal-dim: rgba(39, 195, 200, 0.1);
+  --color-teal-glow: rgba(39, 195, 200, 0.15);
+  --color-teal-border: rgba(39, 195, 200, 0.3);
+  --grid-dark: rgba(39, 195, 200, 0.055);
+  --grid-light: rgba(7, 21, 38, 0.035);
 
   /* ---- Spacing (4px base unit) ---- */
   --space-base: 4px;
@@ -342,14 +338,14 @@ body {
   font-weight: var(--text-body-weight);
   letter-spacing: var(--text-body-tracking);
   color: var(--color-text-primary);
-  background-color: var(--color-bg);
+  background-color: var(--color-navy-deep);
   min-height: 100vh;
 }
 
 /* Selection */
 ::selection {
-  background: var(--color-aqua-dim);
-  color: var(--color-cream);
+  background: var(--color-teal-dim);
+  color: var(--color-text-primary);
 }
 
 /* Focus visible */
@@ -740,12 +736,6 @@ body {
    Color Utilities
    ============================================================ */
 
-.text-cream {
-  color: var(--color-cream);
-}
-.text-cream-dim {
-  color: var(--color-cream-dim);
-}
 .text-muted {
   color: var(--color-muted);
 }
@@ -764,11 +754,14 @@ body {
 .text-warn {
   color: var(--color-warn);
 }
-.text-gold {
-  color: var(--color-gold);
+.text-primary {
+  color: var(--color-text-primary);
 }
-.text-white {
-  color: var(--color-white);
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+.text-muted {
+  color: var(--color-text-muted);
 }
 
 .bg-bg {
@@ -801,12 +794,6 @@ body {
 .bg-warn-dim {
   background-color: var(--color-warn-dim);
 }
-.bg-gold {
-  background-color: var(--color-gold);
-}
-.bg-gold-dim {
-  background-color: var(--color-gold-dim);
-}
 
 .border-border {
   border-color: var(--color-border);
@@ -822,9 +809,6 @@ body {
 }
 .border-warn {
   border-color: var(--color-warn-border);
-}
-.border-gold {
-  border-color: var(--color-gold-border);
 }
 
 /* ============================================================

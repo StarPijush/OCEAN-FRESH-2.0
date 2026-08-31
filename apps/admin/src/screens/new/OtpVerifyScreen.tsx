@@ -59,6 +59,9 @@ export function OtpVerifyScreen() {
     }
   };
 
+  const isResendDisabled = resending || countdown > 0;
+  const isVerifyDisabled = code.length !== 6 || verifying;
+
   return (
     <AuthLayout
       eyebrow="Two-Step Verification"
@@ -69,7 +72,10 @@ export function OtpVerifyScreen() {
         ) : (
           <>
             A 6-digit OTP has been sent to{' '}
-            <strong style={{ color: '#1a1d23' }}>{email || 'your email'}</strong>. Check your inbox.
+            <strong style={{ color: 'var(--color-text-primary, #f2eee6)' }}>
+              {email || 'your email'}
+            </strong>
+            . Check your inbox.
           </>
         )
       }
@@ -80,62 +86,76 @@ export function OtpVerifyScreen() {
         variant="primary"
         fullWidth
         loading={verifying}
+        disabled={isVerifyDisabled}
         size="lg"
         style={{
-          borderRadius: 9999,
-          padding: '14px 24px',
+          borderRadius: 6,
+          padding: '15px 24px',
           fontSize: 12,
-          letterSpacing: '0.12em',
-          boxShadow: '0 1px 2px rgba(16,24,40,0.04), 0 4px 12px rgba(74,184,193,0.18)',
+          letterSpacing: '0.14em',
+          fontWeight: 600,
+          boxShadow: '0 4px 16px rgba(39,195,200,0.18), 0 1px 3px rgba(7,21,38,0.25)',
         }}
         onClick={() => void handleVerify()}
       >
-        Verify OTP →
+        VERIFY OTP
       </Button>
       <div
+        className="auth-actions"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginTop: 14,
+          marginTop: 18,
           flexWrap: 'wrap',
-          gap: 12,
+          gap: 16,
+          padding: '0 2px',
         }}
       >
         <button
           type="button"
-          className="auth-link"
-          style={{ ...linkStyle, opacity: resending || countdown > 0 ? 0.5 : 1 }}
-          disabled={resending || countdown > 0}
+          className="auth-link auth-link--recovery"
+          style={{ ...linkStyle, opacity: isResendDisabled ? 0.45 : 1 }}
+          disabled={isResendDisabled}
           onClick={() => void handleResend()}
         >
           {countdown > 0 ? `Resend in ${countdown}s` : 'Resend OTP'}
         </button>
         <button
           type="button"
-          className="auth-link"
+          className="auth-link auth-link--recovery"
           style={linkStyle}
           onClick={() => navigate('/login')}
         >
-          ← Back to login
+          Back to login
         </button>
       </div>
-      <p style={noteStyle}>
-        Didn&apos;t receive it?{' '}
-        <button
-          type="button"
-          className="auth-link"
-          style={{ ...linkStyle, textDecoration: 'underline' } as React.CSSProperties}
-          onClick={() => void handleResend()}
-        >
-          Resend OTP
-        </button>
-      </p>
 
       <style>{`
-        .auth-link:hover {
-          color: #1c1917 !important;
-          text-decoration-color: rgba(28, 25, 23, 0.45) !important;
+        .auth-link--recovery,
+        .auth-link--recovery:visited,
+        .auth-link--recovery:hover,
+        .auth-link--recovery:focus,
+        .auth-link--recovery:active {
+          text-decoration: none !important;
+        }
+        .auth-link--recovery:hover {
+          color: var(--color-teal, #27c3c8) !important;
+        }
+        .auth-link--recovery:focus-visible {
+          outline: 2px solid rgba(39, 195, 200, 0.35);
+          outline-offset: 3px;
+          border-radius: 4px;
+        }
+        @media (max-width: 360px) {
+          .auth-actions {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+          }
+          .auth-actions .auth-link {
+            text-align: center;
+          }
         }
       `}</style>
     </AuthLayout>
@@ -146,12 +166,12 @@ const errorStyle: React.CSSProperties = {
   fontFamily: 'var(--font-ui)',
   fontSize: '12px',
   lineHeight: '1.5',
-  color: '#991b1b',
-  background: '#fef2f2',
-  border: '1px solid #fecaca',
-  borderLeft: '3px solid #e07a65',
+  color: '#fecaca',
+  background: 'rgba(224,122,101,0.10)',
+  border: '1px solid rgba(224,122,101,0.28)',
+  borderLeft: '3px solid var(--color-warn, #e07a65)',
   padding: '10px 12px',
-  borderRadius: 10,
+  borderRadius: 8,
   marginBottom: 8,
 };
 
@@ -159,21 +179,12 @@ const linkStyle: React.CSSProperties = {
   fontFamily: 'var(--font-ui)',
   fontSize: '12.5px',
   fontWeight: 500,
-  color: '#78716c',
+  color: '#aeb9c8',
   background: 'none',
   border: 'none',
   cursor: 'pointer',
-  padding: 0,
-  textDecoration: 'underline',
-  textDecorationColor: 'rgba(120,113,108,0.3)',
-  textUnderlineOffset: '3px',
-};
-
-const noteStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-ui)',
-  fontSize: '12px',
-  color: '#78716c',
-  textAlign: 'center',
-  marginTop: 14,
-  lineHeight: 1.6,
+  padding: '8px 10px',
+  textDecoration: 'none',
+  lineHeight: '1.4',
+  transition: 'color 180ms var(--ease-out)',
 };

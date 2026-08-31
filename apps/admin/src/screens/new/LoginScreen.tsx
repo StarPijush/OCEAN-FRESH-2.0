@@ -32,23 +32,18 @@ export function LoginScreen() {
   };
 
   return (
-    <AuthLayout
-      eyebrow="Admin Panel · Secure Login"
-      title="Welcome back"
-      subtitle="Sign in with your registered email and password."
-    >
+    <AuthLayout eyebrow="Admin Panel · Secure Login">
       <form
         onSubmit={(e) => {
           e.preventDefault();
           void handleLogin();
         }}
-        style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+        style={{ display: 'flex', flexDirection: 'column', gap: 18 }}
       >
         <Input
           label="Email Address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="admin@oceanfresh.in"
           autoCapitalize="none"
           autoCorrect="off"
           type="email"
@@ -60,7 +55,6 @@ export function LoginScreen() {
           label="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="••••••••"
           type="password"
           autoComplete="current-password"
           secureToggle
@@ -75,24 +69,27 @@ export function LoginScreen() {
           loading={submitting}
           size="lg"
           style={{
-            marginTop: 6,
-            borderRadius: 9999,
-            padding: '14px 24px',
+            marginTop: 10,
+            borderRadius: 6,
+            padding: '15px 24px',
             fontSize: 12,
-            letterSpacing: '0.12em',
-            boxShadow: '0 1px 2px rgba(16,24,40,0.04), 0 4px 12px rgba(74,184,193,0.18)',
+            letterSpacing: '0.14em',
+            fontWeight: 600,
+            boxShadow: '0 4px 16px rgba(39,195,200,0.18), 0 1px 3px rgba(7,21,38,0.25)',
           }}
         >
-          Sign In →
+          SIGN IN
         </Button>
         <div
+          className="auth-actions"
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             flexWrap: 'wrap',
-            gap: 12,
-            marginTop: 6,
+            gap: 16,
+            marginTop: 18,
+            padding: '0 2px',
           }}
         >
           <button
@@ -118,15 +115,24 @@ export function LoginScreen() {
 
       <style>{`
         .auth-link:hover {
-          color: #1c1917 !important;
-          text-decoration-color: rgba(28, 25, 23, 0.45) !important;
+          color: var(--color-text-primary, #f2eee6) !important;
+          text-decoration-color: rgba(242,238,230,0.45) !important;
         }
         .auth-link:active {
-          color: #0f172a !important;
+          color: var(--color-champagne, #d8c7a6) !important;
         }
         @media (max-width: 360px) {
           .auth-link {
             font-size: 12px !important;
+          }
+          .auth-actions {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+          }
+          .auth-actions .auth-link {
+            text-align: center;
+            padding: 4px 0 !important;
           }
         }
       `}</style>
@@ -138,25 +144,25 @@ const errorStyle: React.CSSProperties = {
   fontFamily: 'var(--font-ui)',
   fontSize: '12px',
   lineHeight: '1.5',
-  color: '#991b1b',
-  background: '#fef2f2',
-  border: '1px solid #fecaca',
-  borderLeft: '3px solid #e07a65',
+  color: '#fecaca',
+  background: 'rgba(224,122,101,0.10)',
+  border: '1px solid rgba(224,122,101,0.28)',
+  borderLeft: '3px solid var(--color-warn, #e07a65)',
   padding: '10px 12px',
-  borderRadius: 10,
+  borderRadius: 8,
 };
 
 const linkStyle: React.CSSProperties = {
   fontFamily: 'var(--font-ui)',
   fontSize: '12.5px',
   fontWeight: 500,
-  color: '#78716c',
+  color: '#aeb9c8',
   background: 'none',
   border: 'none',
   cursor: 'pointer',
   padding: 0,
   textDecoration: 'underline',
-  textDecorationColor: 'rgba(120,113,108,0.3)',
+  textDecorationColor: 'rgba(174,185,200,0.32)',
   textUnderlineOffset: '3px',
   transition: 'color 150ms var(--ease-out), text-decoration-color 150ms var(--ease-out)',
 } as React.CSSProperties;

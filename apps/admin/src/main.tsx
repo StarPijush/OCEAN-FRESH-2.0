@@ -33,15 +33,15 @@ try {
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-        background: #0a1628;
-        color: #f5f0e8;
+        background: #071526;
+        color: #e6edf5;
         font-family: system-ui, sans-serif;
         padding: 2rem;
         text-align: center;
       ">
-        <h1 style="margin-bottom: 1rem; color: #c8513a;">Admin Panel Failed to Initialize</h1>
+        <h1 style="margin-bottom: 1rem; color: #e07a65;">Admin Panel Failed to Initialize</h1>
         <pre style="
-          background: #1a3a5c;
+          background: #0d2035;
           padding: 1rem;
           border-radius: 8px;
           overflow: auto;
@@ -49,8 +49,9 @@ try {
           text-align: left;
           white-space: pre-wrap;
           word-break: break-word;
+          border: 1px solid rgba(74,184,193,0.12);
         ">${error instanceof Error ? error.message : String(error)}</pre>
-        <p style="margin-top: 1rem; color: #8a8070; font-size: 0.875rem;">
+        <p style="margin-top: 1rem; color: #8291a5; font-size: 0.875rem;">
           Check browser console for details. Ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are configured.
         </p>
       </div>

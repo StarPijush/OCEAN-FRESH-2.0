@@ -58,14 +58,14 @@ export function OtpInput({ value, onChange, onComplete }: OtpInputProps) {
           }}
           style={inputStyle}
           onFocus={(e) => {
-            (e.target as HTMLInputElement).style.borderColor = '#4ab8c1';
+            (e.target as HTMLInputElement).style.borderColor = 'var(--color-teal, #27c3c8)';
             (e.target as HTMLInputElement).style.boxShadow =
-              '0 0 0 3px rgba(74,184,193,0.15), inset 0 1px 2px rgba(0,0,0,0.04)';
+              '0 0 0 3px rgba(39,195,200,0.16), inset 0 1px 2px rgba(0,0,0,0.08)';
             (e.target as HTMLInputElement).style.transform = 'translateY(-1px)';
           }}
           onBlur={(e) => {
-            (e.target as HTMLInputElement).style.borderColor = '#e7e5e4';
-            (e.target as HTMLInputElement).style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.04)';
+            (e.target as HTMLInputElement).style.borderColor = 'rgba(255,255,255,0.09)';
+            (e.target as HTMLInputElement).style.boxShadow = 'inset 0 1px 2px rgba(0,0,0,0.14)';
             (e.target as HTMLInputElement).style.transform = 'none';
           }}
         />
@@ -120,11 +120,11 @@ const inputStyle: React.CSSProperties = {
   textAlign: 'center',
   fontSize: '1.5rem',
   fontWeight: 700,
-  background: '#ffffff',
-  border: '1px solid #e7e5e4',
-  borderRadius: 12,
-  color: '#1c1917',
+  background: 'rgba(7, 21, 38, 0.72)',
+  border: '1px solid rgba(255,255,255,0.09)',
+  borderRadius: 8,
+  color: 'var(--color-text-primary, #f2eee6)',
   outline: 'none',
   transition: 'all 200ms cubic-bezier(0.4, 0, 0.2, 1)',
-  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)',
+  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.14)',
 };

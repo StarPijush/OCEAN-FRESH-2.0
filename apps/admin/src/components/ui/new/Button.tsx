@@ -70,8 +70,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles: Record<ButtonVariant, React.CSSProperties> = {
       primary: {
-        background: 'var(--color-aqua)',
-        color: 'var(--color-bg)',
+        background: 'var(--color-teal, #27c3c8)',
+        color: 'var(--color-navy-deep, #071526)',
       },
       secondary: {
         background: 'var(--color-surface2)',
@@ -90,14 +90,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       },
       link: {
         background: 'transparent',
-        color: 'var(--color-aqua)',
+        color: 'var(--color-teal, #27c3c8)',
         border: 'none',
         padding: '4px 8px',
       },
     };
 
     const hoverStyles: Record<ButtonVariant, React.CSSProperties> = {
-      primary: { background: 'var(--color-aqua-hover)' },
+      primary: { background: 'var(--color-teal-hover, #1faaae)' },
       secondary: { borderColor: 'var(--color-cream)', background: 'rgba(255,255,255,0.04)' },
       ghost: { borderColor: 'var(--color-cream)', background: 'rgba(255,255,255,0.04)' },
       danger: { background: 'rgba(224,122,101,0.22)' },
