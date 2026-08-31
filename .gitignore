@@ -65,3 +65,7 @@ generated-reports/
 
 tmp_playwright_check.mjs
 tmp_playwright_check2.mjs
+
+# Internal docs & planning
+docs/admin-ui-rebuild/
+.opencode/

@@ -1,4 +1,4 @@
-import './styles/admin.css';
+import './styles/reference.css';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
@@ -8,6 +8,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './app';
 import { bootstrapApp } from './bootstrap';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { ToastProvider } from './components/ui/new/Toast';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -65,9 +66,11 @@ ReactDOM.createRoot(root).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <ErrorBoundary>
-          <App />
-        </ErrorBoundary>
+        <ToastProvider>
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
+        </ToastProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>,

@@ -1,13 +1,6 @@
-import { colors, radius, spacing } from '../theme';
-import { AppText } from './AppText';
-import { BrandMark } from './BrandMark';
-import { Button } from './Button';
+import { BrandMark } from './ui/new/BrandMark';
+import { Button } from './ui/new/Button';
 
-/**
- * Full-screen state shown when a valid Supabase session belongs to a user
- * without an admin role (no admin_profiles row, or role not in
- * admin/super_admin). Mirrors the previous "No admin access" screen.
- */
 export function AccessDenied({
   onSignOut,
   signingOut = false,
@@ -19,52 +12,65 @@ export function AccessDenied({
     <div
       style={{
         minHeight: '100vh',
-        backgroundColor: colors.bg,
+        background: 'var(--color-bg)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: spacing.xl,
+        padding: 24,
       }}
     >
       <div
         style={{
           width: '100%',
           maxWidth: 400,
-          backgroundColor: colors.surface,
-          border: `1px solid ${colors.borderStrong}`,
-          borderRadius: radius.lg,
-          padding: spacing.xl,
+          background: 'var(--color-surface)',
+          border: '1px solid var(--color-border2)',
+          borderRadius: 12,
+          padding: 32,
           display: 'flex',
-          alignItems: 'center',
           flexDirection: 'column',
-          gap: spacing.md,
+          alignItems: 'center',
+          gap: 16,
+          textAlign: 'center',
         }}
       >
-        <BrandMark size={48} />
-        <AppText
-          variant="label"
-          color="mutedBright"
-          style={{ letterSpacing: 1.5, textTransform: 'uppercase' }}
+        <BrandMark size="lg" />
+        <div
+          style={{
+            fontSize: 11,
+            letterSpacing: 1.5,
+            textTransform: 'uppercase',
+            color: 'var(--color-muted)',
+            fontWeight: 600,
+          }}
         >
           Admin Panel · Access Denied
-        </AppText>
-        <AppText variant="heading" style={{ textAlign: 'center' }}>
+        </div>
+        <div
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 22,
+            fontWeight: 400,
+            color: 'var(--color-cream)',
+            textAlign: 'center',
+          }}
+        >
           No admin access
-        </AppText>
-        <AppText
-          variant="body"
-          color="mutedBright"
-          style={{ textAlign: 'center', lineHeight: '22px', marginBottom: spacing.sm }}
+        </div>
+        <div
+          style={{
+            fontSize: 13,
+            color: 'var(--color-muted2)',
+            lineHeight: 1.6,
+            textAlign: 'center',
+          }}
         >
           Your account is not registered as an administrator in admin_profiles, or your role is not
           granted admin access.
-        </AppText>
-        <Button
-          label="Sign in with a different account"
-          fullWidth
-          loading={signingOut}
-          onPress={onSignOut}
-        />
+        </div>
+        <Button variant="primary" fullWidth loading={signingOut} onClick={onSignOut}>
+          Sign in with a different account
+        </Button>
       </div>
     </div>
   );

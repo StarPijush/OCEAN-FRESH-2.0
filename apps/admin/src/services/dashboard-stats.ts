@@ -72,6 +72,20 @@ function orderDayLabel(ts: number): string {
   });
 }
 
+function toDateSafe(value: unknown): Date | null {
+  if (value instanceof Date) return value;
+  if (typeof value === 'string' || typeof value === 'number') {
+    const d = new Date(value as string);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
+function orderCreatedAtMs(order: Order): number {
+  const d = toDateSafe((order as unknown as Record<string, unknown>).createdAt);
+  return d ? d.getTime() : NaN;
+}
+
 export function computeDashboardStats(
   orders: Order[],
   products: Product[],
@@ -89,8 +103,8 @@ export function computeDashboardStats(
     const dayStart = todayStart - i * DAY_MS;
     const dayEnd = dayStart + DAY_MS;
     const dayOrders = orders.filter((o) => {
-      const ts = new Date(o.createdAt).getTime();
-      return ts >= dayStart && ts < dayEnd;
+      const ts = orderCreatedAtMs(o);
+      return Number.isFinite(ts) && ts >= dayStart && ts < dayEnd;
     });
     chart.push({
       label: orderDayLabel(dayStart),
@@ -102,7 +116,10 @@ export function computeDashboardStats(
   }
 
   const weekIncome = chart.reduce((sum, d) => sum + d.income, 0);
-  const todayOrders = orders.filter((o) => new Date(o.createdAt).getTime() >= todayStart);
+  const todayOrders = orders.filter((o) => {
+    const ts = orderCreatedAtMs(o);
+    return Number.isFinite(ts) && ts >= todayStart;
+  });
 
   const productSales: Record<string, number> = {};
   for (const o of orders) {

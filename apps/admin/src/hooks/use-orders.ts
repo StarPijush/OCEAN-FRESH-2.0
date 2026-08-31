@@ -2,7 +2,7 @@ import { getOrderRepository } from '@oceanfresh/order/repository';
 import type { Order, OrderQuery, OrderStatus, PaginatedResult } from '@oceanfresh/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { toast } from '../components/Toast';
+import { useToast } from '../components/ui/new/Toast';
 import { PENDING_STATUSES } from '../services/dashboard-stats';
 import { errorToMessage } from '../utils/error';
 
@@ -27,6 +27,7 @@ export function useOrders(options: UseOrdersOptions = {}) {
 
 export function useUpdateOrderStatus() {
   const queryClient = useQueryClient();
+  const { show: toast } = useToast();
   return useMutation({
     mutationFn: async (input: {
       id: string;

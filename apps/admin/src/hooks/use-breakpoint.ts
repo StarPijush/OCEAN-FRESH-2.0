@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { breakpoints } from '../theme';
+import { breakpoints } from '../theme/new';
 
 export interface Viewport {
   width: number;

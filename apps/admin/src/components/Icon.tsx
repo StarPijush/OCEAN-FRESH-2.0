@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react';
 
-import { colors } from '../theme';
-
 /**
  * Typed inline SVG icon set — replaces the Ionicons font the app used under
  * React Native. Stroke style mirrors the storefront icon system; each glyph
@@ -44,7 +42,10 @@ export type IconName =
   | 'person-outline'
   | 'lock-closed-outline'
   | 'storefront-outline'
-  | 'link-outline';
+  | 'link-outline'
+  | 'folder-outline'
+  | 'layers-outline'
+  | 'cube-outline';
 
 interface IconProps {
   name?: IconName;
@@ -56,7 +57,7 @@ interface IconProps {
 
 function SvgIcon({
   size = 20,
-  color = colors.mutedBright,
+  color = 'var(--color-muted2)',
   accessibilityLabel,
   className,
   children,
@@ -410,6 +411,28 @@ export function OceanFreshIcon({ name, ...rest }: IconProps) {
         <SvgIcon {...rest}>
           <path d="M10 14a4.5 4.5 0 006.4.4l3-3a4.5 4.5 0 00-6.4-6.4l-1.5 1.5" />
           <path d="M14 10a4.5 4.5 0 00-6.4-.4l-3 3a4.5 4.5 0 006.4 6.4l1.5-1.5" />
+        </SvgIcon>
+      );
+    case 'folder-outline':
+      return (
+        <SvgIcon {...rest}>
+          <path d="M3 7.5A1.5 1.5 0 014.5 6h5.2l2 2H19.5A1.5 1.5 0 0121 9.5v8A1.5 1.5 0 0119.5 19h-15A1.5 1.5 0 013 17.5v-10z" />
+        </SvgIcon>
+      );
+    case 'layers-outline':
+      return (
+        <SvgIcon {...rest}>
+          <path d="M12 3.5l8 4.5-8 4.5-8-4.5 8-4.5z" />
+          <path d="M4 12l8 4.5 8-4.5" />
+          <path d="M4 16l8 4.5 8-4.5" />
+        </SvgIcon>
+      );
+    case 'cube-outline':
+      return (
+        <SvgIcon {...rest}>
+          <path d="M12 4l7 3.5v7L12 18l-7-3.5v-7L12 4z" />
+          <path d="M12 11.5V18" />
+          <path d="M5 7.5l7 4 7-4" />
         </SvgIcon>
       );
     default:

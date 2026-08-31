@@ -24,7 +24,13 @@ import type { IProductRepository } from './product.repository.js';
 const TABLE = 'products';
 
 function toProduct(row: Record<string, unknown>): Product {
-  return rowToCamelCase<Product>(row);
+  const camel = rowToCamelCase<Record<string, unknown>>(row);
+  return {
+    ...camel,
+    createdAt: camel.createdAt ? new Date(camel.createdAt as string) : new Date(),
+    updatedAt: camel.updatedAt ? new Date(camel.updatedAt as string) : new Date(),
+    deletedAt: camel.deletedAt ? new Date(camel.deletedAt as string) : null,
+  } as unknown as Product;
 }
 
 export class SupabaseProductRepository implements IProductRepository {

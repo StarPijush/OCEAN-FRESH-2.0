@@ -1,13 +1,6 @@
-import { colors, radius, spacing } from '../theme';
-import { AppText } from './AppText';
-import { BrandMark } from './BrandMark';
-import { Button } from './Button';
+import { BrandMark } from './ui/new/BrandMark';
+import { Button } from './ui/new/Button';
 
-/**
- * Full-screen state shown when the admin session could not be resolved
- * (network error, profile lookup failure). This is NOT "logged out" — the
- * user is asked to retry, never silently redirected to the login stack.
- */
 export function SessionError({
   message,
   onRetry,
@@ -19,46 +12,64 @@ export function SessionError({
     <div
       style={{
         minHeight: '100vh',
-        backgroundColor: colors.bg,
+        background: 'var(--color-bg)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: spacing.xl,
+        padding: 24,
       }}
     >
       <div
         style={{
           width: '100%',
           maxWidth: 400,
-          backgroundColor: colors.surface,
-          border: `1px solid ${colors.borderStrong}`,
-          borderRadius: radius.lg,
-          padding: spacing.xl,
+          background: 'var(--color-surface)',
+          border: '1px solid var(--color-border2)',
+          borderRadius: 12,
+          padding: 32,
           display: 'flex',
-          alignItems: 'center',
           flexDirection: 'column',
-          gap: spacing.md,
+          alignItems: 'center',
+          gap: 16,
+          textAlign: 'center',
         }}
       >
-        <BrandMark size={48} />
-        <AppText
-          variant="label"
-          color="mutedBright"
-          style={{ letterSpacing: 1.5, textTransform: 'uppercase' }}
+        <BrandMark size="lg" />
+        <div
+          style={{
+            fontSize: 11,
+            letterSpacing: 1.5,
+            textTransform: 'uppercase',
+            color: 'var(--color-muted)',
+            fontWeight: 600,
+          }}
         >
           Admin Panel · Session Error
-        </AppText>
-        <AppText variant="heading" style={{ textAlign: 'center' }}>
+        </div>
+        <div
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: 22,
+            fontWeight: 400,
+            color: 'var(--color-cream)',
+            textAlign: 'center',
+          }}
+        >
           Could not resolve your session
-        </AppText>
-        <AppText
-          variant="body"
-          color="mutedBright"
-          style={{ textAlign: 'center', lineHeight: '22px', marginBottom: spacing.sm }}
+        </div>
+        <div
+          style={{
+            fontSize: 13,
+            color: 'var(--color-muted2)',
+            lineHeight: 1.6,
+            textAlign: 'center',
+          }}
         >
           {message || 'An unexpected error occurred.'}
-        </AppText>
-        <Button label="Try Again" fullWidth onPress={onRetry} />
+        </div>
+        <Button variant="primary" fullWidth onClick={onRetry}>
+          Try Again
+        </Button>
       </div>
     </div>
   );

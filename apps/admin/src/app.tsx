@@ -4,15 +4,16 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { AccessDenied } from './components/AccessDenied';
 import { SessionError } from './components/SessionError';
 import { useAdminSession } from './hooks/use-auth-session';
-import { AdminLayout } from './navigation/AdminLayout';
-import { DashboardScreen } from './screens/DashboardScreen';
-import { ForgotPasswordScreen } from './screens/ForgotPasswordScreen';
-import { LoginScreen } from './screens/LoginScreen';
-import { OrdersScreen } from './screens/OrdersScreen';
-import { OtpVerifyScreen } from './screens/OtpVerifyScreen';
-import { ProductsScreen } from './screens/ProductsScreen';
-import { ResetPasswordScreen } from './screens/ResetPasswordScreen';
-import { SettingsScreen } from './screens/SettingsScreen';
+import { AdminLayout } from './navigation/new/AdminLayout';
+import { CategoriesScreen } from './screens/new/CategoriesScreen';
+import { DashboardScreen } from './screens/new/DashboardScreen';
+import { ForgotPasswordScreen } from './screens/new/ForgotPasswordScreen';
+import { LoginScreen } from './screens/new/LoginScreen';
+import { OrdersScreen } from './screens/new/OrdersScreen';
+import { OtpVerifyScreen } from './screens/new/OtpVerifyScreen';
+import { ProductsScreen } from './screens/new/ProductsScreen';
+import { ResetPasswordScreen } from './screens/new/ResetPasswordScreen';
+import { SettingsScreen } from './screens/new/SettingsScreen';
 import { getAuthProvider } from './services/auth.service';
 
 /**
@@ -39,6 +40,7 @@ function AdminRoutes() {
       <Route element={<AdminLayout />}>
         <Route path="/dashboard" element={<DashboardScreen />} />
         <Route path="/products" element={<ProductsScreen />} />
+        <Route path="/categories" element={<CategoriesScreen />} />
         <Route path="/orders" element={<OrdersScreen />} />
         <Route path="/settings" element={<SettingsScreen />} />
       </Route>

@@ -5,6 +5,16 @@ import type { CategoryFilter, ICategoryRepository } from './category.repository.
 
 const TABLE = 'categories';
 
+function toCategory(row: Record<string, unknown>): Category {
+  const camel = rowToCamelCase<Record<string, unknown>>(row);
+  return {
+    ...camel,
+    createdAt: camel.createdAt ? new Date(camel.createdAt as string) : new Date(),
+    updatedAt: camel.updatedAt ? new Date(camel.updatedAt as string) : new Date(),
+    deletedAt: camel.deletedAt ? new Date(camel.deletedAt as string) : null,
+  } as unknown as Category;
+}
+
 export class SupabaseCategoryRepository implements ICategoryRepository {
   async findAll(filter: CategoryFilter = {}): Promise<Category[]> {
     try {
@@ -19,7 +29,7 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
         orderByField: 'sort_order',
         orderDirection: 'asc',
       });
-      return rows.map((row) => rowToCamelCase<Category>(row));
+      return rows.map((row) => toCategory(row));
     } catch (err) {
       throw new RepositoryError('Failed to query categories', 'findAll', TABLE, {
         filter,
@@ -32,7 +42,7 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
     try {
       const row = await supabaseService.get<Record<string, unknown>>(TABLE, id);
       if (!row) return null;
-      return rowToCamelCase<Category>(row);
+      return toCategory(row);
     } catch (err) {
       throw new RepositoryError('Failed to find category by id', 'findById', TABLE, {
         id,
@@ -48,7 +58,7 @@ export class SupabaseCategoryRepository implements ICategoryRepository {
         { field: 'is_deleted', operator: 'eq', value: false },
       ]);
       if (rows.length === 0) return null;
-      return rowToCamelCase<Category>(rows[0] as Record<string, unknown>);
+      return toCategory(rows[0] as Record<string, unknown>);
     } catch (err) {
       throw new RepositoryError('Failed to find category by slug', 'findBySlug', TABLE, {
         slug,

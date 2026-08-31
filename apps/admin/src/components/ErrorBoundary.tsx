@@ -1,9 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 
-import { colors, spacing } from '../theme';
-import { AppText } from './AppText';
-import { BrandMark } from './BrandMark';
-import { Button } from './Button';
+import { BrandMark } from './ui/new/BrandMark';
+import { Button } from './ui/new/Button';
 
 interface Props {
   children: ReactNode;
@@ -50,61 +48,78 @@ export class ErrorBoundary extends Component<Props, State> {
         <div
           style={{
             minHeight: '100vh',
-            backgroundColor: colors.bg,
+            background: 'var(--color-bg)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: spacing.xl,
+            padding: 24,
           }}
         >
           <div
             style={{
               width: '100%',
               maxWidth: 480,
-              backgroundColor: colors.surface,
-              border: `1px solid ${colors.borderStrong}`,
+              background: 'var(--color-surface)',
+              border: '1px solid var(--color-border2)',
               borderRadius: 12,
-              padding: spacing.xl,
+              padding: 32,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: spacing.md,
+              gap: 16,
             }}
           >
-            <BrandMark size={48} />
-            <AppText
-              variant="label"
-              color="mutedBright"
-              style={{ letterSpacing: 1.5, textTransform: 'uppercase' }}
+            <BrandMark size="lg" />
+            <div
+              style={{
+                fontSize: 11,
+                letterSpacing: 1.5,
+                textTransform: 'uppercase',
+                color: 'var(--color-muted)',
+                fontWeight: 600,
+              }}
             >
               OceanFresh Admin
-            </AppText>
-            <AppText variant="heading" style={{ textAlign: 'center' }}>
+            </div>
+            <div
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 20,
+                fontWeight: 400,
+                color: 'var(--color-cream)',
+                textAlign: 'center',
+              }}
+            >
               Something went wrong
-            </AppText>
-            <AppText
-              variant="body"
-              color="mutedBright"
-              style={{ textAlign: 'center', lineHeight: '22px', marginBottom: spacing.sm }}
+            </div>
+            <div
+              style={{
+                fontSize: 13,
+                color: 'var(--color-muted2)',
+                lineHeight: 1.6,
+                textAlign: 'center',
+              }}
             >
               The admin panel encountered an unexpected error and couldn&apos;t render this page.
-            </AppText>
+            </div>
 
             {isDev && err && (
-              <details style={{ width: '100%', marginBottom: spacing.md, textAlign: 'left' }}>
-                <summary style={{ cursor: 'pointer', color: colors.warn, fontSize: '0.75rem' }}>
+              <details style={{ width: '100%', marginBottom: 8, textAlign: 'left' }}>
+                <summary
+                  style={{ cursor: 'pointer', color: 'var(--color-warn)', fontSize: '0.75rem' }}
+                >
                   Development Details (click to expand)
                 </summary>
                 <pre
                   style={{
-                    marginTop: spacing.md,
-                    padding: spacing.md,
-                    background: colors.bg,
+                    marginTop: 12,
+                    padding: 12,
+                    background: 'var(--color-bg)',
                     borderRadius: 8,
                     fontSize: '0.65rem',
                     overflow: 'auto',
                     maxHeight: 300,
-                    color: colors.mutedBright,
+                    color: 'var(--color-muted2)',
                     whiteSpace: 'pre-wrap',
                     wordBreak: 'break-word',
                   }}
@@ -115,23 +130,25 @@ export class ErrorBoundary extends Component<Props, State> {
               </details>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'row', gap: spacing.md, width: '100%' }}>
-              <Button label="Try Again" fullWidth variant="primary" onPress={this.handleRetry} />
-              <Button
-                label="Reload Page"
-                fullWidth
-                variant="secondary"
-                onPress={this.handleReload}
-              />
+            <div style={{ display: 'flex', gap: 12, width: '100%' }}>
+              <Button variant="primary" fullWidth onClick={this.handleRetry}>
+                Try Again
+              </Button>
+              <Button variant="ghost" fullWidth onClick={this.handleReload}>
+                Reload Page
+              </Button>
             </div>
 
-            <AppText
-              variant="caption"
-              color="muted"
-              style={{ textAlign: 'center', marginTop: spacing.sm }}
+            <div
+              style={{
+                fontSize: 11,
+                color: 'var(--color-muted)',
+                textAlign: 'center',
+                marginTop: 8,
+              }}
             >
               If this persists, check the browser console for details.
-            </AppText>
+            </div>
           </div>
         </div>
       );
