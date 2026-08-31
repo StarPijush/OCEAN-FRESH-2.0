@@ -1,6 +1,6 @@
 {
   "buildCommand": "pnpm --filter @oceanfresh/admin build",
-  "outputDirectory": "apps/admin/dist",
+  "outputDirectory": "dist",
   "framework": "vite",
   "installCommand": "pnpm install",
   "devCommand": "pnpm --filter @oceanfresh/admin dev"
