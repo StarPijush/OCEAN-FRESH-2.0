@@ -90,9 +90,14 @@ export interface OrderItem {
   id: string;
   productId: string;
   snapshot: OrderProductSnapshot;
+  /** @deprecated quantity now stores grams for back-compat; use weightGrams */
   quantity: number;
   unitPrice: Money;
   subtotal: Money;
+  /** Weight-based fields — canonical for new orders */
+  weightGrams?: number;
+  weightDisplay?: string;
+  productUnit?: ProductUnit;
 }
 
 export interface OrderTotals {

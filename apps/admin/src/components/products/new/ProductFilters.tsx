@@ -1,5 +1,3 @@
-import type { Category } from '@oceanfresh/shared';
-
 import { Chip } from '../../ui/new/Chip';
 import { Input } from '../../ui/new/Input';
 
@@ -8,9 +6,6 @@ interface Props {
   onSearchChange: (v: string) => void;
   status: string;
   onStatusChange: (v: string) => void;
-  categoryId: string;
-  onCategoryChange: (v: string) => void;
-  categories: Category[];
   STATUS_FILTERS: readonly string[];
 }
 
@@ -19,19 +14,27 @@ export function ProductFilters({
   onSearchChange,
   status,
   onStatusChange,
-  categoryId,
-  onCategoryChange,
-  categories,
   STATUS_FILTERS,
 }: Props) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 14,
+        background: '#FFFFFF',
+        border: '1px solid rgba(11,19,15,0.06)',
+        borderRadius: 18,
+        padding: '18px 20px',
+        boxShadow: '0 2px 8px rgba(11,19,15,0.02)',
+      }}
+    >
       <div style={{ maxWidth: 360 }}>
         <Input
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Search products…"
-          leftElement={<span>🔍</span>}
+          placeholder="Search products..."
+          leftElement={<span style={{ color: '#6C7E75', fontSize: 14 }}>⌕</span>}
         />
       </div>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -41,24 +44,7 @@ export function ProductFilters({
             variant={status === s ? 'active' : 'default'}
             onClick={() => onStatusChange(s)}
           >
-            {s}
-          </Chip>
-        ))}
-      </div>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        <Chip
-          variant={categoryId === 'all' ? 'active' : 'default'}
-          onClick={() => onCategoryChange('all')}
-        >
-          All
-        </Chip>
-        {categories.map((c) => (
-          <Chip
-            key={c.id}
-            variant={categoryId === c.id ? 'active' : 'default'}
-            onClick={() => onCategoryChange(c.id)}
-          >
-            {c.name}
+            {s.replace('_', ' ')}
           </Chip>
         ))}
       </div>

@@ -1,3 +1,4 @@
+import type { WeightMode } from '@oceanfresh/shared/domain';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,7 +18,6 @@ import {
 
 export function OrderPage() {
   const cart = useCartStore((s) => s.items);
-  const updateQty = useCartStore((s) => s.updateQty);
   const removeAll = useCartStore((s) => s.removeAll);
   const clear = useCartStore((s) => s.clear);
   const navigate = useNavigate();
@@ -37,12 +37,24 @@ export function OrderPage() {
     productService.getAll().then(setProducts);
   }, []);
 
-  const cartEntries = useMemo(() => Object.entries(cart).filter(([, q]) => q > 0), [cart]);
+  const cartEntries = useMemo(() => Object.entries(cart), [cart]);
 
   const entries = useMemo(() => {
-    return cartEntries.flatMap(([id, qty]): OrderCartEntry[] => {
+    return cartEntries.flatMap(([id, entry]): OrderCartEntry[] => {
       const p = products.find((x) => x.id === id);
-      return p ? [{ product: p, quantity: qty }] : [];
+      if (!p) return [];
+      const mode = (entry.mode ?? 'GRAM') as WeightMode;
+      const pricePerKg = entry.pricePerKg ?? 0;
+      return [
+        {
+          product: p,
+          display: entry.display,
+          grams: entry.grams,
+          mode,
+          lineTotal: entry.lineTotal,
+          pricePerKg,
+        },
+      ];
     });
   }, [cartEntries, products]);
 
@@ -77,28 +89,45 @@ export function OrderPage() {
   }
 
   async function placeOrder() {
-    const entries = cartEntries.flatMap(([id, qty]): OrderCartEntry[] => {
+    const currentEntries = cartEntries.flatMap(([id, entry]): OrderCartEntry[] => {
       const p = products.find((x) => x.id === id);
-      return p ? [{ product: p, quantity: qty }] : [];
+      if (!p) return [];
+      const mode = (entry.mode ?? 'GRAM') as WeightMode;
+      const pricePerKg = entry.pricePerKg ?? 0;
+      return [
+        {
+          product: p,
+          display: entry.display,
+          grams: entry.grams,
+          mode,
+          lineTotal: entry.lineTotal,
+          pricePerKg,
+        },
+      ];
     });
 
-    const err = orderService.validateForm({ name, phone, address }, entries);
+    const err = orderService.validateForm({ name, phone, address }, currentEntries);
     if (err) {
       showToast(err);
       return;
     }
 
     const orderPricing = orderService.calculatePricing(
-      entries,
+      currentEntries,
       settings.freeDeliveryAbove,
       settings.deliveryFee,
     );
 
     try {
-      const result = await persistOrder({ name, phone, address }, entries, orderPricing, location);
+      const result = await persistOrder(
+        { name, phone, address },
+        currentEntries,
+        orderPricing,
+        location,
+      );
       const msg = orderService.buildWhatsAppMessage(
         { name, phone, address },
-        entries,
+        currentEntries,
         orderPricing,
         location ?? undefined,
       );
@@ -140,13 +169,16 @@ export function OrderPage() {
               Order Items &middot; {cartEntries.length} item{cartEntries.length > 1 ? 's' : ''}
             </div>
 
-            {cartEntries.map(([id, qty]) => {
+            {cartEntries.map(([id, entry]) => {
               const p = products.find((x) => x.id === id);
               if (!p) return null;
-              const sub = p.price * qty;
               const hasPhoto = p.image && !p.image.startsWith('data:image/svg');
               return (
-                <article className="order-card" key={id} aria-label={`${p.name} — ${qty} kg`}>
+                <article
+                  className="order-card"
+                  key={id}
+                  aria-label={`${p.name} — ${entry.display}`}
+                >
                   <div className="order-card__main">
                     {hasPhoto ? (
                       <img src={p.image ?? ''} alt={p.name} className="order-card__media" />
@@ -157,38 +189,29 @@ export function OrderPage() {
                     )}
                     <div className="order-card__body">
                       <h3 className="order-card__name">{p.name}</h3>
-                      <div className="order-card__meta">
-                        {qty} kg · ₹{p.price} / kg
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'baseline',
+                          gap: '12px',
+                          flexWrap: 'wrap',
+                          marginTop: 2,
+                        }}
+                      >
+                        <span
+                          className="order-card__meta"
+                          style={{ fontSize: '0.9rem', color: '#6C7E75' }}
+                        >
+                          {entry.display}
+                        </span>
+                        <span className="order-card__price">₹{entry.lineTotal}</span>
                       </div>
-                      <div className="order-card__price">₹{sub}</div>
                     </div>
                   </div>
-                  <div className="order-card__actions">
-                    <div
-                      className="order-card__qty"
-                      role="group"
-                      aria-label={`Quantity for ${p.name}`}
-                    >
-                      <button
-                        type="button"
-                        className="order-card__qty-btn"
-                        aria-label={`Decrease ${p.name}`}
-                        onClick={() => updateQty(id, -1)}
-                      >
-                        −
-                      </button>
-                      <span className="order-card__qty-val" aria-live="polite">
-                        {qty}
-                      </span>
-                      <button
-                        type="button"
-                        className="order-card__qty-btn"
-                        aria-label={`Increase ${p.name}`}
-                        onClick={() => updateQty(id, 1)}
-                      >
-                        +
-                      </button>
-                    </div>
+                  <div
+                    className="order-card__actions"
+                    style={{ display: 'flex', alignItems: 'center' }}
+                  >
                     <button
                       type="button"
                       className="order-card__delete"

@@ -123,8 +123,9 @@ describe('computeDashboardStats', () => {
 
     expect(stats.totalProducts).toBe(5);
     expect(stats.availableProducts).toBe(3);
-    expect(stats.outOfStock).toBe(2);
-    expect(stats.lowStock).toBe(1);
+    // Weight-based: availability is status-driven, stock ignored (deprecated)
+    expect(stats.outOfStock).toBe(1);
+    expect(stats.lowStock).toBe(0);
   });
 
   it('computes average order value over paid orders', () => {

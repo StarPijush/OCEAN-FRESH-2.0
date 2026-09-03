@@ -32,7 +32,7 @@ export function CardNav({ items, className = '', ease = 'power3.out' }: CardNavP
   const location = useLocation();
   const isLightPage =
     location.pathname.startsWith('/products') || location.pathname.startsWith('/order');
-  const count = useCartStore((s) => Object.values(s.items).reduce((a, b) => a + b, 0));
+  const count = useCartStore((s) => Object.keys(s.items).length);
 
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);

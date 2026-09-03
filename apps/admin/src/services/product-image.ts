@@ -19,7 +19,6 @@ export async function pickAndCompressImage(): Promise<PickedImage | null> {
     let settled = false;
 
     const cleanup = () => {
-      window.removeEventListener('focus', onWindowFocus);
       input.remove();
     };
 
@@ -28,12 +27,6 @@ export async function pickAndCompressImage(): Promise<PickedImage | null> {
       settled = true;
       cleanup();
       resolve(value);
-    };
-
-    const onWindowFocus = () => {
-      // File pickers hide the window; regaining focus without a `change`
-      // means the user cancelled the dialog.
-      settle(null);
     };
 
     input.onchange = () => {
@@ -58,16 +51,26 @@ export async function pickAndCompressImage(): Promise<PickedImage | null> {
       })();
     };
 
-    window.addEventListener('focus', onWindowFocus);
+    // Modern cancellation: fires only when dialog is cancelled, not on selection
+    input.oncancel = () => settle(null);
+
     document.body.appendChild(input);
     input.click();
   });
 }
 
-/** Resizes to max 600px wide and re-encodes as webp (quality 0.7). */
-async function compressToWebp(file: File, maxWidth = 600, quality = 0.7): Promise<Blob | null> {
-  const bitmap = await createImageBitmap(file);
+/** Resizes large images to max 900px and re-encodes as webp (quality 0.7).
+ *  Small images (<=900px and <=400KB) are returned as-is to preserve sharpness.
+ *  Falls back to original file when webp encoding fails. */
+async function compressToWebp(file: File, maxWidth = 900, quality = 0.7): Promise<Blob | null> {
+  let bitmap: ImageBitmap | null = null;
   try {
+    bitmap = await createImageBitmap(file).catch(() => null);
+    if (!bitmap) return file;
+    // Preserve small images without re-encoding
+    if (bitmap.width <= 900 && file.size <= 400 * 1024) {
+      return file;
+    }
     const scale = Math.min(1, maxWidth / bitmap.width);
     const width = Math.max(1, Math.round(bitmap.width * scale));
     const height = Math.max(1, Math.round(bitmap.height * scale));
@@ -76,14 +79,15 @@ async function compressToWebp(file: File, maxWidth = 600, quality = 0.7): Promis
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return null;
+    if (!ctx) return file;
     ctx.drawImage(bitmap, 0, 0, width, height);
 
-    return await new Promise<Blob | null>((resolve) =>
+    const blob = await new Promise<Blob | null>((resolve) =>
       canvas.toBlob(resolve, 'image/webp', quality),
     );
+    return blob ?? file;
   } finally {
-    bitmap.close();
+    bitmap?.close();
   }
 }
 

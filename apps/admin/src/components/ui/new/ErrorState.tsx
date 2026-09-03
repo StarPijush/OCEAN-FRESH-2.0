@@ -25,24 +25,29 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 'var(--space-xxxl)',
+        padding: 32,
         textAlign: 'center',
-        color: 'var(--color-muted2)',
+        color: '#6C7E75',
+        background: '#FFFFFF',
+        border: '1px solid rgba(11,19,15,0.06)',
+        borderRadius: 18,
+        boxShadow: '0 2px 8px rgba(11,19,15,0.02)',
         ...style,
       }}
     >
       <div
         style={{
-          width: '64px',
-          height: '64px',
-          borderRadius: '50%',
-          background: 'var(--color-warn-dim)',
-          color: 'var(--color-warn)',
+          width: 56,
+          height: 56,
+          borderRadius: 9999,
+          background: 'rgba(239,68,68,0.08)',
+          border: '1px solid rgba(239,68,68,0.14)',
+          color: '#EF4444',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '24px',
-          marginBottom: 'var(--space-lg)',
+          fontSize: 20,
+          marginBottom: 16,
         }}
         aria-hidden="true"
       >
@@ -50,22 +55,24 @@ export const ErrorState: React.FC<ErrorStateProps> = ({
       </div>
       <h3
         style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 'var(--text-h2-size)',
-          lineHeight: 'var(--text-h2-line)',
-          fontWeight: 'var(--text-h2-weight)',
-          color: 'var(--color-cream)',
-          margin: '0 0 var(--space-md) 0',
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontSize: '1.1rem',
+          fontWeight: 700,
+          letterSpacing: '-0.025em',
+          color: '#0B130F',
+          margin: '0 0 8px 0',
         }}
       >
         {title}
       </h3>
       <p
         style={{
-          fontSize: 'var(--text-body-sm-size)',
-          lineHeight: 'var(--text-body-sm-line)',
-          margin: '0 0 var(--space-xl) 0',
-          maxWidth: '320px',
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontSize: 13,
+          lineHeight: 1.6,
+          color: '#6C7E75',
+          margin: '0 0 20px 0',
+          maxWidth: 320,
         }}
       >
         {message}

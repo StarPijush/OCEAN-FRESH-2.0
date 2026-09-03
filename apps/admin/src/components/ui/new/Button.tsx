@@ -36,23 +36,23 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: '7px',
-      border: 'none',
-      borderRadius: 'var(--radius-button)',
-      fontFamily: 'var(--font-ui)',
+      gap: 8,
+      borderRadius: '14px',
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
       fontWeight: 600,
       letterSpacing: '0.12em',
       textTransform: 'uppercase',
       cursor: isDisabled ? 'not-allowed' : 'pointer',
-      transition: 'all 150ms var(--ease-out)',
+      transition: 'all 150ms cubic-bezier(0.16, 1, 0.3, 1)',
       opacity: isDisabled ? 0.5 : 1,
       width: fullWidth ? '100%' : 'auto',
       outline: 'none',
+      boxShadow: '0 2px 8px rgba(11,19,15,0.02)',
     };
 
     const sizeStyles: Record<ButtonSize, React.CSSProperties> = {
       sm: {
-        padding: '7px 14px',
+        padding: '8px 16px',
         fontSize: '11px',
         letterSpacing: '0.1em',
       },
@@ -62,7 +62,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         letterSpacing: '0.12em',
       },
       lg: {
-        padding: '14px 28px',
+        padding: '12px 24px',
         fontSize: '13px',
         letterSpacing: '0.1em',
       },
@@ -70,37 +70,38 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles: Record<ButtonVariant, React.CSSProperties> = {
       primary: {
-        background: 'var(--color-teal, #27c3c8)',
-        color: 'var(--color-navy-deep, #071526)',
+        background: '#0d2035',
+        color: '#FFFFFF',
+        border: '1px solid #0d2035',
       },
       secondary: {
-        background: 'var(--color-surface2)',
-        color: 'var(--color-cream)',
-        border: '1px solid var(--color-border2)',
+        background: '#FFFFFF',
+        color: '#0d2035',
+        border: '1px solid rgba(11,19,15,0.08)',
       },
       ghost: {
-        background: 'transparent',
-        color: 'var(--color-cream)',
-        border: '1px solid var(--color-border2)',
+        background: '#F8FAF9',
+        color: '#0B130F',
+        border: '1px solid rgba(11,19,15,0.08)',
       },
       danger: {
-        background: 'var(--color-warn-dim)',
-        color: 'var(--color-warn)',
-        border: '1px solid transparent',
+        background: '#EF4444',
+        color: '#FFFFFF',
+        border: '1px solid #EF4444',
       },
       link: {
         background: 'transparent',
-        color: 'var(--color-teal, #27c3c8)',
+        color: '#0d2035',
         border: 'none',
         padding: '4px 8px',
       },
     };
 
     const hoverStyles: Record<ButtonVariant, React.CSSProperties> = {
-      primary: { background: 'var(--color-teal-hover, #1faaae)' },
-      secondary: { borderColor: 'var(--color-cream)', background: 'rgba(255,255,255,0.04)' },
-      ghost: { borderColor: 'var(--color-cream)', background: 'rgba(255,255,255,0.04)' },
-      danger: { background: 'rgba(224,122,101,0.22)' },
+      primary: { background: '#071526', borderColor: '#071526' },
+      secondary: { borderColor: '#0d2035', background: '#F8FAF9' },
+      ghost: { borderColor: 'rgba(11,19,15,0.12)', background: '#EEF2F0' },
+      danger: { background: '#dc2626', borderColor: '#dc2626' },
       link: { opacity: 0.7 },
     };
 

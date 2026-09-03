@@ -12,3 +12,4 @@ export { CurrencyCode, Money } from './value-objects/money.js';
 export type { PhoneData } from './value-objects/phone.js';
 export { Phone } from './value-objects/phone.js';
 export { Quantity, Unit } from './value-objects/quantity.js';
+export * from './weight.js';

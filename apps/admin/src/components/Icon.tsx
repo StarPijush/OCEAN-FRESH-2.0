@@ -45,7 +45,8 @@ export type IconName =
   | 'link-outline'
   | 'folder-outline'
   | 'layers-outline'
-  | 'cube-outline';
+  | 'cube-outline'
+  | 'more-vertical';
 
 interface IconProps {
   name?: IconName;
@@ -433,6 +434,14 @@ export function OceanFreshIcon({ name, ...rest }: IconProps) {
           <path d="M12 4l7 3.5v7L12 18l-7-3.5v-7L12 4z" />
           <path d="M12 11.5V18" />
           <path d="M5 7.5l7 4 7-4" />
+        </SvgIcon>
+      );
+    case 'more-vertical':
+      return (
+        <SvgIcon {...rest}>
+          <circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none" />
+          <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+          <circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none" />
         </SvgIcon>
       );
     default:

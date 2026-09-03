@@ -18,8 +18,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   style,
 }) => {
   const baseStyles: React.CSSProperties = {
-    background:
-      'linear-gradient(90deg, var(--color-surface2) 25%, var(--color-border) 50%, var(--color-surface2) 75%)',
+    background: 'linear-gradient(90deg, #F8FAF9 25%, rgba(11,19,15,0.06) 50%, #F8FAF9 75%)',
     backgroundSize: '200% 100%',
     animation: 'shimmer 1.5s ease-in-out infinite',
     borderRadius: 'var(--radius-card)',
@@ -30,7 +29,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     text: {
       height: height || '16px',
       width: width || '100%',
-      borderRadius: '4px',
+      borderRadius: 'var(--radius-sm)',
     },
     circular: {
       width: width || '40px',
@@ -40,14 +39,17 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     rectangular: {
       width: width || '100%',
       height: height || '100px',
+      borderRadius: 'var(--radius-card)',
     },
     card: {
       width: width || '100%',
       height: height || '200px',
+      borderRadius: 'var(--radius-card)',
     },
     'table-row': {
       width: width || '100%',
       height: height || '60px',
+      borderRadius: 'var(--radius-card-sm)',
     },
   };
 

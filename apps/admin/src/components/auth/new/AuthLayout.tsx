@@ -26,6 +26,7 @@ export function AuthLayout({ eyebrow, title, subtitle, children }: AuthLayoutPro
       </div>
 
       <style>{`
+        /* Spark auth: light canvas + lime radial + white card — mapped aqua */
         .auth-shell {
           min-height: 100vh;
           min-height: 100dvh;
@@ -33,62 +34,62 @@ export function AuthLayout({ eyebrow, title, subtitle, children }: AuthLayoutPro
           align-items: center;
           justify-content: center;
           padding: 32px 16px;
-          background: var(--color-navy-deep, #071526);
+          background: #F4F6F5;
           position: relative;
           isolation: isolate;
           overflow: hidden;
         }
 
-        /* Sophisticated depth: deep-ocean at night — grid extremely subtle, atmospheric */
         .auth-shell::before {
           content: '';
           position: absolute;
-          inset: 0;
-          z-index: 0;
+          width: 340px;
+          height: 340px;
+          top: -60px;
+          left: -60px;
+          background: radial-gradient(circle, rgba(74,184,193,0.12) 0%, rgba(74,184,193,0) 70%);
+          border-radius: 50%;
           pointer-events: none;
-          background-image:
-            linear-gradient(rgba(39,195,200,0.028) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(39,195,200,0.028) 1px, transparent 1px);
-          background-size: 48px 48px;
-          opacity: 0.9;
+          z-index: 0;
         }
         .auth-shell::after {
           content: '';
           position: absolute;
-          inset: 0;
-          z-index: 0;
+          width: 420px;
+          height: 420px;
+          bottom: -80px;
+          right: -60px;
+          background: radial-gradient(circle, rgba(74,184,193,0.10) 0%, rgba(74,184,193,0) 70%);
+          border-radius: 50%;
           pointer-events: none;
-          background:
-            radial-gradient(ellipse 960px 640px at 72% -8%, rgba(39,195,200,0.055), transparent 62%),
-            radial-gradient(ellipse 760px 520px at 18% 108%, rgba(216,199,166,0.035), transparent 60%),
-            url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.032'/%3E%3C/svg%3E");
-          opacity: 1;
+          z-index: 0;
         }
 
         .auth-card {
           position: relative;
           z-index: 1;
           width: 100%;
-          max-width: 420px;
-          background: var(--color-navy-surface, #0d2035);
-          border: 1px solid rgba(39, 195, 200, 0.11);
-          border-radius: 12px;
+          max-width: 450px;
+          background: #FFFFFF;
+          border: 1px solid #E9EFEF;
+          border-radius: 24px;
           padding: 40px 32px 32px;
-          box-shadow:
-            0 18px 50px rgba(7, 21, 38, 0.32),
-            0 4px 16px rgba(7, 21, 38, 0.22),
-            0 0 0 1px rgba(255, 255, 255, 0.02) inset,
-            0 0 28px rgba(39, 195, 200, 0.06);
+          box-shadow: 0 20px 50px rgba(11,19,15,0.08);
           animation: authSlideUp 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+          transition: transform 300ms ease, box-shadow 300ms ease;
+        }
+        .auth-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 30px 60px rgba(11,19,15,0.12);
         }
 
         .auth-brand {
-          font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
-          font-size: clamp(1.85rem, 6vw, 2.45rem);
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: clamp(1.85rem, 6vw, 2.15rem);
           font-weight: 600;
           letter-spacing: 0.12em;
           text-transform: uppercase;
-          color: var(--color-teal, #27c3c8);
+          color: #0d2035;
           line-height: 1;
           margin-bottom: 12px;
           text-align: center;
@@ -96,89 +97,89 @@ export function AuthLayout({ eyebrow, title, subtitle, children }: AuthLayoutPro
         }
 
         .auth-brand span {
-          color: var(--color-teal, #27c3c8);
+          color: #4ab8c1;
           font-weight: 600;
         }
 
         .auth-eyebrow {
-          font-family: var(--font-ui, 'Instrument Sans', sans-serif);
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 9.5px;
           font-weight: 600;
           letter-spacing: 0.22em;
           text-transform: uppercase;
-          color: var(--color-text-muted, #8291a5);
+          color: #879A91;
           line-height: 1.4;
           margin-bottom: 48px;
           text-align: center;
         }
         .auth-card.has-header .auth-eyebrow {
-          margin-bottom: 36px;
+          margin-bottom: 28px;
         }
 
         .auth-title {
-          font-family: var(--font-display, 'Cormorant Garamond', Georgia, serif);
-          font-size: 30px;
-          font-weight: 300;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          font-size: 1.35rem;
+          font-weight: 700;
           letter-spacing: -0.025em;
-          line-height: 1.1;
-          color: var(--color-text-primary, #f2eee6);
-          margin: 0 0 10px 0;
-          text-align: left;
+          line-height: 1.2;
+          color: #0B130F;
+          margin: 0 0 8px 0;
+          text-align: center;
         }
 
         .auth-subtitle {
-          font-family: var(--font-ui, 'Instrument Sans', sans-serif);
+          font-family: 'Plus Jakarta Sans', sans-serif;
           font-size: 13px;
           font-weight: 400;
-          line-height: 1.65;
-          color: var(--color-text-secondary, #aeb9c8);
-          margin-bottom: 32px;
-          text-align: left;
+          line-height: 1.6;
+          color: #6C7E75;
+          margin-bottom: 28px;
+          text-align: center;
         }
         .auth-card.subtitle-only .auth-subtitle {
           text-align: center;
-          max-width: 28ch;
+          max-width: 30ch;
           margin-left: auto;
           margin-right: auto;
         }
-        /* OTP premium top section — refined luxury hierarchy */
+        /* OTP — same light hierarchy */
         .auth-card.otp .auth-brand {
-          font-size: clamp(2.0rem, 6.2vw, 2.62rem);
-          letter-spacing: 0.09em;
-          margin-bottom: 10px;
+          font-size: clamp(1.85rem, 6vw, 2.15rem);
+          letter-spacing: 0.12em;
+          margin-bottom: 12px;
         }
         .auth-card.otp .auth-eyebrow {
           font-size: 8.5px;
           letter-spacing: 0.18em;
-          color: #7e90a8;
-          margin-bottom: 44px;
+          color: #879A91;
+          margin-bottom: 28px;
         }
         .auth-card.otp .auth-title {
           text-align: center;
-          font-size: clamp(1.45rem, 4.5vw, 1.85rem);
-          font-weight: 350;
-          letter-spacing: -0.018em;
-          line-height: 1.15;
-          margin-bottom: 14px;
-          color: var(--color-text-primary, #f2eee6);
+          font-size: 1.35rem;
+          font-weight: 700;
+          letter-spacing: -0.025em;
+          line-height: 1.2;
+          margin-bottom: 8px;
+          color: #0B130F;
         }
         .auth-card.otp .auth-subtitle {
           text-align: center;
           max-width: 30ch;
           margin-left: auto;
           margin-right: auto;
-          margin-bottom: 32px;
-          font-size: 12.8px;
-          line-height: 1.7;
-          color: #aeb9c8;
+          margin-bottom: 28px;
+          font-size: 13px;
+          line-height: 1.6;
+          color: #6C7E75;
         }
         .auth-card.otp .auth-subtitle strong {
-          color: #f2eee6;
+          color: #0B130F;
           font-weight: 600;
         }
 
         .auth-subtitle strong {
-          color: var(--color-text-primary, #f2eee6);
+          color: #0B130F;
           font-weight: 600;
         }
 
@@ -201,7 +202,7 @@ export function AuthLayout({ eyebrow, title, subtitle, children }: AuthLayoutPro
           .auth-card {
             max-width: 100%;
             padding: 32px 22px 24px;
-            border-radius: 10px;
+            border-radius: 14px;
           }
           .auth-brand {
             font-size: clamp(1.55rem, 7vw, 1.85rem);
@@ -258,7 +259,7 @@ export function AuthLayout({ eyebrow, title, subtitle, children }: AuthLayoutPro
 
         @media (max-width: 320px) {
           .auth-card {
-            border-radius: 10px;
+            border-radius: 14px;
           }
         }
 
@@ -291,11 +292,11 @@ export function AuthLayout({ eyebrow, title, subtitle, children }: AuthLayoutPro
         }
 
         .auth-card input::placeholder {
-          color: var(--color-text-muted, #8291a5);
+          color: rgba(108,126,117,0.5);
           opacity: 1;
         }
         .auth-card input::-ms-input-placeholder {
-          color: var(--color-text-muted, #8291a5);
+          color: rgba(108,126,117,0.5);
         }
 
         /* Ensure page never causes horizontal overflow */

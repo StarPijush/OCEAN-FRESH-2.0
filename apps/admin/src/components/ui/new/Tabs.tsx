@@ -76,15 +76,15 @@ export const Tabs: React.FC<TabsProps> = ({
   };
 
   const tabActiveStyles: React.CSSProperties = {
-    color: 'var(--color-cream)',
-    background: variant === 'segmented' ? 'var(--color-aqua)' : 'var(--color-aqua-dim)',
-    borderColor: variant === 'segmented' ? 'transparent' : 'var(--color-aqua)',
+    color: variant === 'segmented' ? '#FFFFFF' : '#0B130F',
+    background: variant === 'segmented' ? '#0d2035' : 'rgba(74,184,193,0.10)',
+    borderColor: variant === 'segmented' ? 'transparent' : 'rgba(74,184,193,0.18)',
   };
 
   const tabHoverStyles: React.CSSProperties = {
-    color: 'var(--color-cream)',
-    background: variant === 'segmented' ? 'transparent' : 'rgba(255,255,255,0.04)',
-    borderColor: variant === 'segmented' ? 'transparent' : 'var(--color-cream)',
+    color: '#0B130F',
+    background: variant === 'segmented' ? 'transparent' : '#F8FAF9',
+    borderColor: variant === 'segmented' ? 'transparent' : 'rgba(11,19,15,0.12)',
   };
 
   const tabDisabledStyles: React.CSSProperties = {
@@ -151,10 +151,11 @@ export const Tabs: React.FC<TabsProps> = ({
           {tab.count !== undefined && (
             <span
               style={{
-                background: value === tab.value ? 'rgba(13,15,18,0.2)' : 'var(--color-surface2)',
-                color: value === tab.value ? 'var(--color-cream)' : 'var(--color-muted2)',
-                padding: '1px 5px',
-                borderRadius: 'var(--radius-badge)',
+                background: value === tab.value ? 'rgba(255,255,255,0.16)' : '#F8FAF9',
+                color: value === tab.value ? '#FFFFFF' : '#6C7E75',
+                border: '1px solid rgba(11,19,15,0.06)',
+                padding: '1px 6px',
+                borderRadius: 9999,
                 fontSize: '10px',
                 fontWeight: 700,
               }}

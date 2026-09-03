@@ -22,46 +22,77 @@ export function CategoriesScreen() {
   });
 
   return (
-    <div style={{ flex: 1, background: 'var(--color-bg)', minHeight: '100%' }}>
-      <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{ flex: 1, background: '#F4F6F5', minHeight: '100%' }}>
+      <div style={{ padding: '32px 24px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div>
+          <div
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: '1.75rem',
+              fontWeight: 700,
+              letterSpacing: '-0.025em',
+              color: '#0B130F',
+              lineHeight: 1.2,
+            }}
+          >
+            Categories
+          </div>
+          <div
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: '0.875rem',
+              color: '#6C7E75',
+              marginTop: 4,
+            }}
+          >
+            Browse catalog structure — categories are managed via the product catalog.
+          </div>
+        </div>
         <div
           style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 28,
-            fontWeight: 300,
-            color: 'var(--color-cream)',
+            background: '#FFFFFF',
+            border: '1px solid rgba(11,19,15,0.06)',
+            borderRadius: 18,
+            padding: '18px 20px',
+            boxShadow: '0 2px 8px rgba(11,19,15,0.02)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 12,
           }}
         >
-          Categories
-        </div>
-        <div style={{ fontSize: 13, color: 'var(--color-muted2)' }}>
-          Browse catalog structure — categories are managed via the product catalog.
-        </div>
-        <div style={{ maxWidth: 360 }}>
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search categories…"
-          />
-        </div>
-        <div style={{ fontSize: 12, color: 'var(--color-muted2)' }}>
-          {categories.isLoading
-            ? 'Loading…'
-            : `${items.length} ${items.length === 1 ? 'category' : 'categories'} · ${categories.data?.length ?? 0} total`}
+          <div style={{ maxWidth: 360 }}>
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search categories…"
+            />
+          </div>
+          <div
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 12,
+              color: '#879A91',
+            }}
+          >
+            {categories.isLoading
+              ? 'Loading…'
+              : `${items.length} ${items.length === 1 ? 'category' : 'categories'} · ${categories.data?.length ?? 0} total`}
+          </div>
         </div>
       </div>
 
-      <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ padding: '0 24px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {categories.isLoading ? (
           <>
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
                 style={{
-                  background: 'var(--color-surface)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 12,
-                  padding: 16,
+                  background: '#FFFFFF',
+                  border: '1px solid rgba(11,19,15,0.06)',
+                  borderRadius: 18,
+                  padding: 20,
+                  boxShadow: '0 2px 8px rgba(11,19,15,0.02)',
                 }}
               >
                 <Skeleton width="40%" height={16} />
@@ -89,27 +120,28 @@ export function CategoriesScreen() {
             <div
               key={cat.id}
               style={{
-                background: 'var(--color-surface)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 12,
+                background: '#FFFFFF',
+                border: '1px solid rgba(11,19,15,0.06)',
+                borderRadius: 18,
                 padding: 16,
                 display: 'flex',
-                gap: 12,
+                gap: 14,
                 alignItems: 'center',
+                boxShadow: '0 2px 8px rgba(11,19,15,0.02)',
               }}
             >
               <div
                 style={{
                   width: 44,
                   height: 44,
-                  borderRadius: 8,
-                  background: 'var(--color-surface2)',
-                  border: '1px solid var(--color-border)',
+                  borderRadius: 14,
+                  background: '#F8FAF9',
+                  border: '1px solid rgba(11,19,15,0.06)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0,
-                  color: 'var(--color-muted2)',
+                  color: '#6C7E75',
                 }}
               >
                 📁
@@ -117,10 +149,24 @@ export function CategoriesScreen() {
               <div
                 style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}
               >
-                <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-cream)' }}>
+                <div
+                  style={{
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    fontSize: 14,
+                    fontWeight: 700,
+                    letterSpacing: '-0.01em',
+                    color: '#0B130F',
+                  }}
+                >
                   {cat.name}
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--color-muted2)' }}>
+                <div
+                  style={{
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    fontSize: 12,
+                    color: '#6C7E75',
+                  }}
+                >
                   {cat.slug} · {cat.description || 'No description'}
                 </div>
                 <div
@@ -128,23 +174,23 @@ export function CategoriesScreen() {
                     display: 'flex',
                     gap: 8,
                     flexWrap: 'wrap',
-                    marginTop: 2,
+                    marginTop: 4,
                     fontSize: 11,
-                    color: 'var(--color-muted2)',
+                    color: '#6C7E75',
                   }}
                 >
                   <span
                     style={{
-                      padding: '2px 8px',
+                      padding: '3px 8px',
                       borderRadius: 20,
-                      background:
-                        cat.status === 'ACTIVE' ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.06)',
-                      border: '1px solid var(--color-border)',
+                      background: cat.status === 'ACTIVE' ? 'rgba(34,197,94,0.10)' : '#F8FAF9',
+                      border: '1px solid rgba(11,19,15,0.06)',
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
                       fontSize: 10,
                       letterSpacing: '0.06em',
                       textTransform: 'uppercase',
-                      fontWeight: 600,
-                      color: cat.status === 'ACTIVE' ? 'var(--color-green)' : 'var(--color-muted2)',
+                      fontWeight: 700,
+                      color: cat.status === 'ACTIVE' ? '#22C55E' : '#6C7E75',
                     }}
                   >
                     {cat.status}
@@ -159,11 +205,17 @@ export function CategoriesScreen() {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'flex-end',
-                  gap: 4,
+                  gap: 6,
                   flexShrink: 0,
                 }}
               >
-                <span style={{ fontSize: 11, color: 'var(--color-muted2)' }}>
+                <span
+                  style={{
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    fontSize: 11,
+                    color: '#879A91',
+                  }}
+                >
                   Level {cat.level}
                 </span>
                 {cat.featured ? (
@@ -172,13 +224,15 @@ export function CategoriesScreen() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 4,
-                      background: 'rgba(240,180,41,0.15)',
-                      border: '1px solid rgba(240,180,41,0.2)',
+                      background: 'rgba(74,184,193,0.10)',
+                      border: '1px solid rgba(74,184,193,0.14)',
                       borderRadius: 20,
-                      padding: '2px 8px',
+                      padding: '3px 8px',
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
                       fontSize: 10,
-                      color: 'var(--color-gold)',
-                      fontWeight: 600,
+                      fontWeight: 700,
+                      letterSpacing: '0.04em',
+                      color: '#0d2035',
                     }}
                   >
                     ★ Featured

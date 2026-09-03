@@ -40,21 +40,22 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     const hintId = hint ? `${selectId}-hint` : undefined;
 
     const sizeStyles: Record<SelectSize, React.CSSProperties> = {
-      sm: { padding: '8px 10px', fontSize: '13px' },
-      md: { padding: '12px 14px', fontSize: '14px' },
-      lg: { padding: '14px 16px', fontSize: '16px' },
+      sm: { padding: '8px 14px', fontSize: '13px' },
+      md: { padding: '12px 16px', fontSize: '14px' },
+      lg: { padding: '14px 16px', fontSize: '14px' },
     };
 
     const baseStyles: React.CSSProperties = {
       width: '100%',
-      background: 'var(--color-bg)',
-      border: '1px solid var(--color-border2)',
+      minWidth: 0,
+      background: '#FFFFFF',
+      border: '1px solid rgba(11,19,15,0.12)',
       borderRadius: 'var(--radius-input)',
-      color: 'var(--color-cream)',
-      fontFamily: 'var(--font-ui)',
+      color: '#0B130F',
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
       outline: 'none',
       appearance: 'none',
-      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230d2035' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
       backgroundRepeat: 'no-repeat',
       backgroundPosition: 'right 12px center',
       paddingRight: '40px',
@@ -63,13 +64,13 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     };
 
     const focusStyles: React.CSSProperties = {
-      borderColor: 'var(--color-aqua)',
-      boxShadow: 'var(--shadow-focus)',
+      borderColor: '#0d2035',
+      boxShadow: '0 0 0 3px rgba(13,32,53,0.08)',
     };
 
     const errorStyles: React.CSSProperties = {
-      borderColor: 'var(--color-warn)',
-      boxShadow: 'var(--shadow-focus-error)',
+      borderColor: '#EF4444',
+      boxShadow: '0 0 0 3px rgba(239,68,68,0.08)',
     };
 
     const disabledStyles: React.CSSProperties = {
@@ -77,19 +78,30 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
       cursor: 'not-allowed',
     };
 
+    const showError = Boolean(error);
+    const showHint = Boolean(hint && !error);
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', ...style }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6,
+          minWidth: 0,
+          width: '100%',
+          ...style,
+        }}
+      >
         {label && (
           <label
             htmlFor={selectId}
             style={{
-              fontFamily: 'var(--font-ui)',
-              fontSize: 'var(--text-label-size)',
-              lineHeight: 'var(--text-label-line)',
-              fontWeight: 'var(--text-label-weight)',
-              letterSpacing: 'var(--text-label-tracking)',
-              textTransform: 'var(--text-label-transform)',
-              color: 'var(--color-muted)',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 11,
+              lineHeight: 1.4,
+              fontWeight: 700,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: '#0B130F',
             }}
           >
             {label}
@@ -133,37 +145,46 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             </option>
           ))}
         </select>
-        {error && (
-          <p
-            id={errorId}
-            role="alert"
-            style={{
-              fontSize: 'var(--text-body-xs-size)',
-              lineHeight: 'var(--text-body-xs-line)',
-              color: 'var(--color-warn)',
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
-            <span aria-hidden="true">⚠</span>
-            {error}
-          </p>
-        )}
-        {hint && !error && (
-          <p
-            id={hintId}
-            style={{
-              fontSize: 'var(--text-body-xs-size)',
-              lineHeight: 'var(--text-body-xs-line)',
-              color: 'var(--color-muted2)',
-              margin: 0,
-            }}
-          >
-            {hint}
-          </p>
-        )}
+        <div
+          aria-live="polite"
+          style={{
+            minHeight: showError || showHint ? 18 : 0,
+            transition: 'min-height 150ms var(--ease-out)',
+          }}
+        >
+          {error ? (
+            <p
+              id={errorId}
+              role="alert"
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 11,
+                lineHeight: 1.4,
+                color: '#EF4444',
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <span aria-hidden="true">⚠</span>
+              {error}
+            </p>
+          ) : hint ? (
+            <p
+              id={hintId}
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 11,
+                lineHeight: 1.4,
+                color: '#6C7E75',
+                margin: 0,
+              }}
+            >
+              {hint}
+            </p>
+          ) : null}
+        </div>
       </div>
     );
   },

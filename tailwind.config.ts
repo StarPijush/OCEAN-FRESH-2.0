@@ -26,10 +26,20 @@ const config: Config = {
         aqua: '#4ab8c1',
         muted: '#8a8070',
         warn: '#c8513a',
+        // Spark reference light system (OceanFresh mapped)
+        canvas: '#F4F6F5',
+        surface: '#FFFFFF',
+        forestDark: '#071526',
+        forestMedium: '#0d2035',
+        textMain: '#0B130F',
+        textMuted: '#6C7E75',
+        borderLight: '#E9EFEF',
       },
       borderRadius: {
-        button: '0.5rem',
-        card: '0.75rem',
+        button: '0.875rem',
+        card: '1.125rem',
+        'card-lg': '1.5rem',
+        'card-xl': '1.125rem',
       },
       animation: {
         'fade-in': 'fadeIn 200ms ease-out',

@@ -1,6 +1,13 @@
+export { ChartAxis } from './ChartAxis';
+export { ChartBars } from './ChartBars';
+export { ChartCanvas } from './ChartCanvas';
+export { ChartEmptyState } from './ChartEmptyState';
+export { ChartErrorState } from './ChartErrorState';
+export { ChartLoadingState } from './ChartLoadingState';
 export { DashboardHeader } from './DashboardHeader';
 export { MetricCard } from './MetricCard';
 export { MetricGrid } from './MetricGrid';
 export { PerformanceChart } from './PerformanceChart';
+export { PerformanceChartHeader } from './PerformanceChartHeader';
 export { RecentOrdersList } from './RecentOrdersList';
 export { TopProductsList } from './TopProductsList';

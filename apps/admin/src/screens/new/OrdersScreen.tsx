@@ -73,47 +73,71 @@ export function OrdersScreen() {
     return null;
   }
   return (
-    <div style={{ flex: 1, background: 'var(--color-bg)', minHeight: '100%' }}>
-      <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div style={{ flex: 1, background: '#F4F6F5', minHeight: '100%' }}>
+      <div style={{ padding: '32px 24px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div>
+          <div
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: '1.75rem',
+              fontWeight: 700,
+              letterSpacing: '-0.025em',
+              color: '#0B130F',
+              lineHeight: 1.2,
+            }}
+          >
+            Orders
+          </div>
+          <div
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: '0.875rem',
+              color: '#6C7E75',
+              marginTop: 4,
+            }}
+          >
+            Track, confirm and advance customer orders.
+          </div>
+        </div>
         <div
           style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 28,
-            fontWeight: 300,
-            color: 'var(--color-cream)',
+            background: '#FFFFFF',
+            border: '1px solid rgba(11,19,15,0.06)',
+            borderRadius: 18,
+            padding: '18px 20px',
+            boxShadow: '0 2px 8px rgba(11,19,15,0.02)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 14,
           }}
         >
-          Orders
-        </div>
-        <div style={{ fontSize: 13, color: 'var(--color-muted2)' }}>
-          Track, confirm and advance customer orders.
-        </div>
-        <div style={{ maxWidth: 360 }}>
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by order number, name or phone…"
-            leftElement={<span>🔍</span>}
-          />
-        </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {TABS.map((t) => (
-            <Chip
-              key={t}
-              variant={tab === t ? 'active' : 'default'}
-              onClick={() => setTab(t)}
-              count={tabCount(t)}
-            >
-              {t}
-            </Chip>
-          ))}
+          <div style={{ maxWidth: 360 }}>
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by order number, name or phone…"
+              leftElement={<span style={{ color: '#6C7E75', fontSize: 14 }}>⌕</span>}
+            />
+          </div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {TABS.map((t) => (
+              <Chip
+                key={t}
+                variant={tab === t ? 'active' : 'default'}
+                onClick={() => setTab(t)}
+                count={tabCount(t)}
+              >
+                {t}
+              </Chip>
+            ))}
+          </div>
         </div>
       </div>
 
       {isLoading ? (
         <div
           style={{
-            padding: 20,
+            padding: '0 24px 24px',
             display: 'grid',
             gridTemplateColumns: isDesktop ? 'repeat(2,1fr)' : '1fr',
             gap: 12,
@@ -123,18 +147,25 @@ export function OrdersScreen() {
             <div
               key={i}
               style={{
-                height: 120,
-                borderRadius: 12,
-                background: 'var(--color-surface)',
-                border: '1px solid var(--color-border)',
+                height: 128,
+                borderRadius: 18,
+                background: '#FFFFFF',
+                border: '1px solid rgba(11,19,15,0.06)',
+                boxShadow: '0 2px 8px rgba(11,19,15,0.02)',
                 animation: 'pulse 1.5s ease-in-out infinite',
               }}
             />
           ))}
         </div>
       ) : isError || !data ? (
-        <div style={{ padding: 20 }}>
-          <div style={{ color: 'var(--color-warn)', marginBottom: 12 }}>
+        <div style={{ padding: 24 }}>
+          <div
+            style={{
+              color: '#EF4444',
+              marginBottom: 12,
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+            }}
+          >
             {errorToMessage(error)}
           </div>
           <Button variant="ghost" onClick={() => void refetch()}>
@@ -142,12 +173,38 @@ export function OrdersScreen() {
           </Button>
         </div>
       ) : shown.length === 0 ? (
-        <div style={{ padding: 40, textAlign: 'center', color: 'var(--color-muted2)' }}>
+        <div
+          style={{
+            margin: '0 24px 24px',
+            padding: 40,
+            textAlign: 'center',
+            color: '#879A91',
+            background: '#FFFFFF',
+            border: '1px solid rgba(11,19,15,0.06)',
+            borderRadius: 18,
+            boxShadow: '0 2px 8px rgba(11,19,15,0.02)',
+          }}
+        >
           <div style={{ fontSize: 32, marginBottom: 12 }}>📦</div>
-          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-cream)' }}>
+          <div
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 16,
+              fontWeight: 700,
+              letterSpacing: '-0.02em',
+              color: '#0B130F',
+            }}
+          >
             {query ? 'No orders found' : 'No orders yet'}
           </div>
-          <div style={{ fontSize: 13, marginTop: 6 }}>
+          <div
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 13,
+              color: '#6C7E75',
+              marginTop: 6,
+            }}
+          >
             {query
               ? 'Try a different search term or status.'
               : 'Orders placed on the storefront will appear here.'}
@@ -156,7 +213,7 @@ export function OrdersScreen() {
       ) : (
         <div
           style={{
-            padding: 20,
+            padding: '0 24px 24px',
             display: 'grid',
             gridTemplateColumns: isDesktop ? 'repeat(2,1fr)' : '1fr',
             gap: 12,
@@ -175,13 +232,15 @@ export function OrdersScreen() {
               <div
                 key={item.id}
                 style={{
-                  background: 'var(--color-surface)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: 12,
-                  padding: 16,
+                  background: '#FFFFFF',
+                  border: '1px solid rgba(11,19,15,0.06)',
+                  borderRadius: 18,
+                  padding: 20,
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 12,
+                  boxShadow: '0 2px 8px rgba(11,19,15,0.02)',
+                  transition: 'box-shadow 150ms ease, border-color 150ms ease',
                 }}
               >
                 <button
@@ -214,15 +273,24 @@ export function OrdersScreen() {
                     <div
                       style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}
                     >
-                      <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-cream)' }}>
+                      <span
+                        style={{
+                          fontFamily: "'Plus Jakarta Sans', sans-serif",
+                          fontSize: 14,
+                          fontWeight: 700,
+                          letterSpacing: '-0.01em',
+                          color: '#0B130F',
+                        }}
+                      >
                         {item.orderNumber}
                       </span>
                       <StatusBadge status={item.status} />
                     </div>
                     <span
                       style={{
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
                         fontSize: 12,
-                        color: 'var(--color-muted2)',
+                        color: '#6C7E75',
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -231,7 +299,13 @@ export function OrdersScreen() {
                       {item.customerSnapshot?.name ?? 'Guest'}
                       {item.customerSnapshot?.phone ? ` · ${item.customerSnapshot.phone}` : ''}
                     </span>
-                    <span style={{ fontSize: 11, color: 'var(--color-muted)' }}>
+                    <span
+                      style={{
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                        fontSize: 11,
+                        color: '#879A91',
+                      }}
+                    >
                       {(() => {
                         const d = toDateSafe(
                           (item as unknown as Record<string, unknown>).createdAt,
@@ -253,17 +327,16 @@ export function OrdersScreen() {
                   >
                     <span
                       style={{
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
                         fontSize: 14,
-                        fontWeight: 600,
-                        color: 'var(--color-cream)',
+                        fontWeight: 700,
+                        color: '#0B130F',
                         fontVariantNumeric: 'tabular-nums',
                       }}
                     >
                       {formatCurrency(item.totals?.grandTotal?.amount ?? 0)}
                     </span>
-                    <span style={{ fontSize: 12, color: 'var(--color-muted2)' }}>
-                      {expanded ? '▲' : '▼'}
-                    </span>
+                    <span style={{ fontSize: 12, color: '#6C7E75' }}>{expanded ? '▲' : '▼'}</span>
                   </div>
                 </button>
 
@@ -272,20 +345,22 @@ export function OrdersScreen() {
                     style={{
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: 12,
-                      paddingTop: 12,
-                      borderTop: '1px solid var(--color-border)',
+                      gap: 14,
+                      paddingTop: 16,
+                      borderTop: '1px solid rgba(11,19,15,0.06)',
+                      marginTop: 4,
                     }}
                   >
                     {handleStatusError ? (
                       <div
                         style={{
                           padding: 12,
-                          background: 'var(--color-warn-dim)',
-                          border: '1px solid var(--color-warn-border)',
-                          borderRadius: 8,
-                          color: 'var(--color-warn)',
-                          fontSize: 12,
+                          background: 'rgba(239,68,68,0.08)',
+                          border: '1px solid rgba(239,68,68,0.14)',
+                          borderRadius: 10,
+                          color: '#EF4444',
+                          fontFamily: "'Plus Jakarta Sans', sans-serif",
+                          fontSize: 13,
                         }}
                       >
                         {handleStatusError}
@@ -332,21 +407,42 @@ export function OrdersScreen() {
                         Items
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {item.items?.map((line) => (
-                          <div
-                            key={line.id}
-                            style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}
-                          >
-                            <span style={{ fontSize: 13, color: 'var(--color-cream)', flex: 1 }}>
-                              {line.quantity} × {line.snapshot?.name}
-                            </span>
-                            <span
-                              style={{ fontSize: 13, color: 'var(--color-cream)', fontWeight: 600 }}
+                        {item.items?.map((line) => {
+                          const wd = (line as unknown as Record<string, unknown>).weightDisplay as
+                            string | undefined;
+                          const wg = (line as unknown as Record<string, unknown>).weightGrams as
+                            number | undefined;
+                          const weightLabel = wd ? wd : wg ? `${wg}g` : `${line.quantity}`;
+                          return (
+                            <div
+                              key={line.id}
+                              style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}
                             >
-                              {formatCurrency(line.subtotal?.amount ?? 0)}
-                            </span>
-                          </div>
-                        ))}
+                              <span style={{ fontSize: 13, color: 'var(--color-cream)', flex: 1 }}>
+                                {weightLabel} × {line.snapshot?.name}
+                                <span
+                                  style={{
+                                    marginLeft: 6,
+                                    fontSize: 11,
+                                    color: '#6C7E75',
+                                    fontWeight: 500,
+                                  }}
+                                >
+                                  Weight: {weightLabel}
+                                </span>
+                              </span>
+                              <span
+                                style={{
+                                  fontSize: 13,
+                                  color: 'var(--color-cream)',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {formatCurrency(line.subtotal?.amount ?? 0)}
+                              </span>
+                            </div>
+                          );
+                        })}
                       </div>
                       <div
                         style={{

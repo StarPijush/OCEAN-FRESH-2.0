@@ -1,6 +1,7 @@
 import type { Timestamp } from './common.js';
 
 export enum ProductUnit {
+  GRAM = 'GRAM',
   KG = 'KG',
   PIECE = 'PIECE',
   DOZEN = 'DOZEN',
@@ -83,6 +84,12 @@ export interface Product {
   sku: string | null;
   barcode: string | null;
   description: string;
+  /**
+   * Canonical price per 1 KG (₹ per 1000g). Single source.
+   * DB column "price" stores pricePerKg. Customer mode GRAM|KG only
+   * changes display/presets; internally lineTotal = pricePerKg*grams/1000
+   * via calculatePriceFromKg. Admin UI shows "PRICE / KG".
+   */
   price: number;
   compareAtPrice: number | null;
   categoryId: string;
@@ -91,10 +98,16 @@ export interface Product {
   gallery: string[];
   status: ProductStatus;
   featured: boolean;
+  /** @deprecated — kept for DB compatibility (stock column). Use status ACTIVE vs OUT_OF_STOCK. */
   stock: number;
   weight: number | null;
   weightUnit: 'g' | 'kg' | 'lb';
   dimensions: ProductDimensions | null;
+  /**
+   * @deprecated — DORMANT for pricing. Price always from pricePerKg above.
+   * Unit kept for row compatibility (GRAM/KG still valid mode, PIECE/DOZEN legacy).
+   * New products default to KG; application no longer reads this as pricing basis.
+   */
   unit: ProductUnit;
   tags: string[];
   searchKeywords: string[];
@@ -104,6 +117,7 @@ export interface Product {
   sortOrder: number;
   warehouseId: string | null;
   variants: ProductVariant[] | null;
+  /** @deprecated — kept for DB compatibility. Weight presets replace min order qty. */
   minOrderQuantity: number;
   createdBy: string;
   updatedBy: string | null;

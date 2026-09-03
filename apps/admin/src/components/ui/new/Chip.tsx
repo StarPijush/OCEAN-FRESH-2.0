@@ -49,25 +49,25 @@ export const Chip: React.FC<ChipProps> = ({
 
   const variantStyles = {
     default: {
-      background: 'transparent',
-      color: 'var(--color-cream)',
-      borderColor: 'var(--color-border2)',
+      background: '#FFFFFF',
+      color: 'var(--color-text-primary)',
+      borderColor: 'rgba(11,19,15,0.12)',
     },
     active: {
-      background: 'var(--color-aqua)',
-      color: 'var(--color-bg)',
-      borderColor: 'var(--color-aqua)',
+      background: '#0d2035',
+      color: '#FFFFFF',
+      borderColor: '#0d2035',
     },
   };
 
   const hoverStyles = {
     default: {
-      borderColor: 'var(--color-cream)',
-      background: 'rgba(255,255,255,0.04)',
+      borderColor: 'rgba(11,19,15,0.12)',
+      background: '#F8FAF9',
     },
     active: {
-      background: 'var(--color-aqua-hover)',
-      borderColor: 'var(--color-aqua-hover)',
+      background: '#071526',
+      borderColor: '#071526',
     },
   };
 
@@ -105,8 +105,8 @@ export const Chip: React.FC<ChipProps> = ({
       {count !== undefined && (
         <span
           style={{
-            background: isActive ? 'rgba(13,15,18,0.2)' : 'var(--color-surface2)',
-            color: isActive ? 'var(--color-cream)' : 'var(--color-muted2)',
+            background: isActive ? 'rgba(255,255,255,0.16)' : 'var(--color-surface2)',
+            color: isActive ? '#FFFFFF' : 'var(--color-muted2)',
             padding: '1px 5px',
             borderRadius: 'var(--radius-badge)',
             fontSize: '10px',

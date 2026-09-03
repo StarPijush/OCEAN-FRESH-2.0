@@ -11,7 +11,7 @@ interface TopNavProps {
 
 export function TopNav({ onMenuToggle, isDrawerOpen }: TopNavProps) {
   const navigate = useNavigate();
-  const count = useCartStore((s) => Object.values(s.items).reduce((a, b) => a + b, 0));
+  const count = useCartStore((s) => Object.keys(s.items).length);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
   useEffect(() => {

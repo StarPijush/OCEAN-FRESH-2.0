@@ -75,6 +75,9 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
             pointerEvents: 'none',
             padding: '0 16px',
             alignItems: 'center',
+            width: '100%',
+            maxWidth: 400,
+            boxSizing: 'border-box',
           }}
         >
           {toasts.map((t) => (
@@ -101,10 +104,10 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
   }, []);
 
   const typeStyles: Record<ToastType, React.CSSProperties> = {
-    default: { borderLeftColor: 'var(--color-aqua)' },
-    success: { borderLeftColor: 'var(--color-green)' },
-    error: { borderLeftColor: 'var(--color-warn)' },
-    info: { borderLeftColor: '#38bdf8' },
+    default: { borderLeftColor: '#4ab8c1' },
+    success: { borderLeftColor: '#22C55E' },
+    error: { borderLeftColor: '#EF4444' },
+    info: { borderLeftColor: '#0d2035' },
   };
 
   const handleDismiss = () => {
@@ -118,15 +121,19 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        background: 'var(--color-surface2)',
-        color: 'var(--color-cream)',
-        padding: '11px 20px',
-        borderRadius: 'var(--radius-md)',
-        fontSize: 'var(--text-body-sm-size)',
-        fontWeight: 500,
-        letterSpacing: '0.06em',
-        whiteSpace: 'nowrap',
-        boxShadow: 'var(--shadow-card)',
+        background: '#FFFFFF',
+        color: '#0B130F',
+        border: '1px solid rgba(11,19,15,0.06)',
+        padding: '12px 16px 12px 18px',
+        borderRadius: 14,
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+        fontSize: 13,
+        fontWeight: 600,
+        maxWidth: 'min(90vw, 360px)',
+        whiteSpace: 'normal',
+        wordBreak: 'break-word',
+        overflowWrap: 'anywhere',
+        boxShadow: '0 10px 30px rgba(11,19,15,0.08)',
         borderLeft: '3px solid',
         opacity: visible ? (exiting ? 0 : 1) : 0,
         transform: visible ? (exiting ? 'translateY(12px)' : 'translateY(0)') : 'translateY(12px)',
@@ -137,24 +144,23 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss }) => {
       role="status"
       aria-live="polite"
     >
-      <span>{toast.message}</span>
+      <span style={{ minWidth: 0, flex: 1 }}>{toast.message}</span>
       <button
         onClick={handleDismiss}
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          width: '20px',
-          height: '20px',
-          borderRadius: '50%',
+          width: 20,
+          height: 20,
+          borderRadius: 9999,
           border: 'none',
-          background: 'transparent',
-          color: 'var(--color-muted2)',
+          background: '#F8FAF9',
+          color: '#6C7E75',
           cursor: 'pointer',
-          opacity: 0.6,
           padding: 0,
           lineHeight: 1,
-          marginLeft: '8px',
+          marginLeft: 8,
         }}
         aria-label="Dismiss"
       >

@@ -72,10 +72,7 @@ export function OtpVerifyScreen() {
         ) : (
           <>
             A 6-digit OTP has been sent to{' '}
-            <strong style={{ color: 'var(--color-text-primary, #f2eee6)' }}>
-              {email || 'your email'}
-            </strong>
-            . Check your inbox.
+            <strong style={{ color: '#0B130F' }}>{email || 'your email'}</strong>. Check your inbox.
           </>
         )
       }
@@ -89,12 +86,11 @@ export function OtpVerifyScreen() {
         disabled={isVerifyDisabled}
         size="lg"
         style={{
-          borderRadius: 6,
-          padding: '15px 24px',
-          fontSize: 12,
-          letterSpacing: '0.14em',
-          fontWeight: 600,
-          boxShadow: '0 4px 16px rgba(39,195,200,0.18), 0 1px 3px rgba(7,21,38,0.25)',
+          borderRadius: 14,
+          padding: '14px 24px',
+          fontSize: 13,
+          letterSpacing: '0.08em',
+          fontWeight: 700,
         }}
         onClick={() => void handleVerify()}
       >
@@ -140,10 +136,10 @@ export function OtpVerifyScreen() {
           text-decoration: none !important;
         }
         .auth-link--recovery:hover {
-          color: var(--color-teal, #27c3c8) !important;
+          color: #0d2035 !important;
         }
         .auth-link--recovery:focus-visible {
-          outline: 2px solid rgba(39, 195, 200, 0.35);
+          outline: 2px solid rgba(74, 184, 193, 0.28);
           outline-offset: 3px;
           border-radius: 4px;
         }
@@ -163,23 +159,22 @@ export function OtpVerifyScreen() {
 }
 
 const errorStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-ui)',
+  fontFamily: "'Plus Jakarta Sans', sans-serif",
   fontSize: '12px',
   lineHeight: '1.5',
-  color: '#fecaca',
-  background: 'rgba(224,122,101,0.10)',
-  border: '1px solid rgba(224,122,101,0.28)',
-  borderLeft: '3px solid var(--color-warn, #e07a65)',
+  color: '#991b1b',
+  background: '#fef2f2',
+  border: '1px solid #fecaca',
   padding: '10px 12px',
-  borderRadius: 8,
+  borderRadius: 10,
   marginBottom: 8,
 };
 
 const linkStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-ui)',
-  fontSize: '12.5px',
-  fontWeight: 500,
-  color: '#aeb9c8',
+  fontFamily: "'Plus Jakarta Sans', sans-serif",
+  fontSize: '13px',
+  fontWeight: 600,
+  color: '#6C7E75',
   background: 'none',
   border: 'none',
   cursor: 'pointer',

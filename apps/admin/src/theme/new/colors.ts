@@ -1,67 +1,73 @@
-// OceanFresh Admin — Reference-aligned color tokens (DARK NAVY + AQUA/TEAL ONLY)
+// OceanFresh Admin — Spark Reference LIGHT system (canvas #F4F6F5, white surfaces) + OceanFresh navy brand
 
 export const colors = {
-  // Core surfaces - DARK NAVY
-  bg: '#071526',
-  surface: '#0d2035',
-  surface2: '#0f1f33',
-  surface3: '#14304d',
+  // Core surfaces - LIGHT (Spark canvas)
+  bg: '#F4F6F5',
+  surface: '#FFFFFF',
+  surfaceElevated: '#FFFFFF',
+  surfaceSubtle: '#F8FAF9',
+  surface2: '#F8FAF9',
+  surface3: '#EEF2F0',
 
-  // Borders - AQUA/TEAL derived
-  border: 'rgba(74,184,193,0.09)',
-  border2: 'rgba(74,184,193,0.14)',
-  borderHover: 'rgba(74,184,193,0.3)',
-  borderActive: 'rgba(74,184,193,0.5)',
+  // Borders - Spark light (subtle gray/green) + legacy navy for dark shell
+  border: 'rgba(11,19,15,0.06)',
+  border2: 'rgba(11,19,15,0.08)',
+  borderHover: 'rgba(11,19,15,0.12)',
+  borderActive: 'rgba(13,32,53,0.18)',
 
-  // Text - NEUTRAL COOL GRAYS
-  textPrimary: '#e6edf5',
-  textSecondary: '#aeb9c8',
-  textMuted: '#8291a5',
+  // Text - Spark dark on light
+  textPrimary: '#0B130F',
+  textSecondary: '#6C7E75',
+  textMuted: '#879A91',
 
-  // Brand - AQUA/TEAL
+  // Brand - AQUA/TEAL (Spark lime → OceanFresh aqua)
   aqua: '#4ab8c1',
   aquaHover: '#5bc8d1',
-  aquaDim: 'rgba(74,184,193,0.12)',
-  aquaGlow: 'rgba(74,184,193,0.15)',
-  aquaBorder: 'rgba(74,184,193,0.3)',
+  aquaDim: 'rgba(74,184,193,0.08)',
+  aquaGlow: 'rgba(74,184,193,0.12)',
+  aquaBorder: 'rgba(74,184,193,0.18)',
 
-  // Status - Green (teal-compatible)
-  green: '#4ade80',
-  greenHover: '#5ee08a',
-  greenDim: 'rgba(74,222,128,0.12)',
-  greenBorder: 'rgba(74,222,128,0.3)',
+  // Status - Spark system (must match CSS)
+  green: '#22C55E',
+  greenHover: '#16a34a',
+  greenDim: 'rgba(34,197,94,0.08)',
+  greenBorder: 'rgba(34,197,94,0.14)',
+  successDim: 'rgba(34,197,94,0.08)',
 
-  // Status - Warn
-  warn: '#e07a65',
-  warnHover: '#e8907d',
-  warnDim: 'rgba(224,122,101,0.12)',
-  warnBorder: 'rgba(224,122,101,0.3)',
+  // Status - Warn / Danger Spark red
+  warn: '#EF4444',
+  warnHover: '#dc2626',
+  warnDim: 'rgba(239,68,68,0.08)',
+  warnBorder: 'rgba(239,68,68,0.14)',
+  warning: '#F97316',
+  warningDim: 'rgba(249,115,22,0.08)',
 
-  // OceanFresh Premium — storefront canonical (authoritative) - NAVY/TEAL ONLY
+  // OceanFresh Premium — navy preserved for dark chrome only
   navyDeep: '#071526',
   navySurface: '#0d2035',
   navyDeepest: '#04101d',
-  teal: '#27c3c8',
-  tealHover: '#1faaae',
-  tealDim: 'rgba(39,195,200,0.10)',
-  tealGlow: 'rgba(39,195,200,0.15)',
-  tealBorder: 'rgba(39,195,200,0.30)',
-  gridDark: 'rgba(39,195,200,0.055)',
-  gridLight: 'rgba(7,21,38,0.035)',
+  navyBorder: 'rgba(255,255,255,0.08)',
+  navyBorderStrong: 'rgba(255,255,255,0.1)',
+  navyHover: 'rgba(255,255,255,0.04)',
+  navyActive: 'rgba(74,184,193,0.08)',
+  teal: '#4ab8c1',
+  tealHover: '#5bc8d1',
+  tealDim: 'rgba(74,184,193,0.08)',
+  tealGlow: 'rgba(74,184,193,0.12)',
+  tealBorder: 'rgba(74,184,193,0.18)',
+  gridDark: 'rgba(11,19,15,0.06)',
+  gridLight: 'rgba(11,19,15,0.02)',
 
-  // Text legacy - replaced with cool neutrals
-  textHeading: '#e6edf5',
-  textLightPrimary: '#071526',
-  textLightSecondary: '#52657d',
-  textLightAccent: '#159ea5',
+  // Text
+  textHeading: '#0B130F',
+  textLightPrimary: '#0B130F',
+  textLightSecondary: '#6C7E75',
+  textLightAccent: '#4ab8c1',
 
-  // Status legacy
-  success: '#4ade80',
-  successDim: 'rgba(74,222,128,0.12)',
-  warning: '#e07a65',
-  warningDim: 'rgba(224,122,101,0.12)',
-  danger: '#e07a65',
-  dangerDim: 'rgba(224,122,101,0.10)',
+  // Status legacy aliases
+  success: '#22C55E',
+  danger: '#EF4444',
+  dangerDim: 'rgba(239,68,68,0.08)',
   info: '#4ab8c1',
   infoDim: 'rgba(74,184,193,0.10)',
 

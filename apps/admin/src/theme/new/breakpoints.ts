@@ -2,9 +2,10 @@
 
 export const breakpoints = {
   mobile: 640,
-  tablet: 1024,
+  tablet: 640,
   desktop: 1024,
   wide: 1440,
+  compact: 375,
 } as const;
 
 export const mediaQueries = {

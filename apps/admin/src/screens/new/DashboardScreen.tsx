@@ -14,6 +14,7 @@ import { useBreakpoint } from '../../hooks/use-breakpoint';
 import { useDashboardStats } from '../../hooks/use-dashboard-stats';
 import { useOrders } from '../../hooks/use-orders';
 import { useAdminProfile } from '../../hooks/use-settings';
+import type { ChartRange } from '../../services/dashboard-stats';
 import { errorToMessage } from '../../utils/error';
 
 type ChartMode = 'income' | 'sales';
@@ -22,11 +23,19 @@ export function DashboardScreen() {
   const navigate = useNavigate();
   const session = useAdminSession();
   const { width } = useBreakpoint();
-  const { data: stats, isLoading, isError, error, refetch } = useDashboardStats();
+  const [chartMode, setChartMode] = useState<ChartMode>('income');
+  const chartRange: ChartRange = 'week';
+  const {
+    data: stats,
+    chartData,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useDashboardStats(chartRange, chartMode);
   const { data: profile } = useAdminProfile(session.user?.id);
   const orders = useOrders({ limit: 8 });
   const { refetch: refetchOrders } = orders;
-  const [chartMode, setChartMode] = useState<ChartMode>('income');
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
@@ -39,15 +48,17 @@ export function DashboardScreen() {
   }, [refetch, refetchOrders]);
 
   const firstName = profile?.fullName?.split(' ')[0] ?? 'Admin';
-  const isMobile = width < 768;
+  const isMobile = width < 640;
+  const isTablet = width >= 640 && width < 1024;
+  const isDesktop = width >= 1024;
 
-  const containerPadding = isMobile ? 16 : 24;
-  const sectionGap = isMobile ? 16 : 20;
+  const containerPadding = isMobile ? 16 : isTablet ? 20 : 24;
+  const sectionGap = isMobile ? 16 : isTablet ? 20 : 24;
 
   return (
     <div
       style={{
-        background: 'var(--color-bg)',
+        background: '#F4F6F5',
         minHeight: '100%',
         padding: `${sectionGap}px ${containerPadding}px`,
         paddingBottom: 32,
@@ -58,61 +69,77 @@ export function DashboardScreen() {
           display: 'flex',
           flexDirection: 'column',
           gap: sectionGap,
-          maxWidth: 1120,
+          maxWidth: isDesktop ? 1280 : '100%',
           margin: '0 auto',
           width: '100%',
         }}
       >
-        <DashboardHeader
-          title="Dashboard"
-          subtitle={`Hello, ${firstName} — here's what's happening today.`}
-          onRefresh={() => void onRefresh()}
-          refreshing={refreshing}
-        />
+        <div style={{ marginBottom: 4 }}>
+          <DashboardHeader
+            title="Dashboard"
+            subtitle={`Hello, ${firstName} — here's what's happening today.`}
+            onRefresh={() => void onRefresh()}
+            refreshing={refreshing}
+          />
+        </div>
 
         {isLoading ? (
           <div
             style={{
-              display: 'grid',
-              gridTemplateColumns:
-                width < 480 ? '1fr' : width < 768 ? 'repeat(2,1fr)' : 'repeat(4,1fr)',
-              gap: isMobile ? 12 : 16,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+              maxWidth: 400,
+              width: '100%',
             }}
           >
-            {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton
-                key={i}
-                variant="rectangular"
-                height={isMobile ? 110 : 118}
-                style={{ borderRadius: 16 }}
-              />
-            ))}
+            <Skeleton
+              variant="rectangular"
+              height={isMobile ? 118 : 132}
+              style={{ borderRadius: 24, width: '100%' }}
+            />
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: width < 375 ? '1fr' : 'repeat(2, minmax(0, 1fr))',
+                gap: 12,
+              }}
+            >
+              {Array.from({ length: 2 }).map((_, i) => (
+                <Skeleton
+                  key={i}
+                  variant="rectangular"
+                  height={isMobile ? 108 : 114}
+                  style={{ borderRadius: 18, width: '100%' }}
+                />
+              ))}
+            </div>
           </div>
         ) : isError ? (
           <ErrorState message={errorToMessage(error)} onRetry={() => void refetch()} />
         ) : !stats ? (
           <ErrorState message="No dashboard data" onRetry={() => void refetch()} />
         ) : (
-          <MetricGrid stats={stats} />
+          <MetricGrid stats={stats} width={width} />
         )}
 
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: width >= 1024 ? '1.55fr 1fr' : '1fr',
-            gap: isMobile ? 16 : 20,
+            gridTemplateColumns: isDesktop ? '1.6fr 1fr' : '1fr',
+            gap: 12,
             alignItems: 'start',
           }}
         >
-          {isLoading ? (
-            <Skeleton
-              variant="rectangular"
-              height={isMobile ? 220 : 260}
-              style={{ borderRadius: 16 }}
-            />
-          ) : isError || !stats ? null : (
-            <PerformanceChart chart={stats.chart} mode={chartMode} onModeChange={setChartMode} />
-          )}
+          <PerformanceChart
+            chartData={chartData}
+            isLoading={isLoading}
+            isError={isError}
+            error={error}
+            onRefresh={onRefresh}
+            onMetricChange={setChartMode}
+            onRangeChange={() => {}}
+          />
           <RecentOrdersList
             orders={(orders.data?.items as Order[]) ?? []}
             isLoading={orders.isLoading || isLoading}
@@ -121,7 +148,11 @@ export function DashboardScreen() {
         </div>
 
         {isLoading ? (
-          <Skeleton variant="rectangular" height={180} style={{ borderRadius: 16 }} />
+          <Skeleton
+            variant="rectangular"
+            height={isMobile ? 180 : 200}
+            style={{ borderRadius: 24 }}
+          />
         ) : isError || !stats ? null : (
           <TopProductsList topProducts={stats.topProducts} />
         )}

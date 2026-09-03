@@ -6,54 +6,74 @@
    ============================================================ */
 
 :root {
-  /* ---- Colors ---- */
-  /* Core surfaces - DARK NAVY */
-  --color-bg: #071526;
-  --color-surface: #0d2035;
-  --color-surface2: #0f1f33;
-  --color-surface3: #14304d;
+  /* ---- Colors — Spark Light System (OceanFresh brand preserved) ---- */
+  /* Core surfaces - LIGHT CANVAS */
+  --color-bg: #f4f6f5;
+  --color-surface: #ffffff;
+  --color-surface2: #f8faf9;
+  --color-surface3: #eef2f0;
 
-  /* Borders - AQUA/TEAL derived */
-  --color-border: rgba(74, 184, 193, 0.09);
-  --color-border2: rgba(74, 184, 193, 0.14);
-  --color-border-hover: rgba(74, 184, 193, 0.3);
-  --color-border-active: rgba(74, 184, 193, 0.5);
+  /* Borders - Spark subtle light */
+  --color-border: rgba(11, 19, 15, 0.06);
+  --color-border2: rgba(11, 19, 15, 0.08);
+  --color-border-hover: rgba(11, 19, 15, 0.12);
+  --color-border-active: rgba(13, 32, 53, 0.14);
 
-  /* Text - NEUTRAL COOL GRAYS */
-  --color-text-primary: #e6edf5;
-  --color-text-secondary: #aeb9c8;
-  --color-text-muted: #8291a5;
+  /* Text - Spark dark on light */
+  --color-text-primary: #0b130f;
+  --color-text-secondary: #6c7e75;
+  --color-text-muted: #879a91;
 
-  /* Brand - AQUA/TEAL */
+  /* Brand - OceanFresh aqua/teal (mapped from Spark forest/lime) */
   --color-aqua: #4ab8c1;
   --color-aqua-hover: #5bc8d1;
-  --color-aqua-dim: rgba(74, 184, 193, 0.12);
-  --color-aqua-glow: rgba(74, 184, 193, 0.15);
-  --color-aqua-border: rgba(74, 184, 193, 0.3);
+  --color-aqua-dim: rgba(74, 184, 193, 0.08);
+  --color-aqua-glow: rgba(74, 184, 193, 0.12);
+  --color-aqua-border: rgba(74, 184, 193, 0.18);
 
-  /* Status - Green (teal-compatible) */
-  --color-green: #4ade80;
-  --color-green-hover: #5ee08a;
-  --color-green-dim: rgba(74, 222, 128, 0.12);
-  --color-green-border: rgba(74, 222, 128, 0.3);
+  /* Status - Spark system */
+  --color-green: #22c55e;
+  --color-green-hover: #16a34a;
+  --color-green-dim: rgba(34, 197, 94, 0.08);
+  --color-green-border: rgba(34, 197, 94, 0.14);
+  --color-success: #22c55e;
+  --color-success-dim: rgba(34, 197, 94, 0.08);
 
-  /* Status - Warn */
-  --color-warn: #e07a65;
-  --color-warn-hover: #e8907d;
-  --color-warn-dim: rgba(224, 122, 101, 0.12);
-  --color-warn-border: rgba(224, 122, 101, 0.3);
+  /* Status - Warn / Danger (Spark red + orange) */
+  --color-warn: #ef4444;
+  --color-warn-hover: #dc2626;
+  --color-warn-dim: rgba(239, 68, 68, 0.08);
+  --color-warn-border: rgba(239, 68, 68, 0.14);
+  --color-danger: #ef4444;
+  --color-warning: #f97316;
+  --color-warning-dim: rgba(249, 115, 22, 0.08);
 
-  /* OceanFresh Premium — storefront canonical (authoritative) - NAVY/TEAL ONLY */
+  /* Surfaces - Elevation (light) */
+  --color-surface-elevated: #ffffff;
+  --color-surface-subtle: #f8faf9;
+
+  /* OceanFresh Premium — navy preserved for dark chrome only (Spark forest mapping) */
   --color-navy-deep: #071526;
   --color-navy-surface: #0d2035;
   --color-navy-deepest: #04101d;
-  --color-teal: #27c3c8;
-  --color-teal-hover: #1faaae;
-  --color-teal-dim: rgba(39, 195, 200, 0.1);
-  --color-teal-glow: rgba(39, 195, 200, 0.15);
-  --color-teal-border: rgba(39, 195, 200, 0.3);
-  --grid-dark: rgba(39, 195, 200, 0.055);
-  --grid-light: rgba(7, 21, 38, 0.035);
+  /* Spark: --brand-forest-dark #051C12 / medium #072F1F → mapped to navy */
+  --color-navy-border: rgba(255, 255, 255, 0.08);
+  --color-navy-border-strong: rgba(255, 255, 255, 0.1);
+  --color-navy-hover: rgba(255, 255, 255, 0.04);
+  --color-navy-active: rgba(74, 184, 193, 0.08);
+  /* Aqua is OceanFresh accent (Spark lime #B4F105 → aqua #4ab8c1) */
+  --color-teal: #4ab8c1;
+  --color-teal-hover: #5bc8d1;
+  --color-teal-dim: rgba(74, 184, 193, 0.08);
+  --color-teal-glow: rgba(74, 184, 193, 0.12);
+  --color-teal-border: rgba(74, 184, 193, 0.18);
+  /* Light borders (for white surfaces) */
+  --grid-dark: rgba(11, 19, 15, 0.06);
+  --grid-light: rgba(11, 19, 15, 0.02);
+  /* Legacy aliases — kept for compat, do not use in new code */
+  --color-cream: #0b130f;
+  --color-muted: #6c7e75;
+  --color-muted2: #879a91;
 
   /* ---- Spacing (4px base unit) ---- */
   --space-base: 4px;
@@ -75,46 +95,52 @@
   --space-12: 48px;
   --space-16: 64px;
 
-  /* ---- Radius ---- */
+  /* ---- Radius — Spark ---- */
   --radius-none: 0;
   --radius-xs: 2px;
-  --radius-sm: 3px;
-  --radius-md: 4px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-  --radius-xxl: 16px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-xxl: 24px;
   --radius-full: 9999px;
-  --radius-card: 4px;
-  --radius-button: 3px;
-  --radius-input: 3px;
-  --radius-modal: 4px;
-  --radius-badge: 20px;
-  --radius-toggle: 20px;
+  --radius-card: 18px;
+  --radius-card-sm: 14px;
+  --radius-button: 14px;
+  --radius-input: 14px;
+  --radius-modal: 18px;
+  --radius-badge: 9999px;
+  --radius-toggle: 9999px;
 
-  /* ---- Shadows ---- */
+  /* ---- Shadows — Spark restrained light ---- */
   --shadow-none: none;
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15), 0 10px 10px rgba(0, 0, 0, 0.04);
-  --shadow-xxl: 0 25px 50px rgba(0, 0, 0, 0.25);
-  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.15);
-  --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.2);
-  --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.4);
-  --shadow-drawer: -4px 0 20px rgba(0, 0, 0, 0.3);
-  --shadow-dropdown: 0 8px 24px rgba(0, 0, 0, 0.2);
-  --shadow-tooltip: 0 4px 12px rgba(0, 0, 0, 0.2);
-  --shadow-focus: 0 0 0 3px rgba(74, 184, 193, 0.4);
-  --shadow-focus-error: 0 0 0 3px rgba(224, 122, 101, 0.4);
-  --shadow-focus-success: 0 0 0 3px rgba(74, 222, 128, 0.4);
-  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-inner-lg: inset 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-xs: 0 1px 2px rgba(11, 19, 15, 0.04);
+  --shadow-sm: 0 2px 8px rgba(11, 19, 15, 0.02);
+  --shadow-md: 0 10px 30px rgba(11, 19, 15, 0.04);
+  --shadow-lg: 0 20px 50px rgba(11, 19, 15, 0.08);
+  --shadow-xl: 0 20px 30px rgba(11, 19, 15, 0.08), 0 8px 16px rgba(11, 19, 15, 0.06);
+  --shadow-xxl: 0 25px 50px rgba(11, 19, 15, 0.1);
+  --shadow-surface: 0 2px 8px rgba(11, 19, 15, 0.02);
+  --shadow-card: 0 10px 30px rgba(11, 19, 15, 0.04);
+  --shadow-card-hover: 0 20px 50px rgba(11, 19, 15, 0.08);
+  --shadow-elevated: 0 20px 50px rgba(11, 19, 15, 0.08);
+  --shadow-modal: 0 30px 60px rgba(11, 19, 15, 0.12);
+  --shadow-drawer: -4px 0 20px rgba(11, 19, 15, 0.08);
+  --shadow-dropdown: 0 20px 50px rgba(11, 19, 15, 0.08);
+  --shadow-tooltip: 0 8px 24px rgba(11, 19, 15, 0.08);
+  --shadow-focus: 0 0 0 3px rgba(13, 32, 53, 0.08);
+  --shadow-focus-error: 0 0 0 3px rgba(239, 68, 68, 0.08);
+  --shadow-focus-success: 0 0 0 3px rgba(34, 197, 94, 0.08);
+  --shadow-inner: inset 0 2px 4px rgba(11, 19, 15, 0.04);
+  --shadow-inner-lg: inset 0 4px 8px rgba(11, 19, 15, 0.06);
 
-  /* ---- Typography ---- */
-  /* Font families */
-  --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-ui: 'Instrument Sans', sans-serif;
+  /* ---- Typography — Spark Plus Jakarta Sans (Cormorant kept for wordmark only) ---- */
+  --font-display: 'Plus Jakarta Sans', 'Instrument Sans', sans-serif;
+  --font-ui: 'Plus Jakarta Sans', 'Instrument Sans', sans-serif;
+  --font-brand: 'Cormorant Garamond', Georgia, serif;
+
+  /* Spark editorial: body -0.01em, headings -0.025em, numbers tabular */
+  --text-antialiased: antialiased;
 
   /* Display */
   --text-display-size: 48px;
@@ -127,21 +153,21 @@
   --text-display-sm-weight: 300;
   --text-display-sm-tracking: -0.01em;
 
-  /* Headings */
-  --text-h1-size: 32px;
+  /* Headings — Spark 700 -0.025em */
+  --text-h1-size: 28px;
   --text-h1-line: 1.2;
-  --text-h1-weight: 300;
-  --text-h1-tracking: -0.01em;
+  --text-h1-weight: 700;
+  --text-h1-tracking: -0.025em;
 
-  --text-h2-size: 24px;
+  --text-h2-size: 18px;
   --text-h2-line: 1.25;
-  --text-h2-weight: 400;
-  --text-h2-tracking: 0;
+  --text-h2-weight: 700;
+  --text-h2-tracking: -0.025em;
 
-  --text-h3-size: 20px;
+  --text-h3-size: 16px;
   --text-h3-line: 1.3;
-  --text-h3-weight: 400;
-  --text-h3-tracking: 0;
+  --text-h3-weight: 700;
+  --text-h3-tracking: -0.02em;
 
   /* Body */
   --text-body-lg-size: 16px;
@@ -277,7 +303,7 @@
   --bp-wide: 1440px;
 
   /* ---- Layout ---- */
-  --sidebar-width: 220px;
+  --sidebar-width: 280px;
   --sidebar-width-collapsed: 72px;
   --header-height-mobile: 56px;
   --header-height-desktop: 64px;
@@ -338,8 +364,21 @@ body {
   font-weight: var(--text-body-weight);
   letter-spacing: var(--text-body-tracking);
   color: var(--color-text-primary);
-  background-color: var(--color-navy-deep);
+  background-color: #f4f6f5;
   min-height: 100vh;
+  letter-spacing: -0.01em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  color: var(--color-text-primary);
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 /* Selection */

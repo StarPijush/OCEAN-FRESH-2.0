@@ -1,16 +1,22 @@
 import { getProductRepository } from '@oceanfresh/product/repository';
-import { type Product, ProductStatus } from '@oceanfresh/shared';
+import { type Product, ProductStatus, ProductUnit } from '@oceanfresh/shared';
 
 export interface ProductVM {
   id: string;
   name: string;
   sub: string;
   emoji: string;
+  /** Canonical price per 1 KG (₹ per 1000g). DB column price. */
+  pricePerKg: number;
+  /** Alias for pricePerKg kept for back-compat */
   price: number;
   category: string;
   tag: string;
   available: boolean;
   image: string | null;
+  /** Dormant: customer mode now controls GRAM|KG, not product unit */
+  unit: ProductUnit;
+  status: ProductStatus;
 }
 
 const PRODUCT_EMOJI_MAP: Record<string, string> = {
@@ -40,16 +46,21 @@ function getEmoji(name: string): string {
 }
 
 function toViewModel(row: Product): ProductVM {
+  const unit = ProductUnit.KG;
+  const pricePerKg = Number(row.price);
   return {
     id: row.id,
     name: row.name,
     sub: row.description ?? '',
     emoji: getEmoji(row.name),
-    price: Number(row.price),
+    pricePerKg,
+    price: pricePerKg,
     category: row.categoryId ?? '',
     tag: row.status ?? 'Fresh',
-    available: row.stock > 0 && row.status === ProductStatus.ACTIVE,
+    available: row.status === ProductStatus.ACTIVE,
     image: row.thumbnail ?? null,
+    unit,
+    status: row.status as ProductStatus,
   };
 }
 

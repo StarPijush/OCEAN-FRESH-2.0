@@ -1,13 +1,14 @@
 import { getOrderRepository } from '@oceanfresh/order/repository';
+import { getProductRepository } from '@oceanfresh/product/repository';
 import {
   type Order,
   type OrderItem,
   OrderSource,
   OrderStatus,
   type PaymentSummary,
-  ProductUnit,
   STORE_SETTINGS,
 } from '@oceanfresh/shared';
+import { calculatePriceFromKg, parseWeightInput, type WeightMode } from '@oceanfresh/shared/domain';
 
 import type { ProductVM } from './product.service.js';
 
@@ -19,7 +20,15 @@ export interface OrderFormData {
 
 export interface OrderCartEntry {
   product: ProductVM;
-  quantity: number;
+  display: string;
+  grams: number;
+  /** Customer mode GRAM|KG */
+  mode: WeightMode;
+  lineTotal: number;
+  pricePerKg: number;
+  // Legacy compat
+  unit?: WeightMode;
+  pricePerUnit?: number;
 }
 
 export interface OrderPricing {
@@ -45,29 +54,70 @@ const money = (amount: number) => ({ amount, currency: 'INR' });
 export async function persistOrder(
   data: OrderFormData,
   entries: OrderCartEntry[],
-  pricing: OrderPricing,
+  _pricing: OrderPricing,
   location: LocationData | null,
 ): Promise<{ orderNumber: string; total: number }> {
   const now = new Date();
 
-  const items: OrderItem[] = entries.map(({ product, quantity }) => ({
-    id: generateId(),
-    productId: product.id,
-    snapshot: {
-      productId: product.id,
-      name: product.name,
+  const productRepo = getProductRepository();
+  for (const entry of entries) {
+    const mode = (entry.mode ?? entry.unit ?? 'GRAM') as WeightMode;
+    const pricePerKg = entry.pricePerKg ?? entry.pricePerUnit ?? 0;
+    const authoritative = await productRepo.findById(entry.product.id);
+    if (!authoritative) throw new Error(`Product not found: ${entry.product.name}`);
+    if (authoritative.status !== 'ACTIVE') throw new Error(`${entry.product.name} is out of stock`);
+    // Validate weight parse with mode
+    const parsed = parseWeightInput(entry.display, mode);
+    if (!parsed.success || parsed.grams !== entry.grams)
+      throw new Error(`Invalid weight for ${entry.product.name}`);
+    const expectedTotal = calculatePriceFromKg(Number(authoritative.price), entry.grams);
+    if (Math.abs(expectedTotal - entry.lineTotal) > 0.01) {
+      throw new Error(`Price mismatch for ${entry.product.name}`);
+    }
+    if (Math.abs(Number(authoritative.price) - pricePerKg) > 0.01) {
+      throw new Error(`Price tamper detected for ${entry.product.name}`);
+    }
+  }
+
+  const authoritativePricing = (() => {
+    const subtotal = entries.reduce((sum, e) => sum + e.lineTotal, 0);
+    const deliveryCharge =
+      subtotal >= STORE_SETTINGS.freeDeliveryAbove ? 0 : STORE_SETTINGS.deliveryFee;
+    return { subtotal, deliveryCharge, total: subtotal + deliveryCharge };
+  })();
+  const finalPricing = authoritativePricing;
+
+  const items: OrderItem[] = entries.map((entry) => {
+    const mode = (entry.mode ?? entry.unit ?? 'GRAM') as WeightMode;
+    const pricePerKg = entry.pricePerKg ?? entry.pricePerUnit ?? 0;
+    const snapshot = {
+      productId: entry.product.id,
+      name: entry.product.name,
       sku: null,
-      thumbnail: product.image ?? '',
-      image: product.image ?? '',
-      price: money(product.price),
-      currency: 'INR',
-      unit: ProductUnit.KG,
-      variantSummary: null,
-    },
-    quantity,
-    unitPrice: money(product.price),
-    subtotal: money(product.price * quantity),
-  }));
+      thumbnail: entry.product.image ?? '',
+      image: entry.product.image ?? '',
+      price: money(pricePerKg),
+      currency: 'INR' as const,
+      unit: mode,
+      variantSummary: null as string | null,
+      weightDisplay: entry.display,
+      weightGrams: entry.grams,
+    } as unknown as OrderItem['snapshot'];
+
+    const subtotal = entry.lineTotal;
+    const quantityGrams = Math.round(entry.grams);
+    return {
+      id: generateId(),
+      productId: entry.product.id,
+      snapshot,
+      quantity: quantityGrams,
+      unitPrice: money(pricePerKg),
+      subtotal: money(subtotal),
+      weightGrams: entry.grams,
+      weightDisplay: entry.display,
+      productUnit: mode,
+    } as OrderItem;
+  });
 
   const orderNumber = `OF-${now.getFullYear()}-${String(Date.now()).slice(-6)}`;
 
@@ -79,11 +129,11 @@ export async function persistOrder(
     status: OrderStatus.VALIDATING,
     items,
     totals: {
-      subtotal: money(pricing.subtotal),
+      subtotal: money(finalPricing.subtotal),
       discount: money(0),
-      shipping: money(pricing.deliveryCharge),
+      shipping: money(finalPricing.deliveryCharge),
       tax: money(0),
-      grandTotal: money(pricing.total),
+      grandTotal: money(finalPricing.total),
     },
     customerSnapshot: {
       name: data.name,
@@ -100,7 +150,7 @@ export async function persistOrder(
       state: '',
       pincode: '',
       method: 'delivery',
-      amount: money(pricing.deliveryCharge),
+      amount: money(finalPricing.deliveryCharge),
     },
     billingSnapshot: {
       address: data.address,
@@ -131,8 +181,8 @@ export async function persistOrder(
     updatedAt: now,
   };
 
-  await getOrderRepository().create(order);
-  return { orderNumber, total: pricing.total };
+  await getOrderRepository().create(order as unknown as Order);
+  return { orderNumber, total: finalPricing.total };
 }
 
 export const orderService = {
@@ -141,6 +191,20 @@ export const orderService = {
     if (!data.phone.trim()) return 'Enter phone number';
     if (!data.address.trim()) return 'Enter delivery address';
     if (!cartEntries.length) return 'Cart is empty';
+    for (const e of cartEntries) {
+      const mode = (e.mode ?? e.unit ?? 'GRAM') as WeightMode;
+      const pricePerKg = e.pricePerKg ?? e.pricePerUnit ?? 0;
+      if (!e.display || !e.grams || e.grams <= 0) return `Invalid weight for ${e.product.name}`;
+      const parsed = parseWeightInput(e.display, mode);
+      if (!parsed.success) return parsed.error ?? `Invalid weight for ${e.product.name}`;
+      try {
+        const price = calculatePriceFromKg(pricePerKg, e.grams);
+        if (price <= 0) return `Invalid price for ${e.product.name}`;
+      } catch {
+        return `Invalid pricing for ${e.product.name}`;
+      }
+      if (e.product.status !== 'ACTIVE') return `${e.product.name} is out of stock`;
+    }
     return null;
   },
 
@@ -149,10 +213,7 @@ export const orderService = {
     freeDeliveryThreshold = STORE_SETTINGS.freeDeliveryAbove,
     deliveryFee = STORE_SETTINGS.deliveryFee,
   ): OrderPricing {
-    const subtotal = cartEntries.reduce(
-      (sum, entry) => sum + entry.product.price * entry.quantity,
-      0,
-    );
+    const subtotal = cartEntries.reduce((sum, entry) => sum + entry.lineTotal, 0);
     const deliveryCharge = subtotal >= freeDeliveryThreshold ? 0 : deliveryFee;
     return {
       subtotal,
@@ -170,7 +231,7 @@ export const orderService = {
     const lines = entries
       .map(
         (entry) =>
-          `\u2022 ${entry.product.name} \u2014 ${entry.quantity}kg \u2014 \u20B9${entry.product.price * entry.quantity}`,
+          `\u2022 ${entry.product.name} \u2014 ${entry.display} \u2014 \u20B9${entry.lineTotal}`,
       )
       .join('\n');
 

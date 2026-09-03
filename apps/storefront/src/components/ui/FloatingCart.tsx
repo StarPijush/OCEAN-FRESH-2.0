@@ -5,7 +5,7 @@ import { CartIcon } from '../ui/Icons.js';
 
 export function FloatingCart() {
   const navigate = useNavigate();
-  const count = useCartStore((s) => Object.values(s.items).reduce((a, b) => a + b, 0));
+  const count = useCartStore((s) => Object.keys(s.items).length);
 
   return (
     <div id="floating-cart" className={count > 0 ? 'show' : ''} onClick={() => navigate('/order')}>

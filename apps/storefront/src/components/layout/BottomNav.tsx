@@ -14,7 +14,7 @@ const tabs = [
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
-  const count = useCartStore((s) => Object.values(s.items).reduce((a, b) => a + b, 0));
+  const count = useCartStore((s) => Object.keys(s.items).length);
 
   const currentPath = location.pathname;
   const isLightPage = currentPath.startsWith('/products') || currentPath.startsWith('/order');

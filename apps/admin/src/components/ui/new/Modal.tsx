@@ -127,19 +127,20 @@ export const Modal: React.FC<ModalProps> = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: 'var(--space-lg)',
-              borderBottom: '1px solid var(--color-border)',
+              padding: '20px 24px',
+              borderBottom: '1px solid rgba(11,19,15,0.06)',
             }}
           >
             {title && (
               <h3
                 id="modal-title"
                 style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 'var(--text-h2-size)',
-                  lineHeight: 'var(--text-h2-line)',
-                  fontWeight: 'var(--text-h2-weight)',
-                  color: 'var(--color-cream)',
+                  fontFamily: "'Plus Jakarta Sans', sans-serif",
+                  fontSize: '1.1rem',
+                  lineHeight: 1.25,
+                  fontWeight: 700,
+                  letterSpacing: '-0.025em',
+                  color: '#0B130F',
                   margin: 0,
                 }}
               >
@@ -153,7 +154,7 @@ export const Modal: React.FC<ModalProps> = ({
             )}
           </div>
         )}
-        <div style={{ padding: 'var(--space-lg)', overflow: 'auto' }}>{children}</div>
+        <div style={{ padding: '20px 24px', overflow: 'auto' }}>{children}</div>
       </div>
     </div>,
     portal,

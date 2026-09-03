@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export type BadgeVariant = 'success' | 'warn' | 'danger' | 'info' | 'neutral' | 'aqua' | 'gold';
+export type BadgeVariant = 'success' | 'warn' | 'danger' | 'info' | 'neutral' | 'aqua';
 
 export interface BadgeProps {
   children: ReactNode;
@@ -19,41 +19,37 @@ export const Badge: React.FC<BadgeProps> = ({
   className = '',
   style,
 }) => {
+  // Spark table badges: pill 0.75rem 700 dot6 — aqua maps to info, warn→orange 10%
   const variantStyles: Record<BadgeVariant, React.CSSProperties> = {
     success: {
-      background: 'var(--color-green-dim)',
-      color: 'var(--color-green)',
-      borderColor: 'var(--color-green-border)',
+      background: 'rgba(34,197,94,0.10)',
+      color: '#22C55E',
+      borderColor: 'rgba(34,197,94,0.14)',
     },
     warn: {
-      background: 'var(--color-warn-dim)',
-      color: 'var(--color-warn)',
-      borderColor: 'var(--color-warn-border)',
+      background: 'rgba(249,115,22,0.10)',
+      color: '#F97316',
+      borderColor: 'rgba(249,115,22,0.14)',
     },
     danger: {
-      background: 'var(--color-warn-dim)',
-      color: 'var(--color-warn)',
-      borderColor: 'var(--color-warn-border)',
+      background: 'rgba(239,68,68,0.10)',
+      color: '#EF4444',
+      borderColor: 'rgba(239,68,68,0.14)',
     },
     info: {
-      background: 'rgba(56,189,248,0.12)',
-      color: '#38bdf8',
-      borderColor: 'rgba(56,189,248,0.3)',
+      background: 'rgba(74,184,193,0.10)',
+      color: '#0d2035',
+      borderColor: 'rgba(74,184,193,0.14)',
     },
     neutral: {
-      background: 'rgba(255,255,255,0.05)',
-      color: 'var(--color-muted2)',
-      borderColor: 'transparent',
+      background: '#F8FAF9',
+      color: '#6C7E75',
+      borderColor: 'rgba(11,19,15,0.06)',
     },
     aqua: {
-      background: 'var(--color-aqua-dim)',
-      color: 'var(--color-aqua)',
-      borderColor: 'var(--color-aqua-border)',
-    },
-    gold: {
-      background: 'var(--color-gold-dim)',
-      color: 'var(--color-gold)',
-      borderColor: 'var(--color-gold-border)',
+      background: 'rgba(74,184,193,0.10)',
+      color: '#0d2035',
+      borderColor: 'rgba(74,184,193,0.14)',
     },
   };
 

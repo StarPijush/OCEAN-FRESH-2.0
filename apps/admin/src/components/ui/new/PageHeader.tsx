@@ -24,10 +24,9 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'space-between',
-        gap: 'var(--space-lg)',
+        gap: '24px',
         flexWrap: 'wrap',
-        padding: 'var(--space-lg) 0',
-        borderBottom: '1px solid var(--color-border)',
+        marginBottom: '32px',
         ...style,
       }}
     >
@@ -69,12 +68,12 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         )}
         <h1
           style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 'var(--text-h1-size)',
-            lineHeight: 'var(--text-h1-line)',
-            fontWeight: 'var(--text-h1-weight)',
-            letterSpacing: 'var(--text-h1-tracking)',
-            color: 'var(--color-cream)',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontSize: '1.75rem',
+            lineHeight: 1.2,
+            fontWeight: 700,
+            letterSpacing: '-0.025em',
+            color: '#0B130F',
             margin: 0,
           }}
         >
@@ -83,11 +82,11 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         {subtitle && (
           <p
             style={{
-              fontFamily: 'var(--font-ui)',
-              fontSize: 'var(--text-body-sm-size)',
-              lineHeight: 'var(--text-body-sm-line)',
-              color: 'var(--color-muted2)',
-              margin: 'var(--space-xs) 0 0 0',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: '0.875rem',
+              lineHeight: 1.5,
+              color: '#6C7E75',
+              margin: '4px 0 0 0',
             }}
           >
             {subtitle}

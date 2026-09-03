@@ -29,10 +29,11 @@ export function RecentOrdersList({ orders, isLoading, onViewAll }: Props) {
   return (
     <div
       style={{
-        background: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--radius-card)',
-        padding: 20,
+        background: '#FFFFFF',
+        border: '1px solid rgba(11,19,15,0.06)',
+        borderRadius: 24,
+        padding: '1.75rem',
+        boxShadow: '0 10px 30px rgba(11,19,15,0.04)',
       }}
     >
       <div
@@ -42,102 +43,157 @@ export function RecentOrdersList({ orders, isLoading, onViewAll }: Props) {
           alignItems: 'center',
           gap: 12,
           flexWrap: 'wrap',
+          marginBottom: 16,
         }}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <span
             style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 20,
-              fontWeight: 400,
-              color: 'var(--color-cream)',
-              letterSpacing: '-0.02em',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: '1.1rem',
+              fontWeight: 700,
+              color: '#0B130F',
+              letterSpacing: '-0.025em',
             }}
           >
             Recent Orders
           </span>
-          <span style={{ fontSize: 12, color: 'var(--color-muted2)' }}>Latest customer orders</span>
+          <span
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 12,
+              color: '#6C7E75',
+            }}
+          >
+            Latest customer orders
+          </span>
         </div>
         <button
           type="button"
           onClick={onViewAll}
           style={{
-            padding: '6px 12px',
+            padding: '6px 14px',
             height: 32,
-            background: 'transparent',
-            border: '1px solid var(--color-border2)',
-            borderRadius: 20,
-            color: 'var(--color-aqua)',
+            background: '#F8FAF9',
+            border: '1px solid rgba(11,19,15,0.08)',
+            borderRadius: 9999,
+            color: '#0B130F',
             fontSize: 11,
-            letterSpacing: '0.08em',
+            letterSpacing: '0.06em',
             textTransform: 'uppercase',
             fontWeight: 600,
             cursor: 'pointer',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            transition: 'all 150ms var(--ease-out)',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = '#0d2035';
+            (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF';
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(11,19,15,0.08)';
+            (e.currentTarget as HTMLButtonElement).style.background = '#F8FAF9';
           }}
         >
           View All
         </button>
       </div>
       {isLoading ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
               style={{
-                height: 56,
-                borderRadius: 8,
-                background:
-                  'linear-gradient(90deg, var(--color-surface2) 25%, var(--color-border) 50%, var(--color-surface2) 75%)',
-                backgroundSize: '200% 100%',
-                animation: 'shimmer 1.5s ease-in-out infinite',
+                height: 62,
+                borderRadius: 14,
+                background: '#F8FAF9',
+                border: '1px solid rgba(11,19,15,0.06)',
+                animation: 'pulse 1.2s ease-in-out infinite',
               }}
             />
           ))}
         </div>
       ) : !recent.length ? (
-        <div style={{ padding: '32px 0', textAlign: 'center', color: 'var(--color-muted2)' }}>
+        <div
+          style={{
+            padding: '20px 0',
+            textAlign: 'center',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            color: '#6C7E75',
+            fontSize: 13,
+          }}
+        >
+          <div style={{ fontSize: 20, marginBottom: 8, opacity: 0.5 }}>📦</div>
           No orders yet
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', marginTop: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {recent.map((order, idx) => (
-            <button
+            <div
               key={order.id}
-              type="button"
               onClick={() => navigate('/orders')}
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 gap: 12,
-                padding: '14px 0',
-                borderBottom: idx === recent.length - 1 ? 'none' : '1px solid var(--color-border)',
-                background: 'transparent',
-                borderLeft: 'none',
-                borderRight: 'none',
-                borderTop: 'none',
-                width: '100%',
-                textAlign: 'left',
+                padding: '14px 10px',
+                background: '#F8FAF9',
+                borderRadius: 14,
+                border: '1px solid transparent',
+                marginBottom: idx === recent.length - 1 ? 0 : 2,
                 cursor: 'pointer',
+                transition: 'all 150ms var(--ease-out)',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLDivElement).style.background = '#FFFFFF';
+                (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(11,19,15,0.06)';
+                (e.currentTarget as HTMLDivElement).style.boxShadow =
+                  '0 2px 8px rgba(11,19,15,0.04)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLDivElement).style.background = '#F8FAF9';
+                (e.currentTarget as HTMLDivElement).style.borderColor = 'transparent';
+                (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
               }}
             >
               <div
-                style={{ display: 'flex', flexDirection: 'column', gap: 3, flex: 1, minWidth: 0 }}
+                style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, minWidth: 0 }}
               >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span
+                    style={{
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: '#0B130F',
+                      letterSpacing: '-0.01em',
+                    }}
+                  >
+                    {order.orderNumber}
+                  </span>
+                  <span style={{ color: '#6C7E75', fontSize: 11, opacity: 0.6 }}>→</span>
+                </div>
                 <span
                   style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: 'var(--color-cream)',
-                    letterSpacing: '-0.01em',
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    fontSize: 12,
+                    color: '#6C7E75',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
                   }}
                 >
-                  {order.orderNumber}
-                </span>
-                <span style={{ fontSize: 12, color: 'var(--color-muted2)' }}>
                   {order.customerSnapshot?.name ?? 'Guest'}
                 </span>
-                <span style={{ fontSize: 11, color: 'var(--color-muted)', opacity: 0.9 }}>
+                <span
+                  style={{
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    fontSize: 11,
+                    color: '#879A91',
+                    letterSpacing: '0.02em',
+                  }}
+                >
                   {formatOrderTime(order)}
                 </span>
               </div>
@@ -147,22 +203,25 @@ export function RecentOrdersList({ orders, isLoading, onViewAll }: Props) {
                   flexDirection: 'column',
                   alignItems: 'flex-end',
                   gap: 6,
-                  minWidth: 88,
+                  minWidth: 105,
+                  flexShrink: 0,
                 }}
               >
                 <span
                   style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: 'var(--color-cream)',
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: '#0B130F',
                     fontVariantNumeric: 'tabular-nums',
+                    letterSpacing: '-0.01em',
                   }}
                 >
                   {formatCurrency(order.totals?.grandTotal?.amount ?? 0)}
                 </span>
                 <StatusBadge status={order.status} />
               </div>
-            </button>
+            </div>
           ))}
         </div>
       )}

@@ -22,38 +22,42 @@ export const Card: React.FC<CardProps> = ({
 }) => {
   const paddingStyles: Record<CardPadding, React.CSSProperties> = {
     none: { padding: 0 },
-    sm: { padding: 'var(--space-sm)' },
-    md: { padding: 'var(--space-lg)' },
-    lg: { padding: 'var(--space-xl)' },
+    sm: { padding: '16px' },
+    md: { padding: '1.75rem' },
+    lg: { padding: '1.75rem' },
   };
 
   const variantStyles: Record<CardVariant, React.CSSProperties> = {
     default: {
-      background: 'var(--color-surface)',
-      border: '1px solid var(--color-border)',
-      borderRadius: 'var(--radius-card)',
+      background: '#FFFFFF',
+      border: '1px solid rgba(11,19,15,0.06)',
+      borderRadius: 18,
+      boxShadow: '0 10px 30px rgba(11,19,15,0.04)',
     },
     hover: {
-      background: 'var(--color-surface)',
-      border: '1px solid var(--color-border)',
-      borderRadius: 'var(--radius-card)',
+      background: '#FFFFFF',
+      border: '1px solid rgba(11,19,15,0.06)',
+      borderRadius: 18,
+      boxShadow: '0 10px 30px rgba(11,19,15,0.04)',
       cursor: 'pointer',
       transition:
-        'border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out), background 150ms var(--ease-out)',
+        'border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out), transform 150ms var(--ease-out)',
     },
     bordered: {
-      background: 'var(--color-surface)',
-      border: '1px solid var(--color-border2)',
-      borderRadius: 'var(--radius-card)',
+      background: '#FFFFFF',
+      border: '1px solid rgba(11,19,15,0.06)',
+      borderRadius: 18,
+      boxShadow: '0 2px 8px rgba(11,19,15,0.02)',
     },
   };
 
   const hoverActiveStyles: Record<CardVariant, React.CSSProperties> = {
     default: {},
     hover: {
-      borderColor: 'var(--color-border2)',
-      boxShadow: 'var(--shadow-card-hover)',
-      background: 'rgba(255,255,255,0.02)',
+      borderColor: 'rgba(11,19,15,0.08)',
+      boxShadow: '0 20px 50px rgba(11,19,15,0.08)',
+      background: '#FFFFFF',
+      transform: 'translateY(-1px)',
     },
     bordered: {},
   };

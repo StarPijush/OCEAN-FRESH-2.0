@@ -2,8 +2,8 @@ import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export interface DropdownItem {
-  label: string;
-  onClick: () => void;
+  label?: string;
+  onClick?: () => void;
   icon?: ReactNode;
   disabled?: boolean;
   danger?: boolean;
@@ -78,13 +78,14 @@ export const Dropdown: React.FC<DropdownProps> = ({
                 align === 'right'
                   ? (triggerRef.current?.getBoundingClientRect().right ?? 0) + window.scrollX - 200
                   : (triggerRef.current?.getBoundingClientRect().left ?? 0) + window.scrollX,
-              zIndex: 'var(--z-dropdown)',
+              zIndex: 100,
               minWidth: '200px',
-              background: 'var(--color-surface)',
-              border: '1px solid var(--color-border2)',
-              borderRadius: 'var(--radius-md)',
-              boxShadow: 'var(--shadow-dropdown)',
+              background: '#FFFFFF',
+              border: '1px solid rgba(11,19,15,0.08)',
+              borderRadius: 14,
+              boxShadow: '0 20px 50px rgba(11,19,15,0.08)',
               overflow: 'hidden',
+              padding: 6,
               animation:
                 'fadeIn var(--duration-fast) var(--ease-out), slideDown var(--duration-fast) var(--ease-out)',
             }}
@@ -94,16 +95,16 @@ export const Dropdown: React.FC<DropdownProps> = ({
               item.divider ? (
                 <div
                   key={`divider-${index}`}
-                  style={{ height: '1px', background: 'var(--color-border)', margin: '4px 8px' }}
+                  style={{ height: '1px', background: 'rgba(11,19,15,0.06)', margin: '6px 0' }}
                 />
               ) : (
                 <button
                   key={index}
                   type="button"
                   role="menuitem"
-                  disabled={item.disabled}
+                  disabled={item.disabled || item.divider}
                   onClick={() => {
-                    if (!item.disabled) {
+                    if (!item.disabled && !item.divider && item.onClick) {
                       item.onClick();
                       setOpen(false);
                     }
@@ -111,25 +112,34 @@ export const Dropdown: React.FC<DropdownProps> = ({
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px',
+                    gap: '8px',
                     width: '100%',
-                    padding: '10px 12px',
+                    padding: '8px 12px',
                     background: 'transparent',
                     border: 'none',
-                    color: item.danger ? 'var(--color-warn)' : 'var(--color-cream)',
-                    fontFamily: 'var(--font-ui)',
-                    fontSize: 'var(--text-body-sm-size)',
-                    fontWeight: 500,
+                    borderRadius: 10,
+                    color: item.danger ? '#EF4444' : '#0B130F',
+                    fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    fontSize: 13,
+                    fontWeight: 600,
                     textAlign: 'left',
-                    cursor: item.disabled ? 'not-allowed' : 'pointer',
+                    cursor: item.disabled || item.divider ? 'not-allowed' : 'pointer',
                     opacity: item.disabled ? 0.5 : 1,
                     transition: 'background 150ms var(--ease-out)',
                   }}
                   onMouseEnter={(e) => {
-                    if (!item.disabled) e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                    if (!item.disabled) {
+                      e.currentTarget.style.background = item.danger
+                        ? 'rgba(239,68,68,0.08)'
+                        : '#F8FAF9';
+                      e.currentTarget.style.color = item.danger ? '#EF4444' : '#0B130F';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    if (!item.disabled) e.currentTarget.style.background = 'transparent';
+                    if (!item.disabled) {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.color = item.danger ? '#EF4444' : '#0B130F';
+                    }
                   }}
                 >
                   {item.icon && <span aria-hidden="true">{item.icon}</span>}

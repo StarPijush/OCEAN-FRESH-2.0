@@ -34,32 +34,33 @@ function SidebarContent({
     <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, minHeight: 0 }}>
       <div
         style={{
-          padding: '20px 20px 16px',
-          borderBottom: '1px solid var(--grid-dark, rgba(39,195,200,0.055))',
-          background: 'var(--color-navy-deep, #071526)',
+          padding: '24px 20px 18px',
+          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          background: '#071526',
         }}
       >
         <div
           style={{
-            fontFamily: 'var(--font-display, Cormorant Garamond, Georgia, serif)',
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontSize: 22,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            color: 'var(--color-champagne, #d8c7a6)',
+            color: '#4ab8c1',
             lineHeight: 1,
+            fontWeight: 600,
           }}
         >
-          Ocean<span style={{ color: 'var(--color-teal, #27c3c8)' }}>Fresh</span>
+          Ocean<span style={{ color: '#FFFFFF' }}>Fresh</span>
         </div>
         <div
           style={{
-            fontFamily: 'var(--font-ui, Instrument Sans, sans-serif)',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
             fontSize: 9,
             letterSpacing: '0.18em',
             textTransform: 'uppercase',
-            color: 'var(--color-text-muted, #8291a5)',
+            color: '#879A91',
             marginTop: 6,
-            fontWeight: 600,
+            fontWeight: 700,
           }}
         >
           Private Operations
@@ -68,25 +69,25 @@ function SidebarContent({
 
       <nav
         aria-label="Admin navigation"
-        style={{ flex: 1, padding: '12px 10px', overflowY: 'auto', minHeight: 0 }}
+        style={{ flex: 1, padding: '20px 16px 12px', overflowY: 'auto', minHeight: 0 }}
       >
         {ADMIN_NAV_CARDS.map((card) => (
-          <div key={card.label} style={{ marginBottom: 14 }}>
+          <div key={card.label} style={{ marginBottom: 22 }}>
             <div
               style={{
-                fontFamily: 'var(--font-ui, Instrument Sans, sans-serif)',
-                fontSize: '0.66rem',
-                fontWeight: 600,
-                letterSpacing: '0.14em',
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: '0.70rem',
+                fontWeight: 700,
+                letterSpacing: '0.12em',
                 textTransform: 'uppercase',
-                color: 'var(--color-teal, #27c3c8)',
-                opacity: 0.9,
-                padding: '8px 10px 6px',
+                color: '#879A91',
+                opacity: 0.6,
+                padding: '0 10px 10px',
               }}
             >
               {card.label}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {card.links.map((lnk) => {
                 const href = lnk.external && lnk.href === '/' ? STOREFRONT_URL || '/' : lnk.href;
                 const active = !lnk.external && isAdminPathActive(lnk.href, location.pathname);
@@ -99,26 +100,40 @@ function SidebarContent({
                     tabIndex={0}
                     style={{
                       display: 'flex',
+                      position: 'relative',
                       width: '100%',
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       gap: 8,
-                      padding: '9px 10px',
+                      padding: '10px 12px',
                       border: '1px solid transparent',
-                      borderRadius: 8,
-                      background: active ? 'rgba(39,195,200,0.08)' : 'transparent',
-                      borderColor: active ? 'rgba(39,195,200,0.18)' : 'transparent',
-                      color: active
-                        ? 'var(--color-teal, #27c3c8)'
-                        : 'var(--color-text-primary, #f2eee6)',
+                      borderRadius: 10,
+                      background: active ? 'rgba(255,255,255,0.05)' : 'transparent',
+                      borderColor: active ? 'transparent' : 'transparent',
+                      color: active ? '#FFFFFF' : '#879A91',
                       textAlign: 'left',
                       cursor: 'pointer',
-                      transition: 'all 150ms var(--ease-out)',
-                      fontFamily: 'var(--font-ui, Instrument Sans, sans-serif)',
-                      fontSize: '0.92rem',
-                      fontWeight: 500,
+                      transition: 'all 200ms ease',
+                      fontFamily: "'Plus Jakarta Sans', sans-serif",
+                      fontSize: '0.95rem',
+                      fontWeight: active ? 600 : 500,
                     }}
                   >
+                    {/* Spark active lime bar → aqua */}
+                    {active ? (
+                      <span
+                        aria-hidden="true"
+                        style={{
+                          position: 'absolute',
+                          left: -16,
+                          top: '15%',
+                          height: '70%',
+                          width: 4,
+                          background: '#4ab8c1',
+                          borderRadius: '0 4px 4px 0',
+                        }}
+                      />
+                    ) : null}
                     <span
                       style={{
                         display: 'flex',
@@ -143,11 +158,7 @@ function SidebarContent({
                                     : 'open-outline'
                         }
                         size={16}
-                        color={
-                          active
-                            ? 'var(--color-teal, #27c3c8)'
-                            : 'var(--color-text-secondary, #aeb9c8)'
-                        }
+                        color={active ? '#4ab8c1' : '#879A91'}
                       />
                       <span
                         style={{
@@ -164,12 +175,12 @@ function SidebarContent({
                       {lnk.label === 'Orders' && pendingCount > 0 ? (
                         <span
                           style={{
-                            background: 'var(--color-warn, #e07a65)',
-                            color: '#fff',
+                            background: '#4ab8c1',
+                            color: '#071526',
                             borderRadius: 20,
-                            padding: '1px 7px',
+                            padding: '2px 7px',
                             fontSize: 10,
-                            fontWeight: 700,
+                            fontWeight: 800,
                             minWidth: 18,
                             textAlign: 'center',
                             lineHeight: 1.4,
@@ -189,10 +200,8 @@ function SidebarContent({
                         strokeLinejoin="round"
                         aria-hidden="true"
                         style={{
-                          opacity: 0.75,
-                          color: active
-                            ? 'var(--color-teal, #27c3c8)'
-                            : 'var(--color-text-secondary, #aeb9c8)',
+                          opacity: active ? 1 : 0.5,
+                          color: active ? '#4ab8c1' : '#879A91',
                         }}
                       >
                         <path d="M9 6l6 6-6 6" />
@@ -208,29 +217,29 @@ function SidebarContent({
 
       <div
         style={{
-          borderTop: '1px solid var(--grid-dark, rgba(39,195,200,0.055))',
+          borderTop: '1px solid rgba(255,255,255,0.08)',
           padding: 16,
           display: 'flex',
           flexDirection: 'column',
           gap: 12,
-          background: 'var(--color-navy-deep, #071526)',
+          background: '#071526',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 18,
-              background: 'rgba(39,195,200,0.10)',
-              border: '1px solid var(--color-teal, #27c3c8)',
+              width: 42,
+              height: 42,
+              borderRadius: 14,
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
               fontSize: 12,
               fontWeight: 600,
-              color: 'var(--color-teal, #27c3c8)',
+              color: '#FFFFFF',
             }}
           >
             {initialsOf(name)}
@@ -238,9 +247,10 @@ function SidebarContent({
           <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
             <span
               style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
                 fontSize: 13,
-                fontWeight: 500,
-                color: 'var(--color-text-primary, #f2eee6)',
+                fontWeight: 600,
+                color: '#FFFFFF',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -251,7 +261,7 @@ function SidebarContent({
             <span
               style={{
                 fontSize: 11,
-                color: 'var(--color-text-muted, #8291a5)',
+                color: '#879A91',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -270,11 +280,11 @@ function SidebarContent({
             justifyContent: 'center',
             gap: 8,
             padding: '10px 16px',
-            border: '1px solid var(--color-border2, rgba(255,255,255,0.12))',
-            borderRadius: 8,
-            background: 'transparent',
-            color: 'var(--color-muted2, #9ca3af)',
-            fontFamily: 'var(--font-ui, Instrument Sans, sans-serif)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 10,
+            background: 'rgba(255,255,255,0.03)',
+            color: '#879A91',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
             fontSize: 11,
             letterSpacing: 1.2,
             textTransform: 'uppercase',
@@ -282,7 +292,7 @@ function SidebarContent({
             cursor: 'pointer',
           }}
         >
-          <Icon name="log-out-outline" size={16} color="var(--color-muted2)" />
+          <Icon name="log-out-outline" size={16} color="#879A91" />
           Sign out
         </button>
       </div>
@@ -318,8 +328,8 @@ function DesktopHeader() {
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '0 24px',
-        background: 'var(--color-navy-deep, #071526)',
-        borderBottom: '1px solid var(--grid-dark, rgba(39,195,200,0.055))',
+        background: '#F4F6F5',
+        borderBottom: '1px solid rgba(11,19,15,0.06)',
         flexShrink: 0,
         gap: 16,
       }}
@@ -327,16 +337,27 @@ function DesktopHeader() {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
-            fontFamily: 'var(--font-display, Cormorant Garamond, Georgia, serif)',
-            fontSize: 22,
-            color: 'var(--color-text-primary, #f2eee6)',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontSize: '1.35rem',
+            fontWeight: 700,
+            letterSpacing: '-0.025em',
+            color: '#0B130F',
           }}
         >
           {title}
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <span style={{ fontSize: 11, color: 'var(--color-text-muted, #8291a5)' }}>{date}</span>
+        <span
+          style={{
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontSize: 12,
+            color: '#6C7E75',
+            fontWeight: 500,
+          }}
+        >
+          {date}
+        </span>
         <span
           aria-label="Live"
           title="Live"
@@ -344,8 +365,9 @@ function DesktopHeader() {
             width: 8,
             height: 8,
             borderRadius: 999,
-            background: 'var(--color-green, #4ade80)',
+            background: '#22C55E',
             display: 'inline-block',
+            boxShadow: '0 0 8px rgba(34,197,94,0.45)',
             animation: 'pulse 2s infinite',
           }}
         />
@@ -372,7 +394,7 @@ export function AdminLayout() {
         display: 'flex',
         height: '100vh',
         overflow: 'hidden',
-        background: 'var(--color-bg, #0d0f12)',
+        background: '#F4F6F5',
       }}
     >
       <AdminNavigation />
@@ -384,8 +406,8 @@ export function AdminLayout() {
             flexShrink: 0,
             height: '100vh',
             overflowY: 'auto',
-            background: 'var(--color-navy-deep, #071526)',
-            borderRight: '1px solid var(--grid-dark, rgba(39,195,200,0.055))',
+            background: '#071526',
+            borderRight: '1px solid rgba(255,255,255,0.08)',
             display: 'flex',
             flexDirection: 'column',
             paddingTop: 72,

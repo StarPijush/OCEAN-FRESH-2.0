@@ -24,7 +24,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       leftElement,
       rightElement,
       secureToggle = false,
-      appearance = 'dark',
+      appearance: _appearance = 'dark',
       type = 'text',
       id,
       className = '',
@@ -42,90 +42,70 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const effectiveType =
       secureToggle && type === 'password' ? (showPassword ? 'text' : 'password') : type;
 
-    const isLight = appearance === 'light';
+    // Spark reference: both appearances now light (white bg, 14radius, 0.12 border)
+    const sizeStyles: Record<InputSize, React.CSSProperties> = {
+      sm: { padding: '8px 14px', fontSize: '13px' },
+      md: { padding: '12px 16px', fontSize: '14px' },
+      lg: { padding: '14px 16px', fontSize: '14px' },
+    };
 
-    // Unified premium sizing — editorial height ~44-46px, consistent across appearances
-    const sizeStyles: Record<InputSize, React.CSSProperties> = isLight
-      ? {
-          sm: { padding: '10px 14px', fontSize: '13px' },
-          md: { padding: '13px 16px', fontSize: '14px' },
-          lg: { padding: '14px 16px', fontSize: '14px' },
-        }
-      : {
-          sm: { padding: '8px 12px', fontSize: '13px' },
-          md: { padding: '13px 14px', fontSize: '14px' },
-          lg: { padding: '14px 16px', fontSize: '14px' },
-        };
+    const baseStyles: React.CSSProperties = {
+      width: '100%',
+      background: '#FFFFFF',
+      backgroundColor: '#FFFFFF',
+      border: '1px solid rgba(11,19,15,0.12)',
+      borderRadius: 'var(--radius-input)',
+      color: '#0B130F',
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
+      outline: 'none',
+      transition: 'border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out)',
+      ...sizeStyles[size],
+    };
 
-    // Both appearances now render premium navy-dark inputs for the deep-navy auth shell.
-    // isLight retains a subtle distinction for legacy callers but shares the same
-    // editorial language: dark inset, teal focus, 6px radius — never 9999 pill.
-    const baseStyles: React.CSSProperties = isLight
-      ? {
-          width: '100%',
-          background: 'rgba(7, 21, 38, 0.72)',
-          backgroundColor: 'rgba(7, 21, 38, 0.72)',
-          border: '1px solid rgba(255, 255, 255, 0.09)',
-          borderRadius: '6px',
-          color: 'var(--color-text-primary, #f2eee6)',
-          fontFamily: 'var(--font-ui)',
-          outline: 'none',
-          transition: 'border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out)',
-          ...sizeStyles[size],
-        }
-      : {
-          width: '100%',
-          background: 'var(--color-bg, #0d0f12)',
-          border: '1px solid var(--color-border2, rgba(255,255,255,0.12))',
-          borderRadius: '6px',
-          color: 'var(--color-cream, #f0ebe0)',
-          fontFamily: 'var(--font-ui)',
-          outline: 'none',
-          transition: 'border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out)',
-          ...sizeStyles[size],
-        };
+    const focusStyles: React.CSSProperties = {
+      borderColor: '#0d2035',
+      boxShadow: '0 0 0 3px rgba(13,32,53,0.08)',
+    };
 
-    const focusStyles: React.CSSProperties = isLight
-      ? {
-          borderColor: 'var(--color-teal, #27c3c8)',
-          boxShadow: '0 0 0 3px rgba(39,195,200,0.16)',
-        }
-      : {
-          borderColor: 'var(--color-teal, #27c3c8)',
-          boxShadow: '0 0 0 3px rgba(39,195,200,0.16)',
-        };
-
-    const errorStyles: React.CSSProperties = isLight
-      ? {
-          borderColor: 'var(--color-warn, #e07a65)',
-          boxShadow: '0 0 0 3px rgba(224,122,101,0.16)',
-        }
-      : {
-          borderColor: 'var(--color-warn, #e07a65)',
-          boxShadow: '0 0 0 3px rgba(224,122,101,0.16)',
-        };
+    const errorStyles: React.CSSProperties = {
+      borderColor: '#EF4444',
+      boxShadow: '0 0 0 3px rgba(239,68,68,0.08)',
+    };
 
     const disabledStyles: React.CSSProperties = {
       opacity: 0.5,
       cursor: 'not-allowed',
     };
 
-    const labelColor = isLight ? '#aeb9c8' : 'var(--color-text-secondary, #9ca3af)';
-    const toggleColor = isLight ? '#aeb9c8' : 'var(--color-muted2)';
+    const labelColor = '#0B130F';
+    const toggleColor = '#6C7E75';
 
+    const showError = Boolean(error);
+    const showHint = Boolean(hint && !error);
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '7px', ...style }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6,
+          minWidth: 0,
+          width: '100%',
+          ...style,
+        }}
+      >
         {label && (
           <label
             htmlFor={inputId}
             style={{
-              fontFamily: 'var(--font-ui)',
-              fontSize: '10px',
-              lineHeight: '1.5',
-              fontWeight: 600,
-              letterSpacing: '0.16em',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 11,
+              lineHeight: 1.4,
+              fontWeight: 700,
+              letterSpacing: '0.18em',
               textTransform: 'uppercase',
               color: labelColor,
+              marginBottom: 0,
+              display: 'block',
             }}
           >
             {label}
@@ -180,7 +160,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               type="button"
               style={{
                 position: 'absolute',
-                right: isLight ? '8px' : '6px',
+                right: '8px',
                 background: 'none',
                 border: 'none',
                 color: toggleColor,
@@ -196,9 +176,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               aria-label={showPassword ? 'Hide password' : 'Show password'}
               tabIndex={-1}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.color = isLight
-                  ? 'var(--color-text-primary, #f2eee6)'
-                  : 'var(--color-cream)';
+                (e.currentTarget as HTMLButtonElement).style.color = '#0B130F';
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.color = toggleColor;
@@ -253,37 +231,46 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             </span>
           )}
         </div>
-        {error && (
-          <p
-            id={errorId}
-            role="alert"
-            style={{
-              fontSize: 'var(--text-body-xs-size)',
-              lineHeight: 'var(--text-body-xs-line)',
-              color: 'var(--color-warn)',
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
-            <span aria-hidden="true">⚠</span>
-            {error}
-          </p>
-        )}
-        {hint && !error && (
-          <p
-            id={hintId}
-            style={{
-              fontSize: 'var(--text-body-xs-size)',
-              lineHeight: 'var(--text-body-xs-line)',
-              color: 'var(--color-muted2)',
-              margin: 0,
-            }}
-          >
-            {hint}
-          </p>
-        )}
+        <div
+          aria-live="polite"
+          style={{
+            minHeight: showError || showHint ? 18 : 0,
+            transition: 'min-height 150ms var(--ease-out)',
+          }}
+        >
+          {error ? (
+            <p
+              id={errorId}
+              role="alert"
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 11,
+                lineHeight: 1.4,
+                color: '#EF4444',
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <span aria-hidden="true">⚠</span>
+              {error}
+            </p>
+          ) : hint ? (
+            <p
+              id={hintId}
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 11,
+                lineHeight: 1.4,
+                color: '#6C7E75',
+                margin: 0,
+              }}
+            >
+              {hint}
+            </p>
+          ) : null}
+        </div>
       </div>
     );
   },

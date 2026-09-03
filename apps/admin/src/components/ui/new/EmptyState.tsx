@@ -25,18 +25,22 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 'var(--space-xxxl)',
+        padding: 32,
         textAlign: 'center',
-        color: 'var(--color-muted2)',
+        color: '#6C7E75',
+        background: '#FFFFFF',
+        border: '1px solid rgba(11,19,15,0.06)',
+        borderRadius: 18,
+        boxShadow: '0 2px 8px rgba(11,19,15,0.02)',
         ...style,
       }}
     >
       {icon && (
         <div
           style={{
-            fontSize: '3rem',
-            marginBottom: 'var(--space-lg)',
-            opacity: 0.3,
+            fontSize: '2.5rem',
+            marginBottom: 16,
+            opacity: 0.35,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -48,12 +52,12 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       )}
       <h3
         style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 'var(--text-h2-size)',
-          lineHeight: 'var(--text-h2-line)',
-          fontWeight: 'var(--text-h2-weight)',
-          color: 'var(--color-cream)',
-          margin: '0 0 var(--space-md) 0',
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontSize: '1.1rem',
+          fontWeight: 700,
+          letterSpacing: '-0.025em',
+          color: '#0B130F',
+          margin: '0 0 8px 0',
         }}
       >
         {title}
@@ -61,20 +65,18 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       {description && (
         <p
           style={{
-            fontSize: 'var(--text-body-sm-size)',
-            lineHeight: 'var(--text-body-sm-line)',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontSize: 13,
+            lineHeight: 1.6,
+            color: '#6C7E75',
             margin: 0,
-            maxWidth: '320px',
+            maxWidth: 340,
           }}
         >
           {description}
         </p>
       )}
-      {action && (
-        <div style={{ marginTop: 'var(--space-xl)', width: '100%', maxWidth: '280px' }}>
-          {action}
-        </div>
-      )}
+      {action && <div style={{ marginTop: 20, width: '100%', maxWidth: 280 }}>{action}</div>}
     </div>
   );
 };

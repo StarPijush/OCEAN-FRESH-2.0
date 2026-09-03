@@ -34,10 +34,20 @@ export function useProducts(options: UseProductsOptions = {}) {
   const query = useQuery({
     queryKey: [...PRODUCTS_KEY, { page, limit, search, status, categoryId }],
     queryFn: async (): Promise<PaginatedResult<Product>> => {
-      const query: ProductQuery = { page, limit, search };
+      const query: ProductQuery = { page, limit };
       if (status && status !== 'ALL') query.status = status as ProductStatus;
       if (categoryId && categoryId !== 'all') query.categoryId = categoryId;
-      return getProductRepository().findAll(query);
+      // Behavior reused from storefront ProductSearch: client-side case-insensitive filter on name/sub
+      const result = await getProductRepository().findAll(query);
+      const q = search.trim().toLowerCase();
+      if (!q) return result;
+      const filtered = result.items.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          (p.description ?? '').toLowerCase().includes(q) ||
+          String(p.price).toLowerCase().includes(q),
+      );
+      return { ...result, items: filtered, total: filtered.length, hasMore: false };
     },
   });
   return query;

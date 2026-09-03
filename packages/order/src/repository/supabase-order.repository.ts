@@ -33,6 +33,10 @@ function toOrder(row: Record<string, unknown>): Order {
 function toItems(rows: Record<string, unknown>[]): Order['items'] {
   return rows.map((i: Record<string, unknown>) => {
     const camel = rowToCamelCase<Record<string, unknown>>(i);
+    // Back-compat: if weight columns are null, derive from quantity/snapshot
+    const weightGrams = (camel as Record<string, unknown>).weightGrams as number | undefined;
+    const weightDisplay = (camel as Record<string, unknown>).weightDisplay as string | undefined;
+    const productUnit = (camel as Record<string, unknown>).productUnit as string | undefined;
     return {
       id: camel.id,
       productId: camel.productId,
@@ -40,6 +44,9 @@ function toItems(rows: Record<string, unknown>[]): Order['items'] {
       quantity: camel.quantity,
       unitPrice: { amount: camel.unitPriceAmount, currency: camel.unitPriceCurrency },
       subtotal: { amount: camel.subtotalAmount, currency: camel.subtotalCurrency },
+      weightGrams: weightGrams != null ? Number(weightGrams) : undefined,
+      weightDisplay: weightDisplay ?? undefined,
+      productUnit: productUnit ?? undefined,
     };
   }) as unknown as Order['items'];
 }
@@ -292,6 +299,12 @@ export class SupabaseOrderRepository implements IOrderRepository {
       const orderId = result.id as string;
 
       for (const item of items) {
+        const weightGrams = (item as unknown as Record<string, unknown>).weightGrams as
+          number | undefined;
+        const weightDisplay = (item as unknown as Record<string, unknown>).weightDisplay as
+          string | undefined;
+        const productUnit = (item as unknown as Record<string, unknown>).productUnit as
+          string | undefined;
         const itemSnake = {
           order_id: orderId,
           product_id: item.productId,
@@ -301,6 +314,10 @@ export class SupabaseOrderRepository implements IOrderRepository {
           unit_price_currency: item.unitPrice.currency,
           subtotal_amount: item.subtotal.amount,
           subtotal_currency: item.subtotal.currency,
+          weight_grams: weightGrams ?? item.quantity,
+          weight_display: weightDisplay ?? String(item.quantity),
+          product_unit:
+            productUnit ?? (item.snapshot as unknown as Record<string, unknown>)?.unit ?? null,
           created_at: now,
         };
         await supabaseService.add(TABLE_ITEMS, itemSnake);
@@ -335,16 +352,24 @@ export class SupabaseOrderRepository implements IOrderRepository {
 
     const payload = {
       order: orderPayload,
-      items: items.map((item) => ({
-        id: item.id,
-        product_id: item.productId,
-        snapshot: item.snapshot,
-        quantity: item.quantity,
-        unit_price_amount: item.unitPrice.amount,
-        unit_price_currency: item.unitPrice.currency,
-        subtotal_amount: item.subtotal.amount,
-        subtotal_currency: item.subtotal.currency,
-      })),
+      items: items.map((item) => {
+        const wg = (item as unknown as Record<string, unknown>).weightGrams as number | undefined;
+        const wd = (item as unknown as Record<string, unknown>).weightDisplay as string | undefined;
+        const pu = (item as unknown as Record<string, unknown>).productUnit as string | undefined;
+        return {
+          id: item.id,
+          product_id: item.productId,
+          snapshot: item.snapshot,
+          quantity: item.quantity,
+          unit_price_amount: item.unitPrice.amount,
+          unit_price_currency: item.unitPrice.currency,
+          subtotal_amount: item.subtotal.amount,
+          subtotal_currency: item.subtotal.currency,
+          weight_grams: wg ?? item.quantity,
+          weight_display: wd ?? String(item.quantity),
+          product_unit: pu ?? (item.snapshot as unknown as Record<string, unknown>)?.unit ?? null,
+        };
+      }),
       timeline: timeline.map((entry) => ({
         status: entry.status,
         changed_by: entry.changedBy,

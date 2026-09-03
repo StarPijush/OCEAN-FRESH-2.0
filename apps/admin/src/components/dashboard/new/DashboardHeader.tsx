@@ -13,24 +13,36 @@ export function DashboardHeader({ title, subtitle, onRefresh, refreshing }: Prop
       style={{
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        gap: 16,
+        alignItems: 'center',
+        gap: 24,
         flexWrap: 'wrap',
+        paddingBottom: 4,
       }}
     >
-      <div>
+      <div style={{ minWidth: 0, flex: 1 }}>
         <div
           style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 28,
-            fontWeight: 300,
-            color: 'var(--color-cream)',
-            letterSpacing: '-0.01em',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontSize: '1.75rem',
+            fontWeight: 700,
+            color: '#0B130F',
+            letterSpacing: '-0.025em',
+            lineHeight: 1.2,
           }}
         >
           {title}
         </div>
-        <div style={{ fontSize: 13, color: 'var(--color-muted2)', marginTop: 4 }}>{subtitle}</div>
+        <div
+          style={{
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontSize: '0.875rem',
+            color: '#6C7E75',
+            marginTop: 6,
+            lineHeight: 1.5,
+          }}
+        >
+          {subtitle}
+        </div>
       </div>
       {onRefresh && (
         <button
@@ -39,15 +51,31 @@ export function DashboardHeader({ title, subtitle, onRefresh, refreshing }: Prop
           disabled={refreshing}
           aria-label="Refresh dashboard"
           style={{
-            width: 36,
-            height: 36,
-            borderRadius: 999,
-            border: '1px solid var(--color-border2)',
-            background: 'var(--color-surface)',
+            width: 42,
+            height: 42,
+            borderRadius: 14,
+            border: '1px solid #E9EFEF',
+            background: '#FFFFFF',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            cursor: 'pointer',
+            cursor: refreshing ? 'not-allowed' : 'pointer',
+            opacity: refreshing ? 0.6 : 1,
+            flexShrink: 0,
+            boxShadow: '0 2px 8px rgba(11,19,15,0.02)',
+            transition: 'border-color 150ms var(--ease-out), background 150ms var(--ease-out)',
+          }}
+          onMouseEnter={(e) => {
+            if (!refreshing) {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(11,19,15,0.12)';
+              (e.currentTarget as HTMLButtonElement).style.background = '#F8FAF9';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!refreshing) {
+              (e.currentTarget as HTMLButtonElement).style.borderColor = '#E9EFEF';
+              (e.currentTarget as HTMLButtonElement).style.background = '#FFFFFF';
+            }
           }}
         >
           <span
@@ -56,7 +84,7 @@ export function DashboardHeader({ title, subtitle, onRefresh, refreshing }: Prop
               animation: refreshing ? 'spin 0.8s linear infinite' : undefined,
             }}
           >
-            <Icon name="refresh-outline" size={16} color="var(--color-muted2)" />
+            <Icon name="refresh-outline" size={18} color="#6C7E75" />
           </span>
         </button>
       )}

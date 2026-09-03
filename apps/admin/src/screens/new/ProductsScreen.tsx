@@ -1,5 +1,5 @@
-import { type Product, ProductStatus } from '@oceanfresh/shared';
-import { useCallback, useDeferredValue, useState } from 'react';
+import { type Product, ProductStatus, ProductUnit } from '@oceanfresh/shared';
+import { useDeferredValue, useState } from 'react';
 
 import { ProductFilters, ProductFormSheet, ProductList } from '../../components/products/new';
 import type { ProductFormValues } from '../../components/products/new/ProductFormSheet';
@@ -21,7 +21,6 @@ const thumbnailPath = (id: string) => `products/${id}/thumbnail.webp`;
 export function ProductsScreen() {
   const { show: toast } = useToast();
   const [status, setStatus] = useState<string>('ALL');
-  const [categoryId, setCategoryId] = useState('all');
   const [search, setSearch] = useState('');
   const deferredSearch = useDeferredValue(search);
 
@@ -29,7 +28,6 @@ export function ProductsScreen() {
   const { data, isLoading, isError, error, refetch } = useProducts({
     search: deferredSearch,
     status,
-    categoryId,
   });
 
   const createProduct = useCreateProduct();
@@ -40,11 +38,6 @@ export function ProductsScreen() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
-
-  const categoryNames = useCallback(
-    (id: string) => categories.data?.find((c) => c.id === id)?.name ?? '',
-    [categories.data],
-  );
 
   const openCreate = () => {
     setEditing(null);
@@ -60,13 +53,17 @@ export function ProductsScreen() {
   const handleSave = async (values: ProductFormValues) => {
     setFormError(null);
     const statusFor = values.available ? ProductStatus.ACTIVE : ProductStatus.OUT_OF_STOCK;
-    const stockFor = values.available ? Math.max(1, values.stock) : 0;
+    // stock/minOrderQuantity kept for DB compatibility (NOT NULL constraint), but ignored in UI
+    const stockFor = values.available ? 10 : 0;
+    const minQtyFor = 1;
     try {
       if (editing) {
         let thumbnail = editing.thumbnail;
         if (values.image) {
           const uploaded = await uploadProductImage(editing.id, values.image.localUri);
           thumbnail = uploaded.url;
+          // P2: release temporary blob: URL after successful upload (not remote https)
+          if (values.image.localUri.startsWith('blob:')) URL.revokeObjectURL(values.image.localUri);
         } else if (values.removeImage) {
           await removeStoredProductImage(thumbnailPath(editing.id));
           thumbnail = '';
@@ -80,8 +77,8 @@ export function ProductsScreen() {
             categoryId: values.categoryId,
             status: statusFor,
             stock: stockFor,
-            unit: values.unit,
-            minOrderQuantity: values.minOrderQuantity,
+            unit: ProductUnit.KG,
+            minOrderQuantity: minQtyFor,
             featured: values.featured,
             thumbnail,
             updatedBy: 'admin',
@@ -94,6 +91,7 @@ export function ProductsScreen() {
         if (values.image) {
           const uploaded = await uploadProductImage(id, values.image.localUri);
           thumbnail = uploaded.url;
+          if (values.image.localUri.startsWith('blob:')) URL.revokeObjectURL(values.image.localUri);
         }
         await createProduct.mutateAsync({
           id,
@@ -103,8 +101,8 @@ export function ProductsScreen() {
           categoryId: values.categoryId,
           status: statusFor,
           stock: stockFor,
-          unit: values.unit,
-          minOrderQuantity: values.minOrderQuantity,
+          unit: ProductUnit.KG,
+          minOrderQuantity: minQtyFor,
           featured: values.featured,
           thumbnail,
           createdBy: 'admin',
@@ -134,29 +132,38 @@ export function ProductsScreen() {
   };
 
   return (
-    <div style={{ flex: 1, background: 'var(--color-bg)', minHeight: '100%' }}>
-      <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ flex: 1, background: '#F4F6F5', minHeight: '100%' }}>
+      <div style={{ padding: '32px 24px 20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-start',
-            gap: 12,
+            gap: 16,
             flexWrap: 'wrap',
           }}
         >
           <div>
             <div
               style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 28,
-                fontWeight: 300,
-                color: 'var(--color-cream)',
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: '1.75rem',
+                fontWeight: 700,
+                letterSpacing: '-0.025em',
+                color: '#0B130F',
+                lineHeight: 1.2,
               }}
             >
               Products
             </div>
-            <div style={{ fontSize: 13, color: 'var(--color-muted2)', marginTop: 4 }}>
+            <div
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: '0.875rem',
+                color: '#6C7E75',
+                marginTop: 4,
+              }}
+            >
               Manage what&apos;s for sale and how it looks on the storefront.
             </div>
           </div>
@@ -169,18 +176,25 @@ export function ProductsScreen() {
           onSearchChange={setSearch}
           status={status}
           onStatusChange={setStatus}
-          categoryId={categoryId}
-          onCategoryChange={setCategoryId}
-          categories={categories.data ?? []}
           STATUS_FILTERS={STATUS_FILTERS}
         />
       </div>
 
       {isLoading ? (
-        <div style={{ padding: 20, color: 'var(--color-muted2)' }}>Loading…</div>
+        <div
+          style={{ padding: 24, color: '#879A91', fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        >
+          Loading…
+        </div>
       ) : isError ? (
-        <div style={{ padding: 20 }}>
-          <div style={{ color: 'var(--color-warn)', marginBottom: 12 }}>
+        <div style={{ padding: 24 }}>
+          <div
+            style={{
+              color: '#EF4444',
+              marginBottom: 12,
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+            }}
+          >
             {errorToMessage(error)}
           </div>
           <Button variant="ghost" onClick={() => void refetch()}>
@@ -188,12 +202,7 @@ export function ProductsScreen() {
           </Button>
         </div>
       ) : (
-        <ProductList
-          products={data?.items ?? []}
-          categoryNames={categoryNames}
-          onEdit={openEdit}
-          onDelete={setDeleteTarget}
-        />
+        <ProductList products={data?.items ?? []} onEdit={openEdit} onDelete={setDeleteTarget} />
       )}
 
       <ProductFormSheet
@@ -211,37 +220,51 @@ export function ProductsScreen() {
           style={{
             position: 'fixed',
             inset: 0,
-            zIndex: 50,
+            zIndex: 300,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(0,0,0,0.6)',
+            background: 'rgba(11,19,15,0.5)',
+            backdropFilter: 'blur(4px)',
             padding: 20,
+            animation: 'fadeIn 200ms var(--ease-out)',
           }}
           onClick={() => setDeleteTarget(null)}
         >
           <div
             style={{
-              background: 'var(--color-surface)',
-              border: '1px solid var(--color-border2)',
-              borderRadius: 12,
+              background: '#FFFFFF',
+              border: '1px solid rgba(11,19,15,0.06)',
+              borderRadius: 18,
               padding: 24,
-              maxWidth: 400,
+              maxWidth: 440,
               width: '100%',
+              boxShadow: '0 30px 60px rgba(11,19,15,0.12)',
+              animation: 'scaleIn 200ms var(--ease-out)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div
               style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 20,
-                color: 'var(--color-cream)',
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: '1.1rem',
+                fontWeight: 700,
+                letterSpacing: '-0.025em',
+                color: '#0B130F',
                 marginBottom: 8,
               }}
             >
               Delete product
             </div>
-            <div style={{ fontSize: 13, color: 'var(--color-muted2)', marginBottom: 20 }}>
+            <div
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 14,
+                color: '#6C7E75',
+                marginBottom: 20,
+                lineHeight: 1.5,
+              }}
+            >
               Delete &quot;{deleteTarget.name}&quot;? This removes it from the store.
             </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>

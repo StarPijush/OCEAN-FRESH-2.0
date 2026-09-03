@@ -21,43 +21,54 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
   return (
     <div
       style={{
-        background: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 12,
-        padding: 20,
+        background: '#FFFFFF',
+        border: '1px solid rgba(11,19,15,0.06)',
+        borderRadius: 18,
+        padding: 24,
         display: 'flex',
         flexDirection: 'column',
-        gap: 12,
+        gap: 24,
+        boxShadow: '0 2px 8px rgba(11,19,15,0.02)',
+        minWidth: 0,
+        overflow: 'hidden',
       }}
     >
       <div
         style={{
-          fontSize: 14,
-          fontWeight: 600,
-          color: 'var(--color-cream)',
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontSize: '1.1rem',
+          fontWeight: 700,
+          letterSpacing: '-0.025em',
+          color: '#0B130F',
           display: 'flex',
           alignItems: 'center',
-          gap: 8,
+          gap: 10,
+          paddingBottom: 16,
+          borderBottom: '1px solid rgba(11,19,15,0.06)',
         }}
       >
         <span
           style={{
-            width: 28,
-            height: 28,
-            borderRadius: 8,
-            background: 'var(--color-surface2)',
-            border: '1px solid var(--color-border)',
+            width: 32,
+            height: 32,
+            borderRadius: 10,
+            background: '#F8FAF9',
+            border: '1px solid rgba(11,19,15,0.06)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: 14,
+            color: '#6C7E75',
+            flexShrink: 0,
           }}
         >
           ⚙
         </span>
         {title}
       </div>
-      {children}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
+        {children}
+      </div>
     </div>
   );
 }
@@ -67,27 +78,31 @@ function SaveFeedback({ state }: { state: SaveState }) {
     return (
       <div
         style={{
-          padding: '8px 12px',
-          borderRadius: 8,
-          background: 'rgba(74,222,128,0.15)',
-          border: '1px solid rgba(74,222,128,0.3)',
-          color: 'var(--color-green)',
-          fontSize: 12,
+          padding: '10px 14px',
+          borderRadius: 10,
+          background: 'rgba(34,197,94,0.08)',
+          border: '1px solid rgba(34,197,94,0.14)',
+          color: '#16a34a',
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontSize: 13,
+          fontWeight: 500,
         }}
       >
-        Saved.
+        ✓ Saved.
       </div>
     );
   if (state.kind === 'error')
     return (
       <div
         style={{
-          padding: '8px 12px',
-          borderRadius: 8,
-          background: 'var(--color-warn-dim)',
-          border: '1px solid var(--color-warn-border)',
-          color: 'var(--color-warn)',
-          fontSize: 12,
+          padding: '10px 14px',
+          borderRadius: 10,
+          background: 'rgba(239,68,68,0.08)',
+          border: '1px solid rgba(239,68,68,0.14)',
+          color: '#EF4444',
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontSize: 13,
+          fontWeight: 500,
         }}
       >
         {state.message}
@@ -210,27 +225,42 @@ export function SettingsScreen() {
     <div
       style={{
         flex: 1,
-        background: 'var(--color-bg)',
-        padding: 20,
+        background: '#F4F6F5',
+        padding: '24px 16px',
         paddingBottom: 48,
         display: 'flex',
         flexDirection: 'column',
-        gap: 20,
+        gap: 24,
         overflowY: 'auto',
+        overflowX: 'hidden',
+        maxWidth: 720,
+        margin: '0 auto',
+        width: '100%',
+        boxSizing: 'border-box',
       }}
     >
-      <div>
+      <div style={{ padding: '0 8px' }}>
         <div
           style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: 28,
-            fontWeight: 300,
-            color: 'var(--color-cream)',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontSize: '1.75rem',
+            fontWeight: 700,
+            letterSpacing: '-0.025em',
+            color: '#0B130F',
+            lineHeight: 1.2,
           }}
         >
           Settings
         </div>
-        <div style={{ fontSize: 13, color: 'var(--color-muted2)', marginTop: 4 }}>
+        <div
+          style={{
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontSize: '0.875rem',
+            color: '#6C7E75',
+            marginTop: 6,
+            lineHeight: 1.5,
+          }}
+        >
           Manage your profile, password and store configuration.
         </div>
       </div>
@@ -260,20 +290,39 @@ export function SettingsScreen() {
             justifyContent: 'space-between',
             alignItems: 'center',
             gap: 12,
-            fontSize: 12,
+            padding: '12px 16px',
+            background: '#F8FAF9',
+            borderRadius: 12,
+            border: '1px solid rgba(11,19,15,0.06)',
+            minWidth: 0,
           }}
         >
           <span
             style={{
-              color: 'var(--color-muted)',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 10,
+              color: '#6C7E75',
               textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              fontWeight: 600,
+              letterSpacing: '0.12em',
+              fontWeight: 700,
+              flexShrink: 0,
             }}
           >
             Signed in as
           </span>
-          <span style={{ color: 'var(--color-cream)', fontWeight: 500 }}>
+          <span
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 13,
+              color: '#0B130F',
+              fontWeight: 600,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              minWidth: 0,
+              textAlign: 'right',
+            }}
+          >
             {session.user?.email ?? '—'}
           </span>
         </div>
@@ -283,20 +332,32 @@ export function SettingsScreen() {
             justifyContent: 'space-between',
             alignItems: 'center',
             gap: 12,
-            fontSize: 12,
+            padding: '12px 16px',
+            background: '#F8FAF9',
+            borderRadius: 12,
+            border: '1px solid rgba(11,19,15,0.06)',
           }}
         >
           <span
             style={{
-              color: 'var(--color-muted)',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 10,
+              color: '#6C7E75',
               textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              fontWeight: 600,
+              letterSpacing: '0.12em',
+              fontWeight: 700,
             }}
           >
             Role
           </span>
-          <span style={{ color: 'var(--color-cream)', fontWeight: 500 }}>
+          <span
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 13,
+              color: '#0B130F',
+              fontWeight: 600,
+            }}
+          >
             {profile?.role ?? 'admin'}
           </span>
         </div>
@@ -420,37 +481,51 @@ export function SettingsScreen() {
           style={{
             position: 'fixed',
             inset: 0,
-            zIndex: 50,
+            zIndex: 300,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(0,0,0,0.6)',
+            background: 'rgba(11,19,15,0.5)',
+            backdropFilter: 'blur(4px)',
             padding: 20,
+            animation: 'fadeIn 200ms var(--ease-out)',
           }}
           onClick={() => setConfirmOpen(false)}
         >
           <div
             style={{
-              background: 'var(--color-surface)',
-              border: '1px solid var(--color-border2)',
-              borderRadius: 12,
+              background: '#FFFFFF',
+              border: '1px solid rgba(11,19,15,0.06)',
+              borderRadius: 18,
               padding: 24,
-              maxWidth: 400,
+              maxWidth: 440,
               width: '100%',
+              boxShadow: '0 30px 60px rgba(11,19,15,0.12)',
+              animation: 'scaleIn 200ms var(--ease-out)',
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div
               style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: 20,
-                color: 'var(--color-cream)',
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: '1.1rem',
+                fontWeight: 700,
+                letterSpacing: '-0.025em',
+                color: '#0B130F',
                 marginBottom: 8,
               }}
             >
               Sign out?
             </div>
-            <div style={{ fontSize: 13, color: 'var(--color-muted2)', marginBottom: 20 }}>
+            <div
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 14,
+                color: '#6C7E75',
+                marginBottom: 20,
+                lineHeight: 1.5,
+              }}
+            >
               You will need your password to sign back in.
             </div>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>

@@ -38,32 +38,34 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     const hintId = hint ? `${textareaId}-hint` : undefined;
 
     const sizeStyles: Record<TextareaSize, React.CSSProperties> = {
-      sm: { padding: '8px 10px', fontSize: '13px', minHeight: '80px' },
-      md: { padding: '12px 14px', fontSize: '14px', minHeight: '100px' },
-      lg: { padding: '14px 16px', fontSize: '16px', minHeight: '120px' },
+      sm: { padding: '8px 14px', fontSize: '13px', minHeight: '80px' },
+      md: { padding: '12px 16px', fontSize: '14px', minHeight: '100px' },
+      lg: { padding: '14px 16px', fontSize: '14px', minHeight: '120px' },
     };
 
     const baseStyles: React.CSSProperties = {
       width: '100%',
-      background: 'var(--color-bg)',
-      border: '1px solid var(--color-border2)',
+      minWidth: 0,
+      background: '#FFFFFF',
+      border: '1px solid rgba(11,19,15,0.12)',
       borderRadius: 'var(--radius-input)',
-      color: 'var(--color-cream)',
-      fontFamily: 'var(--font-ui)',
+      color: '#0B130F',
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
       outline: 'none',
       resize: autoResize ? 'none' : 'vertical',
+      boxSizing: 'border-box',
       transition: 'border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out)',
       ...sizeStyles[size],
     };
 
     const focusStyles: React.CSSProperties = {
-      borderColor: 'var(--color-aqua)',
-      boxShadow: 'var(--shadow-focus)',
+      borderColor: '#0d2035',
+      boxShadow: '0 0 0 3px rgba(13,32,53,0.08)',
     };
 
     const errorStyles: React.CSSProperties = {
-      borderColor: 'var(--color-warn)',
-      boxShadow: 'var(--shadow-focus-error)',
+      borderColor: '#EF4444',
+      boxShadow: '0 0 0 3px rgba(239,68,68,0.08)',
     };
 
     const disabledStyles: React.CSSProperties = {
@@ -79,19 +81,30 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       onChange?.(e);
     };
 
+    const showError2 = Boolean(error);
+    const showHint2 = Boolean(hint && !error);
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', ...style }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6,
+          minWidth: 0,
+          width: '100%',
+          ...style,
+        }}
+      >
         {label && (
           <label
             htmlFor={textareaId}
             style={{
-              fontFamily: 'var(--font-ui)',
-              fontSize: 'var(--text-label-size)',
-              lineHeight: 'var(--text-label-line)',
-              fontWeight: 'var(--text-label-weight)',
-              letterSpacing: 'var(--text-label-tracking)',
-              textTransform: 'var(--text-label-transform)',
-              color: 'var(--color-muted)',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 11,
+              lineHeight: 1.4,
+              fontWeight: 700,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: '#0B130F',
             }}
           >
             {label}
@@ -128,44 +141,51 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             {...props}
           />
         </div>
-        {error && (
-          <p
-            id={errorId}
-            role="alert"
-            style={{
-              fontSize: 'var(--text-body-xs-size)',
-              lineHeight: 'var(--text-body-xs-line)',
-              color: 'var(--color-warn)',
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}
-          >
-            <span aria-hidden="true">⚠</span>
-            {error}
-          </p>
-        )}
-        {hint && !error && (
-          <p
-            id={hintId}
-            style={{
-              fontSize: 'var(--text-body-xs-size)',
-              lineHeight: 'var(--text-body-xs-line)',
-              color: 'var(--color-muted2)',
-              margin: 0,
-            }}
-          >
-            {hint}
-          </p>
-        )}
+        <div
+          aria-live="polite"
+          style={{ minHeight: showError2 || showHint2 || showCharCount || maxLength ? 18 : 0 }}
+        >
+          {error ? (
+            <p
+              id={errorId}
+              role="alert"
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 11,
+                lineHeight: 1.4,
+                color: '#EF4444',
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <span aria-hidden="true">⚠</span>
+              {error}
+            </p>
+          ) : hint ? (
+            <p
+              id={hintId}
+              style={{
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                fontSize: 11,
+                lineHeight: 1.4,
+                color: '#6C7E75',
+                margin: 0,
+              }}
+            >
+              {hint}
+            </p>
+          ) : null}
+        </div>
         {(showCharCount || maxLength) && (
           <div
             style={{
               display: 'flex',
               justifyContent: 'flex-end',
-              fontSize: 'var(--text-body-xs-size)',
-              color: 'var(--color-muted2)',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              fontSize: 11,
+              color: '#6C7E75',
             }}
           >
             {maxLength ? (

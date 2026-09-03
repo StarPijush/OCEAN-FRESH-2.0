@@ -1,10 +1,12 @@
 import { getCategoryRepository } from '@oceanfresh/category/repository';
 import type { Category } from '@oceanfresh/shared';
+import { parseWeightInput, type WeightMode } from '@oceanfresh/shared/domain';
 import { useEffect, useMemo, useState } from 'react';
 
 import { ProductFilterButton } from '../components/products/ProductFilterButton.js';
 import { ProductFilterDrawer } from '../components/products/ProductFilterDrawer.js';
 import { ProductSearch } from '../components/products/ProductSearch.js';
+import { WeightSelector } from '../components/products/WeightSelector.js';
 import { showToast } from '../components/ui/toastController.js';
 import { useReveal } from '../hooks/useReveal.js';
 import { productService, type ProductVM, useCartStore } from '../services/index.js';
@@ -19,9 +21,11 @@ export function ProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const cart = useCartStore((s) => s.items);
-  const updateQty = useCartStore((s) => s.updateQty);
-  const addItem = useCartStore((s) => s.addItem);
+  const cartItems = useCartStore((s) => s.items);
+  const setWeight = useCartStore((s) => s.setWeight);
+  const [selections, setSelections] = useState<Record<string, string | null>>({});
+  const [selectionErrors, setSelectionErrors] = useState<Record<string, string | null>>({});
+  const [modes, setModes] = useState<Record<string, WeightMode>>({});
   useReveal();
 
   useEffect(() => {
@@ -72,6 +76,43 @@ export function ProductsPage() {
     }
     return list;
   }, [selectedCategories, search, products]);
+
+  const handleSelectionChange = (
+    productId: string,
+    display: string | null,
+    _grams: number | null,
+    err: string | null,
+  ) => {
+    setSelections((prev) => ({ ...prev, [productId]: display }));
+    setSelectionErrors((prev) => ({ ...prev, [productId]: err }));
+  };
+
+  const handleModeChange = (productId: string, next: WeightMode) => {
+    setModes((prev) => ({ ...prev, [productId]: next }));
+    setSelections((prev) => ({ ...prev, [productId]: null }));
+    setSelectionErrors((prev) => ({ ...prev, [productId]: null }));
+  };
+
+  const handleAddToCart = (p: ProductVM) => {
+    if (!p.available) {
+      showToast('Out of stock');
+      return;
+    }
+    const mode = modes[p.id] ?? 'GRAM';
+    const display = selections[p.id] ?? null;
+    if (!display) {
+      showToast('Please select a weight');
+      return;
+    }
+    const parsed = parseWeightInput(display, mode);
+    if (!parsed.success || parsed.grams == null) {
+      showToast(parsed.error ?? 'Invalid weight');
+      return;
+    }
+    if (!parsed.display) return;
+    setWeight(p.id, parsed.display, parsed.grams, mode, p.pricePerKg);
+    showToast(`Added ${p.name} ${parsed.display} to order`);
+  };
 
   return (
     <div id="page-products" className="page active">
@@ -135,8 +176,13 @@ export function ProductsPage() {
           </div>
         ) : (
           filtered.map((p) => {
-            const qty = cart[p.id] ?? 0;
             const hasPhoto = p.image && !p.image.startsWith('data:image/svg');
+            const mode = modes[p.id] ?? 'GRAM';
+            const selected = selections[p.id] ?? null;
+            const selError = selectionErrors[p.id] ?? null;
+            const inCart = cartItems[p.id];
+            const canAdd = !!selected && !selError && p.available;
+            const categoryName = categories.find((c) => c.id === p.category)?.name ?? '';
             return (
               <div
                 className="prod-item prod-premium"
@@ -162,62 +208,78 @@ export function ProductsPage() {
                 <div className="prod-body">
                   <div className="prod-info">
                     <div className="prod-name">{p.name}</div>
-                    <div className="prod-sub">{p.sub}</div>
-                    {p.available ? (
-                      <div className="prod-price-row">
-                        <span className="prod-price">
-                          {'\u20B9'}
-                          {p.price}
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="prod-oos">Out of stock</div>
-                    )}
+                    <div
+                      className="prod-category"
+                      style={{
+                        fontSize: '0.62rem',
+                        color: 'var(--color-text-light-secondary)',
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
+                        minHeight: '14px',
+                        marginTop: '2px',
+                        lineHeight: 1.2,
+                      }}
+                      aria-hidden={categoryName ? undefined : true}
+                    >
+                      {categoryName}
+                    </div>
+                    <div className="prod-price-row">
+                      <span className="prod-price">
+                        {'\u20B9'}
+                        {p.pricePerKg}
+                      </span>
+                      <span
+                        className="prod-price-unit"
+                        style={{
+                          fontSize: '0.68rem',
+                          color: 'var(--color-text-light-secondary)',
+                          marginLeft: 4,
+                        }}
+                      >
+                        / kg
+                      </span>
+                    </div>
+                    {!p.available ? <div className="prod-oos">Out of stock</div> : null}
                   </div>
 
-                  {p.available ? (
-                    <>
-                      <div className="prod-qty">
-                        <div className="prod-qty-row">
-                          <button
-                            className="qty-btn"
-                            type="button"
-                            aria-label={`Decrease ${p.name} quantity`}
-                            onClick={() => updateQty(p.id, -1)}
-                          >
-                            −
-                          </button>
-                          <span className="qty-val" aria-live="polite">
-                            {qty}
-                          </span>
-                          <button
-                            className="qty-btn"
-                            type="button"
-                            aria-label={`Increase ${p.name} quantity`}
-                            onClick={() => updateQty(p.id, 1)}
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                      <div className="prod-cta">
-                        <button
-                          className="btn btn-teal"
-                          type="button"
-                          onClick={() => {
-                            addItem(p.id);
-                            showToast('Added to order');
-                          }}
-                        >
-                          ADD TO CART
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <div className="prod-unavailable">
-                      <span className="tag-pill">Unavailable</span>
-                    </div>
-                  )}
+                  <div style={{ padding: '8px 10px 0' }}>
+                    <WeightSelector
+                      pricePerKg={p.pricePerKg}
+                      mode={mode}
+                      value={selected}
+                      onModeChange={(m) => handleModeChange(p.id, m)}
+                      onChange={(d, g, e) => handleSelectionChange(p.id, d, g, e)}
+                      disabled={!p.available}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      padding: '6px 10px 0',
+                      fontSize: 11,
+                      color: '#0f766e',
+                      textAlign: 'center',
+                      fontWeight: 600,
+                      minHeight: '18px',
+                      visibility: inCart ? 'visible' : 'hidden',
+                    }}
+                    aria-hidden={!inCart}
+                  >
+                    {inCart
+                      ? `In cart: ${inCart.display} · ₹${inCart.lineTotal}`
+                      : 'In cart: placeholder'}
+                  </div>
+                  <div className="prod-cta">
+                    <button
+                      className="btn btn-teal"
+                      type="button"
+                      disabled={!canAdd}
+                      aria-disabled={!canAdd}
+                      onClick={() => handleAddToCart(p)}
+                      title={!selected ? 'Select weight first' : (selError ?? undefined)}
+                    >
+                      ADD TO CART
+                    </button>
+                  </div>
                 </div>
               </div>
             );

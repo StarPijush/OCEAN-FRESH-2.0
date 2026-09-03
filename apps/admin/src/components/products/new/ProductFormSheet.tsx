@@ -1,5 +1,5 @@
-import { type Category, type Product, ProductUnit } from '@oceanfresh/shared';
-import { useEffect, useState } from 'react';
+import type { Category, Product } from '@oceanfresh/shared';
+import { useEffect, useRef, useState } from 'react';
 
 import { pickAndCompressImage } from '../../../services/product-image';
 import { Button } from '../../ui/new/Button';
@@ -7,16 +7,13 @@ import { Checkbox } from '../../ui/new/Checkbox';
 import { Input } from '../../ui/new/Input';
 import { Select } from '../../ui/new/Select';
 import { Sheet } from '../../ui/new/Sheet';
-import { Textarea } from '../../ui/new/Textarea';
 
 export interface ProductFormValues {
   name: string;
   description: string;
+  /** Canonical price per 1 KG (₹ per 1000g). DB column "price" stores this. */
   price: number;
   categoryId: string;
-  stock: number;
-  unit: ProductUnit;
-  minOrderQuantity: number;
   featured: boolean;
   available: boolean;
   image: { localUri: string } | null;
@@ -43,75 +40,117 @@ export function ProductFormSheet({
   onClose,
 }: Props) {
   const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [stock, setStock] = useState('');
-  const [unit, setUnit] = useState<ProductUnit>(ProductUnit.KG);
-  const [minQty, setMinQty] = useState('1');
   const [featured, setFeatured] = useState(false);
   const [available, setAvailable] = useState(true);
   const [image, setImage] = useState<{ localUri: string } | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [removeImage, setRemoveImage] = useState(false);
+  const [pickError, setPickError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  // P1: track identity to avoid resetting on categories ref change
+  const prevProductId = useRef<string | null>(null);
+  const prevVisible = useRef(false);
+  // P2: track previous blob: URL for safe revocation (never revoke current)
+  const prevBlobRef = useRef<string | null>(null);
 
+  // P1 Effect A — form identity only (open/close or product.id switch)
   useEffect(() => {
-    if (product) {
-      setName(product.name);
-      setDescription(product.description ?? '');
-      setPrice(String(product.price));
-      setCategoryId(product.categoryId);
-      setStock(String(product.stock));
-      setUnit(product.unit ?? ProductUnit.KG);
-      setMinQty(String(product.minOrderQuantity ?? 1));
-      setFeatured(!!product.featured);
-      setAvailable(product.status === 'ACTIVE');
-      setImage(null);
-      setImagePreview(product.thumbnail || null);
-      setRemoveImage(false);
-    } else {
-      setName('');
-      setDescription('');
-      setPrice('');
-      setCategoryId(categories[0]?.id ?? '');
-      setStock('10');
-      setUnit(ProductUnit.KG);
-      setMinQty('1');
-      setFeatured(false);
-      setAvailable(true);
-      setImage(null);
-      setImagePreview(null);
-      setRemoveImage(false);
+    const isOpen = visible && !prevVisible.current;
+    const idChanged = (product?.id ?? null) !== prevProductId.current;
+    if (isOpen || idChanged) {
+      if (product) {
+        setName(product.name);
+        setPrice(String(product.price));
+        setCategoryId(product.categoryId);
+        setFeatured(!!product.featured);
+        setAvailable(product.status === 'ACTIVE');
+        setImage(null);
+        setImagePreview(product.thumbnail || null);
+        setRemoveImage(false);
+        setPickError(null);
+        setValidationError(null);
+      } else {
+        setName('');
+        setPrice('');
+        // category init deferred to Effect B — do not touch categoryId here
+        setFeatured(false);
+        setAvailable(true);
+        setImage(null);
+        setImagePreview(null);
+        setRemoveImage(false);
+        setPickError(null);
+        setValidationError(null);
+      }
+      prevProductId.current = product?.id ?? null;
     }
-  }, [product, visible, categories]);
+    prevVisible.current = visible;
+  }, [product, visible]);
+
+  // P1 Effect B — category init only (never touches image state)
+  useEffect(() => {
+    if (!product && !categoryId && categories.length) {
+      setCategoryId(categories[0].id);
+    }
+  }, [categories, product, categoryId]);
+
+  // P2: revoke previous blob: URL only when replaced (not current)
+  useEffect(() => {
+    const prev = prevBlobRef.current;
+    if (prev && prev !== imagePreview && prev.startsWith('blob:')) {
+      URL.revokeObjectURL(prev);
+    }
+    prevBlobRef.current = imagePreview;
+  }, [imagePreview]);
+
+  // P2: unmount/close cleanup — revoke any lingering temporary blob:
+  useEffect(() => {
+    return () => {
+      if (prevBlobRef.current?.startsWith('blob:')) {
+        URL.revokeObjectURL(prevBlobRef.current);
+      }
+    };
+  }, []);
 
   const handlePick = async () => {
     try {
+      setPickError(null);
       const picked = await pickAndCompressImage();
       if (picked) {
+        // P2: revoke old blob: before overwrite (eager, then effect handles prev)
+        if (imagePreview?.startsWith('blob:')) URL.revokeObjectURL(imagePreview);
         setImage({ localUri: picked.localUri });
         setImagePreview(picked.localUri);
         setRemoveImage(false);
       }
     } catch (e) {
+      setPickError('Unable to process this image. Please try another JPG, PNG, or WebP image.');
       console.error(e);
     }
   };
 
   const handleSave = async () => {
+    // Validation — strict: pricePerKg must be positive
+    if (!name.trim()) {
+      setValidationError('Product name is required.');
+      return;
+    }
     const p = parseFloat(price);
-    const s = parseInt(stock, 10);
-    const m = parseInt(minQty, 10);
-    if (!name.trim()) return;
-    if (isNaN(p) || p <= 0) return;
+    if (!price.trim() || isNaN(p) || p <= 0) {
+      setValidationError('Price must be a positive number.');
+      return;
+    }
+    if (!categoryId) {
+      setValidationError('Category is required.');
+      return;
+    }
+    setValidationError(null);
     await onSave({
       name: name.trim(),
-      description: description.trim(),
+      description: product?.description ?? '',
       price: p,
       categoryId,
-      stock: isNaN(s) ? 0 : s,
-      unit,
-      minOrderQuantity: isNaN(m) ? 1 : m,
       featured,
       available,
       image,
@@ -128,6 +167,8 @@ export function ProductFormSheet({
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {error ? <div style={errStyle}>{error}</div> : null}
+        {pickError ? <div style={errStyle}>{pickError}</div> : null}
+        {validationError ? <div style={errStyle}>{validationError}</div> : null}
 
         <Input
           label="Product Name *"
@@ -135,46 +176,33 @@ export function ProductFormSheet({
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Rohu"
         />
-        <Textarea
-          label="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="River fish, fresh catch..."
+        <Input
+          label="Price / KG (₹) *"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="850"
+          type="number"
         />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <Input
-            label="Price (₹) *"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            placeholder="220"
-            type="number"
-          />
-          <Input
-            label="Stock *"
-            value={stock}
-            onChange={(e) => setStock(e.target.value)}
-            placeholder="10"
-            type="number"
-          />
+        <div
+          style={{
+            fontSize: 11,
+            color: '#6C7E75',
+            marginTop: -8,
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+          }}
+        >
+          Price for 1 kilogram of this product. Example: ₹850 / KG → 500g costs ₹425, 1.5kg costs
+          ₹1275. Customer can buy in grams or kilograms; price is always per KG.
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          <Input
-            label="Min Order Qty *"
-            value={minQty}
-            onChange={(e) => setMinQty(e.target.value)}
-            type="number"
-          />
-          <Select
-            label="Unit"
-            value={unit}
-            onChange={(e) => setUnit(e.target.value as ProductUnit)}
-            options={[
-              { value: 'KG', label: 'KG' },
-              { value: 'PIECE', label: 'PIECE' },
-              { value: 'DOZEN', label: 'DOZEN' },
-            ]}
-          />
-        </div>
+        <Select
+          label="Availability *"
+          value={available ? 'AVAILABLE' : 'OUT_OF_STOCK'}
+          onChange={(e) => setAvailable(e.target.value === 'AVAILABLE')}
+          options={[
+            { value: 'AVAILABLE', label: 'Available' },
+            { value: 'OUT_OF_STOCK', label: 'Out of Stock' },
+          ]}
+        />
         <Select
           label="Category *"
           value={categoryId}
@@ -190,7 +218,17 @@ export function ProductFormSheet({
               <img
                 src={imagePreview}
                 alt="Preview"
-                style={{ width: '100%', maxHeight: 180, objectFit: 'cover', borderRadius: 8 }}
+                style={{
+                  width: '100%',
+                  maxWidth: '100%',
+                  maxHeight: 240,
+                  objectFit: 'contain',
+                  borderRadius: 8,
+                  display: 'block',
+                }}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = 'none';
+                }}
               />
             ) : (
               <div style={{ textAlign: 'center', padding: 20, color: 'var(--color-muted)' }}>
@@ -206,6 +244,9 @@ export function ProductFormSheet({
             <button
               type="button"
               onClick={() => {
+                if (imagePreview?.startsWith('blob:')) URL.revokeObjectURL(imagePreview);
+                // prevBlobRef will handle the same on next imagePreview change; clear ref
+                prevBlobRef.current = null;
                 setRemoveImage(true);
                 setImage(null);
                 setImagePreview(null);
@@ -225,11 +266,6 @@ export function ProductFormSheet({
         </div>
 
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          <Checkbox
-            label="Available"
-            checked={available}
-            onChange={(e) => setAvailable(e.currentTarget.checked)}
-          />
           <Checkbox
             label="Featured on Home"
             checked={featured}
@@ -251,30 +287,32 @@ export function ProductFormSheet({
 }
 
 const labelStyle: React.CSSProperties = {
+  fontFamily: "'Plus Jakarta Sans', sans-serif",
   fontSize: 11,
   letterSpacing: '0.18em',
   textTransform: 'uppercase',
-  fontWeight: 600,
-  color: 'var(--color-muted)',
+  fontWeight: 700,
+  color: '#0B130F',
   marginBottom: 6,
   display: 'block',
 };
 const uploadStyle: React.CSSProperties = {
-  border: '1.5px dashed var(--color-border2)',
-  borderRadius: 8,
+  border: '1px dashed rgba(11,19,15,0.12)',
+  borderRadius: 14,
   cursor: 'pointer',
   overflow: 'hidden',
-  background: 'var(--color-surface2)',
+  background: '#F8FAF9',
   minHeight: 120,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
 };
 const errStyle: React.CSSProperties = {
+  fontFamily: "'Plus Jakarta Sans', sans-serif",
   fontSize: 12,
-  color: 'var(--color-warn)',
-  background: 'var(--color-warn-dim)',
-  borderLeft: '2px solid var(--color-warn)',
+  color: '#EF4444',
+  background: 'rgba(239,68,68,0.08)',
+  border: '1px solid rgba(239,68,68,0.14)',
   padding: '10px 12px',
-  borderRadius: 4,
+  borderRadius: 10,
 };
