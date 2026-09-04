@@ -1,51 +1,29 @@
-const promises = [
-  {
-    icon: '\u2705',
-    name: 'Morning catch, same day',
-    desc: 'Picked daily and delivered within hours for peak freshness.',
-  },
-  {
-    icon: '\u{1F3C5}',
-    name: 'Quality assurance',
-    desc: 'Hand-inspected products with no preservatives, no stale stock.',
-  },
-  {
-    icon: '\u{1F4E6}',
-    name: 'Fast delivery',
-    desc: '2-3 hour delivery across our service areas.',
-  },
-];
-
 export function AboutSection() {
   return (
-    <section className="section" style={{ background: 'var(--color-ivory)', padding: '60px 24px' }}>
-      <div className="section-eyebrow reveal">About OceanFresh</div>
-      <h2 className="section-title-lg reveal">Trusted by families in Jhargram</h2>
-      <p
-        style={{
-          maxWidth: '680px',
-          margin: '12px auto 24px',
-          color: 'var(--color-text-light-secondary)',
-          lineHeight: 1.7,
-        }}
-        className="reveal"
-      >
-        OceanFresh has been serving premium seafood since 2018 with a focus on freshness, hygiene
-        and fast delivery. We source directly from local fish markets and process orders in chilled
-        conditions so you receive quality seafood every time.
+    <section id="about" className="section about-root" aria-labelledby="about-heading">
+      <div className="section-eyebrow reveal">Our Story</div>
+      <h2 id="about-heading" className="section-title-lg reveal">
+        Fresh from Jhargram,
+        <br />
+        <em>every morning.</em>
+      </h2>
+      <div className="section-rule reveal" aria-hidden="true"></div>
+      <p className="about-body reveal">
+        OceanFresh began in 2018 with a simple observation: the best catch is at the market before
+        sunrise, but getting it home fresh, handled cleanly and weighed honestly, was not always
+        easy. We set out to close that gap — sourcing directly from the local market each morning,
+        keeping the catch chilled, and delivering within hours.
       </p>
-      <div className="why-grid why-grid-about" style={{ maxWidth: '700px', margin: '0 auto' }}>
-        {promises.map((p, i) => (
-          <div
-            className="why-card reveal"
-            key={i}
-            style={i > 0 ? { transitionDelay: `${i * 0.1}s` } : undefined}
-          >
-            <div className="why-icon">{p.icon}</div>
-            <div className="why-name">{p.name}</div>
-            <div className="why-desc">{p.desc}</div>
-          </div>
-        ))}
+      <p className="about-body reveal">
+        We buy early, handle chilled, weigh on calibrated scales, and deliver in 2–3 hours across
+        our service areas in Jhargram. No stale stock. What you order is what you receive.
+      </p>
+      <div className="about-mission reveal" role="note" aria-label="Our purpose">
+        <div className="about-mission-label">Our purpose</div>
+        <p className="about-mission-text">
+          To make fresh, hygienically handled seafood a reliable daily option for families in
+          Jhargram.
+        </p>
       </div>
     </section>
   );

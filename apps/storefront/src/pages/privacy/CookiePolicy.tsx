@@ -1,5 +1,7 @@
+import { formatLegalDate, LEGAL_LAST_UPDATED_ISO } from '@oceanfresh/shared';
 import { Link } from 'react-router-dom';
 
+import { Footer } from '../../components/layout/Footer.js';
 import { useCookieConsent } from '../../context/CookieConsentContext.js';
 import { useSettings } from '../../context/settings-context.js';
 
@@ -50,17 +52,11 @@ export function CookiePolicyPage() {
             marginBottom: 'var(--space-8)',
           }}
         >
-          Last updated:{' '}
-          {new Date().toLocaleDateString('en-IN', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}{' '}
-          · This page explains what cookies and similar storage OceanFresh uses, why we use them,
-          and how you can control them. This is engineering implementation — not a substitute for
-          legal advice. Consent is free, specific, informed, unconditional and unambiguous with
-          clear affirmative action (DPDP Act framework); non-essential cookies are not set before
-          consent (EU-style requirements).
+          Last updated: {formatLegalDate(LEGAL_LAST_UPDATED_ISO)} · This page explains what cookies
+          and similar storage OceanFresh uses, why we use them, and how you can control them. This
+          is engineering implementation — not a substitute for legal advice. Consent is free,
+          specific, informed, unconditional and unambiguous with clear affirmative action (DPDP Act
+          framework); non-essential cookies are not set before consent (EU-style requirements).
         </p>
 
         <section style={{ marginBottom: 'var(--space-8)' }}>
@@ -391,6 +387,7 @@ export function CookiePolicyPage() {
           </div>
         </section>
       </div>
+      <Footer />
     </div>
   );
 }

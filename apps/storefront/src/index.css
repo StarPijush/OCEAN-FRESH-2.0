@@ -2,10 +2,12 @@
 @import './styles/tokens-premium.css';
 @import './styles/legacy-animations.css';
 @import './styles/legacy-components.css';
+@import './styles/about-premium.css';
 @import './styles/products-premium.css';
 @import './styles/order-summary-premium.css';
 @import './styles/contact-premium.css';
 @import './styles/order-premium.css';
+@import './styles/legal-premium.css';
 
 @tailwind base;
 @tailwind components;

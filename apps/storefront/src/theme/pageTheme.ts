@@ -35,7 +35,13 @@ export const pageThemes: Record<'home' | 'products' | 'orders' | 'contact', Page
 export function themeKeyForPath(pathname: string): keyof typeof pageThemes {
   if (pathname.startsWith('/products')) return 'products';
   if (pathname.startsWith('/order')) return 'orders';
-  if (pathname.startsWith('/contact')) return 'contact';
+  if (
+    pathname.startsWith('/contact') ||
+    pathname.startsWith('/privacy') ||
+    pathname.startsWith('/terms') ||
+    pathname.startsWith('/cookie-policy')
+  )
+    return 'contact';
   return 'home';
 }
 

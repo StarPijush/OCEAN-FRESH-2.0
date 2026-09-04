@@ -1,0 +1,217 @@
+/* ═══════════════════════════════════════════════════════
+   OceanFresh — About / Our Story Premium
+   Scope: #page-home .about-root ONLY
+   Goals:
+   - premium editorial hierarchy: eyebrow → serif title → rule → story → mission
+   - centered measure, high density, low cognitive load
+   - mobile-first 320/375/390/430 as primary (24px rhythm)
+   - reuse WhyUs / FeaturedCards language (champagne title, teal accents)
+   - no stock imagery, no extra animations, no invented claims
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Root — ivory editorial section, centered ── */
+#page-home .about-root {
+  background: var(--color-ivory);
+  padding: 64px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+#page-home .about-root .section-eyebrow {
+  justify-content: center;
+  display: flex;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+#page-home .about-root .section-title-lg {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 760px;
+  font-weight: 300;
+  letter-spacing: -0.015em;
+  color: var(--color-text-light-primary);
+  line-height: 0.95;
+}
+
+#page-home .about-root .section-title-lg em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-text-light-primary);
+}
+
+#page-home .about-root .section-rule {
+  margin: 20px auto;
+  width: 32px;
+  background: var(--color-teal);
+}
+
+/* ── Body — editorial measure, restrained ── */
+#page-home .about-body {
+  max-width: 640px;
+  margin: 0 auto;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-weight: 400;
+  color: var(--color-text-light-secondary);
+  line-height: 1.75;
+  text-align: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+#page-home .about-body + .about-body {
+  margin-top: 16px;
+}
+
+/* ── Mission — subtle premium card, not badge/stickers ── */
+#page-home .about-mission {
+  max-width: 560px;
+  margin: 28px auto 0;
+  padding: 18px 20px 16px;
+  background: var(--color-ivory-card);
+  border: 1px solid var(--color-ivory-border);
+  border-radius: 2px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+#page-home .about-mission-label {
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-teal);
+  margin-bottom: 8px;
+  line-height: 1;
+}
+
+#page-home .about-mission-text {
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 400;
+  color: var(--color-text-light-primary);
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+/* ── Desktop refinements ── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  #page-home .about-root {
+    padding: 48px 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  #page-home .about-root {
+    padding: 72px 32px;
+  }
+  #page-home .about-root .section-title-lg {
+    font-size: clamp(2.6rem, 4vw, 3.4rem);
+  }
+  #page-home .about-body {
+    font-size: 0.95rem;
+    max-width: 640px;
+  }
+  #page-home .about-mission {
+    margin-top: 32px;
+    padding: 20px 24px 18px;
+  }
+  #page-home .about-mission-text {
+    font-size: 1.14rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  #page-home .about-root {
+    padding: 80px 32px;
+  }
+}
+
+/* ── Mobile — 320 primary, editorial tightening mirrors WhyUs/FeaturedCards ── */
+@media (max-width: 768px) {
+  #page-home .about-root {
+    padding: 24px 20px;
+  }
+
+  #page-home .about-root .section-eyebrow {
+    margin-bottom: 2px;
+  }
+
+  #page-home .about-root .section-title-lg {
+    line-height: 0.9;
+    font-size: clamp(2.4rem, 9.5vw, 3.4rem);
+    max-width: 95%;
+    margin-bottom: 0;
+  }
+
+  #page-home .about-root .section-rule {
+    margin: 12px auto 16px;
+    width: 28px;
+  }
+
+  #page-home .about-body {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    max-width: 100%;
+    padding: 0 2px;
+    text-align: center;
+  }
+
+  #page-home .about-body + .about-body {
+    margin-top: 14px;
+  }
+
+  #page-home .about-mission {
+    margin-top: 20px;
+    padding: 16px 16px 14px;
+    max-width: 100%;
+  }
+
+  #page-home .about-mission-label {
+    font-size: 0.56rem;
+    letter-spacing: 0.16em;
+    margin-bottom: 6px;
+  }
+
+  #page-home .about-mission-text {
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 320px) {
+  #page-home .about-root {
+    padding: 24px 16px;
+  }
+  #page-home .about-root .section-title-lg {
+    font-size: clamp(2.2rem, 9vw, 2.8rem);
+  }
+  #page-home .about-body {
+    font-size: 0.86rem;
+    padding: 0;
+  }
+  #page-home .about-mission {
+    padding: 14px 14px 12px;
+  }
+  #page-home .about-mission-text {
+    font-size: 0.96rem;
+  }
+}
+
+/* ── Legacy why-grid-about override: no longer used — keep harmless ── */
+#page-home .about-root .why-grid-about {
+  display: none;
+}
+
+/* ── Reduced motion — keep reveal only ── */
+@media (prefers-reduced-motion: reduce) {
+  #page-home .about-root .about-mission {
+    transition: none;
+  }
+}

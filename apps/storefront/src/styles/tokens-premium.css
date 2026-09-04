@@ -59,6 +59,29 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast: 150ms;
   --duration-normal: 250ms;
+
+  /* === FIX F1: previously undefined tokens (mobile auth + products badge + depth) === */
+  --radius-pill: 9999px;
+  --radius-full: 9999px;
+  --dc-perspective: 1400px;
+  --text-eyebrow: 0.64rem;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --radius-sm: 4px;
+  --radius-xs: 2px;
+  --shadow-card: 0 2px 8px rgba(7, 21, 38, 0.12);
+  --radius-premium: 22px;
+  --radius-premium-lg: 24px;
+  /* gutter mirrors products-premium.css for routes (auth) that load without that file */
+  --gutter-mobile: 16px;
+  --gutter-tablet: 24px;
+  --gutter-desktop: 32px;
+  --container-max: 1120px;
 }
 
 /* === PAGE ACCENTS (via data-theme on <html>) === */
@@ -113,7 +136,7 @@ html[data-theme='contact'] {
   z-index: 0;
 }
 
-/* Legacy aliases for any remaining legacy CSS */
+/* Legacy aliases for any remaining legacy CSS — F2: removed self-referential aliases (no-op) */
 :root {
   --deep: var(--color-navy-deep);
   --surface-1: var(--color-navy-surface);
@@ -140,9 +163,4 @@ html[data-theme='contact'] {
   --brand-dim: var(--color-teal-dim);
   --aqua-glow: var(--color-teal-glow);
   --brand-glow: var(--color-teal-glow);
-  --shadow-sm: var(--shadow-sm);
-  --shadow-md: var(--shadow-md);
-  --shadow-lg: var(--shadow-lg);
-  --shadow-teal: var(--shadow-teal);
-  --ease-out: var(--ease-out);
 }

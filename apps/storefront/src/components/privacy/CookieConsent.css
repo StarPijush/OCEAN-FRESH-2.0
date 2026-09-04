@@ -439,6 +439,8 @@
   .cookie-consent {
     width: min(calc(100% - 24px), 300px);
     padding: 18px 16px;
+    /* F3: lift above dock+WA at 320 — dock 64px+safe + WA 88px, avoid 16px gap overlap */
+    bottom: calc(96px + env(safe-area-inset-bottom, 0px) + 16px);
   }
   .cookie-consent__actions {
     gap: 8px;

@@ -25,9 +25,9 @@ export function HomePage() {
       <FeaturedCards />
       <FreshCatch />
       <WhyUs />
+      <AboutSection />
       <DeliveryChecker />
       <CTASection />
-      <AboutSection />
       <Footer />
     </div>
   );

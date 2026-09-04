@@ -65,7 +65,14 @@ generated-reports/
 
 tmp_playwright_check.mjs
 tmp_playwright_check2.mjs
+qa-mobile-gate.mjs
+qa-results.json
+qa-screenshots/
 
 # Internal docs & planning
 docs/admin-ui-rebuild/
 .opencode/
+
+# AI & Agent configuration / cache
+.claude/
+.agents/

@@ -4,6 +4,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { useScrollNav } from '../../hooks/useScrollNav.js';
 import { themeKeyForPath } from '../../theme/pageTheme.js';
 import { CardNav, type CardNavItem } from '../navigation/CardNav.js';
+import { CookieConsent } from '../privacy/CookieConsent.js';
 import { FloatingWhatsApp } from '../ui/FloatingWhatsApp.js';
 import { Toast } from '../ui/Toast.js';
 import { BottomNav } from './BottomNav.js';
@@ -54,6 +55,7 @@ export function DefaultLayout() {
 
       <BottomNav />
       <FloatingWhatsApp />
+      <CookieConsent />
       <Toast />
     </>
   );
