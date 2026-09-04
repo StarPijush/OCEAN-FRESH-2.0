@@ -1,8 +1,8 @@
 {
-  "buildCommand": "pnpm --filter @oceanfresh/admin build",
+  "buildCommand": "pnpm --filter @oceanfresh/storefront build",
   "outputDirectory": "dist",
   "framework": "vite",
   "installCommand": "pnpm install",
-  "devCommand": "pnpm --filter @oceanfresh/admin dev",
+  "devCommand": "pnpm --filter @oceanfresh/storefront dev",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
