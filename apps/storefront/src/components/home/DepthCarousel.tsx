@@ -146,7 +146,7 @@ const DepthCarousel = ({
     const dir = cfg.tiltDirection === 'left' ? -1 : 1;
     const sc = scaleRef.current;
     const isMobile = cfg.isMobile;
-    const leftOffset = 0;
+    const leftPad = isMobile ? 16 : 0;
 
     // Mobile: stage height = scaled card height (no empty space)
     if (isMobile && stageRef.current) {
@@ -155,6 +155,9 @@ const DepthCarousel = ({
         stageRef.current.style.height = `${targetH}px`;
         stageRef.current.style.minHeight = `${targetH}px`;
       }
+      // Set arrow position: right edge of active card + gap
+      const arrowLeft = leftPad + Math.round(cfg.cardWidth * sc) + 12;
+      stageRef.current.style.setProperty('--dc-arrow-left', `${arrowLeft}px`);
     }
 
     for (let i = 0; i < n; i++) {
@@ -183,19 +186,21 @@ const DepthCarousel = ({
         cfg.blur > 0 ? Math.min(cfg.blur, (back / Math.max(1, cfg.visibleCards)) * cfg.blur) : 0;
       const zi = Math.round(2000 - d * 20);
 
-      if (isMobile && d === 0) {
+      if (isMobile) {
+        // Mobile: active card at leftPad, background cards shift right via spread
+        const mobileScale = d === 0 ? sc : sc * (1 - back * 0.08);
+        // Horizontal position: active card starts at leftPad, previews offset rightward by spread * d
+        const xPos = leftPad + d * cfg.spread * sc;
         el.style.transformOrigin = 'left center';
-        el.style.transform = `translateY(-50%) scale(${sc}) translateZ(${tz.toFixed(2)}px) rotateY(${ry.toFixed(3)}deg)`;
-        el.style.left = `${leftOffset}px`;
-        el.style.top = '50%';
-      } else if (isMobile && d > 0) {
-        el.style.transformOrigin = 'left center';
-        el.style.transform = `translateY(-50%) scale(${sc * (1 - back * 0.15)}) translateX(${tx + leftOffset}px) translateZ(${tz.toFixed(2)}px) rotateY(${ry.toFixed(3)}deg)`;
-        el.style.left = `${leftOffset}px`;
+        el.style.transform = `translateY(-50%) scale(${mobileScale}) translateZ(${tz.toFixed(2)}px) rotateY(${ry.toFixed(3)}deg)`;
+        el.style.left = `${xPos}px`;
         el.style.top = '50%';
       } else {
+        // Desktop premium depth stack: progressive scale + subtle vertical drift
+        const scaleDown = 1 - back * 0.08;
+        const ty = back * 6;
         el.style.transformOrigin = 'center center';
-        el.style.transform = `translate(-50%, -50%) scale(${sc}) translateX(${tx.toFixed(2)}px) translateZ(${tz.toFixed(2)}px) rotateY(${ry.toFixed(3)}deg)`;
+        el.style.transform = `translate(-50%, -50%) scale(${sc * scaleDown}) translateX(${tx.toFixed(2)}px) translateY(${ty.toFixed(2)}px) translateZ(${tz.toFixed(2)}px) rotateY(${ry.toFixed(3)}deg)`;
         el.style.left = '50%';
         el.style.top = '50%';
       }
@@ -289,9 +294,9 @@ const DepthCarousel = ({
         isMobile: boolean;
       };
       if (cfg.isMobile) {
-        // Mobile left-aligned: only need card + arrow buffer, keep card large
-        const mobileNeeded = cfg.cardWidth + 52; // 44px arrow + 8px gutter
-        scaleRef.current = clamp(w / mobileNeeded, 0.72, 1);
+        // Mobile: card fits smoothly from 320px up to tablet
+        const mobileTarget = cfg.cardWidth + 70;
+        scaleRef.current = clamp(w / mobileTarget, 0.8, 1);
         // Stage height will be set in layout() to scaled cardHeight
       } else {
         const needed = cfg.cardWidth + Math.abs(cfg.spread) * 2 + 120;
@@ -463,8 +468,8 @@ const DepthCarousel = ({
         isMobile: boolean;
       };
       if (cfg.isMobile) {
-        const mobileNeeded = cfg.cardWidth + 52;
-        scaleRef.current = clamp(w / mobileNeeded, 0.72, 1);
+        const mobileTarget = cfg.cardWidth + 70;
+        scaleRef.current = clamp(w / mobileTarget, 0.8, 1);
       } else {
         const needed = cfg.cardWidth + Math.abs(cfg.spread) * 2 + 120;
         scaleRef.current = clamp(w / needed, 0.4, 1);

@@ -6,7 +6,6 @@ import { DeliveryChecker } from '../components/home/DeliveryChecker.js';
 import { FeaturedCards } from '../components/home/FeaturedCards.js';
 import { FreshCatch } from '../components/home/FreshCatch.js';
 import { Hero } from '../components/home/Hero.js';
-import { ReviewsSection } from '../components/home/ReviewsSection.js';
 import { Ticker } from '../components/home/Ticker.js';
 import { WhyUs } from '../components/home/WhyUs.js';
 import { Footer } from '../components/layout/Footer.js';
@@ -29,7 +28,6 @@ export function HomePage() {
       <DeliveryChecker />
       <CTASection />
       <AboutSection />
-      <ReviewsSection />
       <Footer />
     </div>
   );

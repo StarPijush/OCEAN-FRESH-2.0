@@ -24,7 +24,7 @@ export function Hero() {
           <button className="btn btn-dark" onClick={() => navigate('/products')}>
             Shop Now
           </button>
-          <button className="btn btn-ghost" onClick={() => navigate('/order')}>
+          <button className="btn btn-ghost hero-view-order" onClick={() => navigate('/order')}>
             View Order
           </button>
         </div>

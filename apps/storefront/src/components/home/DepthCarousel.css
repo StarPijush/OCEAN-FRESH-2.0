@@ -158,15 +158,19 @@
   .depth-carousel__stage {
     height: auto;
     min-height: 0;
+    position: relative;
   }
 
-  /* Card: image IS the card */
+  /* Card: image IS the card — top-left aligned for JS positioning */
   .depth-carousel__card {
     background: transparent;
     border: none;
     border-radius: 16px;
     box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
     overflow: hidden;
+    top: 0;
+    left: 0;
+    transform: none;
   }
 
   .depth-carousel__img {
@@ -212,12 +216,15 @@
     transform: translateY(-50%) scale(0.95);
   }
 
+  /* Hide prev arrow on mobile — concept shows only next arrow */
   .depth-carousel__arrows-stage .depth-carousel__arrow--prev {
-    left: 0;
+    display: none;
   }
 
+  /* Next arrow: sits right of the card composition, vertically centered with active card */
   .depth-carousel__arrows-stage .depth-carousel__arrow--next {
-    right: 0;
+    right: clamp(12px, 3.5vw, 20px);
+    left: auto;
   }
 
   .depth-carousel__arrows-stage .depth-carousel__arrow svg {
@@ -226,34 +233,14 @@
     stroke-width: 2;
   }
 
-  /* Single product: hide prev arrow, show next arrow with balanced gap from card */
-  .depth-carousel__arrows-stage--single .depth-carousel__arrow--prev {
-    display: none;
-  }
-
-  .depth-carousel__arrows-stage--single .depth-carousel__arrow--next {
-    left: 260px; /* cardWidth 240 + 20px balanced gap */
-    right: auto;
-  }
-
-  /* Multi-product: arrows at card edges */
-  .depth-carousel__arrows-stage .depth-carousel__arrow--prev {
-    left: 0;
-  }
-
-  .depth-carousel__arrows-stage .depth-carousel__arrow--next {
-    left: 260px; /* cardWidth 240 + 20px balanced gap */
-    right: auto;
-  }
-
-  /* Indicators: below stage, almost zero gap */
+  /* Indicators: below stage, centered */
   .depth-carousel__dots {
     position: static;
     transform: none;
     display: flex !important;
     justify-content: center;
-    gap: 3px;
-    margin: 1px auto 0;
+    gap: 6px;
+    margin: 16px auto 0;
     padding: 0;
     background: transparent;
     backdrop-filter: none;
@@ -282,9 +269,9 @@
 
   /* Tight viewport: keep arrow inside viewport */
   @media (max-width: 320px) {
-    .depth-carousel__arrows-stage--single .depth-carousel__arrow--next,
     .depth-carousel__arrows-stage .depth-carousel__arrow--next {
-      left: 252px; /* reduced gap for 320px to stay inside */
+      left: auto;
+      right: 8px;
     }
   }
 }

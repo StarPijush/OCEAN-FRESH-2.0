@@ -27,15 +27,17 @@ export function CTASection() {
         Place your order in under a minute via WhatsApp.
       </p>
       <button
-        className="btn btn-navy btn-wa-cta reveal"
-        onClick={() => navigate('/order')}
+        className="btn btn-navy btn-wa-cta reveal btn-start-order"
+        onClick={() => navigate('/products')}
         style={{
-          fontSize: '0.72rem',
-          padding: '14px 36px',
+          fontSize: '0.82rem',
+          padding: '18px 52px',
           borderRadius: '2px',
+          minHeight: '52px',
+          minWidth: '180px',
         }}
       >
-        Start Order &rarr;
+        Start Order
       </button>
     </section>
   );

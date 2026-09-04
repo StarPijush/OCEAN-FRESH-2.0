@@ -1,9 +1,166 @@
+/* FeaturedCards — Premium editorial depth presentation */
+.featured-cards-root {
+  overflow: hidden;
+  position: relative;
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Desktop: full depth/fan presentation */
+.featured-cards-root .depth-carousel {
+  margin-top: 32px;
+  overflow: visible;
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.featured-cards-root .depth-carousel__stage {
+  height: 440px;
+  min-height: 440px;
+  width: 100%;
+}
+
+/* Desktop controls: arrow beside composition, dots below stack */
+.featured-cards-root .depth-carousel__arrow {
+  background: rgba(7, 21, 38, 0.85);
+  border: 1px solid var(--color-champagne);
+  color: var(--color-champagne);
+  backdrop-filter: blur(6px);
+}
+
+.featured-cards-root .depth-carousel__arrow:hover {
+  background: var(--color-champagne);
+  color: var(--color-navy-deep);
+  border-color: var(--color-champagne);
+}
+
+.featured-cards-root .depth-carousel__arrow--prev {
+  left: calc(50% - 220px);
+  right: auto;
+}
+
+.featured-cards-root .depth-carousel__arrow--next {
+  right: calc(50% - 220px);
+  left: auto;
+}
+
+.featured-cards-root .depth-carousel__dots {
+  position: static;
+  transform: none;
+  margin: 24px auto 0;
+  background: transparent;
+  backdrop-filter: none;
+  padding: 0;
+  gap: 8px;
+}
+
+.featured-cards-root .depth-carousel__dot {
+  background: rgba(242, 238, 230, 0.3);
+}
+
+.featured-cards-root .depth-carousel__dot.is-active {
+  background: var(--color-teal);
+}
+
+.featured-cards-root .editorial-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.featured-cards-root .editorial-card__media {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.featured-cards-root .editorial-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 16px;
+}
+
+.featured-cards-root .editorial-card__img--emoji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5.5rem;
+  opacity: 0.5;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  background: var(--color-navy-surface);
+}
+
+.featured-cards-root .editorial-card__info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 36px 16px 14px;
+  background: linear-gradient(
+    to top,
+    rgba(5, 7, 12, 0.88) 0%,
+    rgba(5, 7, 12, 0.55) 50%,
+    transparent 100%
+  );
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.featured-cards-root .editorial-card__name {
+  color: #ffffff;
+  font-family: var(--font-body, system-ui, -apple-system, sans-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.featured-cards-root .editorial-card__price {
+  color: var(--color-champagne, #f2eee6);
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0.92;
+  line-height: 1.2;
+}
+
+/* See All Products — premium stretched editorial CTA, left-aligned */
+.featured-cards-root .section-action {
+  margin-top: 28px;
+  text-align: left;
+}
+
+.featured-cards-root .btn-see-all {
+  width: min(100%, 420px);
+  min-width: 280px;
+  max-width: 420px;
+  min-height: 48px;
+  padding: 14px 28px;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  justify-content: center;
+}
+
 /* FeaturedCards Mobile Editorial Refinement — ≤768px only */
 @media (max-width: 768px) {
   /* Section: balanced premium editorial rhythm */
   .section-alt.featured-cards-root {
     padding-top: 24px;
     padding-bottom: 24px;
+    overflow: visible;
   }
 
   /* Eyebrow → Title: ultra-tight */
@@ -28,22 +185,23 @@
   /* Rule → Carousel: matched to card→CTA gap */
   .section-alt.featured-cards-root .depth-carousel {
     margin-top: 24px;
-  }
-
-  /* Carousel stage: JS sets exact height = scaled card height, no fixed CSS height */
-  .section-alt.featured-cards-root .depth-carousel__stage {
-    height: auto;
     min-height: 0;
-    padding-bottom: 0;
+    height: auto;
   }
 
-  /* DepthCarousel cards: remove card container styling */
+  /* Carousel stage: JS sets exact height = scaled card height */
+  .section-alt.featured-cards-root .depth-carousel__stage {
+    padding-bottom: 0;
+    /* Do NOT override JS-set height with !important */
+  }
+
+  /* DepthCarousel cards: keep rounded corners and shadow for depth feel */
   .section-alt.featured-cards-root .depth-carousel__card {
     background: transparent;
     border: none;
-    border-radius: 0;
-    box-shadow: none;
-    overflow: visible;
+    border-radius: 16px;
+    box-shadow: 0 16px 32px -10px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
   }
 
   /* Editorial Card — mobile: image only */
@@ -83,9 +241,13 @@
   .section-alt.featured-cards-root .section-action {
     margin-top: 21px;
     text-align: left;
+    position: relative;
+    z-index: 10;
   }
-  .section-alt.featured-cards-root .section-action .btn {
-    max-width: 280px;
+  .section-alt.featured-cards-root .section-action .btn-see-all {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
     min-height: 48px;
     padding: 12px 20px;
   }

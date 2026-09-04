@@ -477,7 +477,8 @@ textarea {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 24px 20px 32px;
+  align-items: flex-start;
+  padding: 32px 20px 48px;
   position: relative;
   z-index: 2;
 }
@@ -487,7 +488,7 @@ textarea {
   text-transform: uppercase;
   color: var(--color-teal);
   font-weight: 600;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   animation: fade-up 1s 0.4s var(--ease-out) both;
 }
 .hero-title {
@@ -497,7 +498,7 @@ textarea {
   color: var(--color-text-primary);
   line-height: 0.92;
   letter-spacing: -0.02em;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
   animation: fade-up 1s 0.55s var(--ease-out) both;
 }
 .hero-title em {
@@ -515,10 +516,21 @@ textarea {
 }
 .hero-actions {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 320px;
+  margin-top: 12px;
   animation: fade-up 1s 0.85s var(--ease-out) both;
+}
+.hero-view-order {
+  flex: 0 0 100%;
+  max-width: 220px;
+  margin-left: auto;
+  margin-right: auto;
+  justify-content: center;
 }
 .hero-scroll {
   position: absolute;
@@ -1504,35 +1516,6 @@ textarea {
   text-transform: uppercase;
   background: var(--color-teal-dim);
   color: var(--color-teal);
-}
-
-/* Review cards */
-.review-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-}
-.review-card {
-  background: var(--color-ivory-card);
-  border: 1px solid var(--color-ivory-border);
-  border-radius: 6px;
-  padding: 18px 16px;
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.review-card p {
-  margin: 0;
-  color: var(--color-text-light-primary);
-  line-height: 1.58;
-  font-size: 0.9rem;
-}
-.review-author {
-  font-weight: 700;
-  font-size: 0.82rem;
-  color: var(--color-text-light-secondary);
-  margin-top: 8px;
 }
 
 /* ── Master mobile content alignment ── */

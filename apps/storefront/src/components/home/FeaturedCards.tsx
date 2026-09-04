@@ -1,6 +1,7 @@
 import './FeaturedCards.css';
 
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { useMediaQuery } from '../../hooks/useMediaQuery.js';
 import { productService, type ProductVM } from '../../services/index.js';
@@ -9,6 +10,7 @@ import { DepthCarousel } from './DepthCarousel.js';
 export function FeaturedCards() {
   const [featured, setFeatured] = useState<ProductVM[]>([]);
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const navigate = useNavigate();
 
   useEffect(() => {
     productService.getFeatured(6).then(setFeatured);
@@ -28,6 +30,13 @@ export function FeaturedCards() {
               <div className="editorial-card__img editorial-card__img--emoji">{p.emoji}</div>
             )}
           </div>
+          <div className="editorial-card__info">
+            <div className="editorial-card__name">{p.name}</div>
+            <div className="editorial-card__price">
+              {'\u20B9'}
+              {p.price} / {p.unit || 'kg'}
+            </div>
+          </div>
         </div>
       );
     },
@@ -43,16 +52,16 @@ export function FeaturedCards() {
       <div className="section-rule reveal"></div>
       <DepthCarousel
         items={featured.map((p) => ({ image: p.image ?? '', alt: p.name }))}
-        cardWidth={isMobile ? 240 : 300}
-        cardHeight={isMobile ? 300 : 400}
+        cardWidth={isMobile ? 210 : 300}
+        cardHeight={isMobile ? 275 : 400}
         radius={16}
-        depth={isMobile ? 80 : 120}
-        spread={isMobile ? 14 : 20}
-        tilt={0}
-        perspective={1200}
-        visibleCards={2.5}
-        falloff={0.15}
-        blur={3}
+        depth={isMobile ? 60 : 150}
+        spread={isMobile ? 30 : 34}
+        tilt={isMobile ? 3 : 7}
+        perspective={1400}
+        visibleCards={isMobile ? 3 : 3}
+        falloff={isMobile ? 0.14 : 0.12}
+        blur={isMobile ? 3 : 4}
         duration={600}
         autoplay={true}
         autoplayDelay={4000}
@@ -63,11 +72,8 @@ export function FeaturedCards() {
         isMobile={isMobile}
       />
       <div className="section-action reveal">
-        <button
-          className="btn btn-ghost btn-sm"
-          onClick={() => (window.location.href = '/products')}
-        >
-          See All Products &rarr;
+        <button className="btn btn-ghost btn-see-all" onClick={() => navigate('/products')}>
+          See All Products
         </button>
       </div>
     </section>
