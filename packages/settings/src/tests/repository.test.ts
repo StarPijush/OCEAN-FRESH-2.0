@@ -35,6 +35,17 @@ const fullRow = {
   delivery_areas: ['Jamboni', 'Binpur'],
   delivery_radius: 15,
   founded_year: 2018,
+  // 021 — active social: Instagram, Facebook, YouTube (X/LinkedIn legacy columns remain in DB but not in product)
+  instagram_url: 'https://www.instagram.com/oceanfresh',
+  facebook_url: 'https://www.facebook.com/oceanfresh',
+  youtube_url: 'https://www.youtube.com/@oceanfresh',
+  latitude: 22.45,
+  longitude: 86.98,
+  google_maps_url: null,
+  place_id: null,
+  city: 'Jhargram',
+  state: 'West Bengal',
+  postal_code: '721507',
 };
 
 describe('SupabaseSettingsRepository', () => {
@@ -58,6 +69,17 @@ describe('SupabaseSettingsRepository', () => {
       expect(settings.pincodes).toEqual(['721501', '721507']);
       expect(settings.deliveryRadius).toBe(15);
       expect(settings.foundedYear).toBe(2018);
+      expect(settings.instagramUrl).toBe('https://www.instagram.com/oceanfresh');
+      expect(settings.facebookUrl).toBe('https://www.facebook.com/oceanfresh');
+      expect(settings.youtubeUrl).toBe('https://www.youtube.com/@oceanfresh');
+      // Legacy X/LinkedIn columns are not part of active StoreSettings (Option A) — ensure not present
+      expect((settings as unknown as Record<string, unknown>).xUrl).toBeUndefined();
+      expect((settings as unknown as Record<string, unknown>).linkedinUrl).toBeUndefined();
+      expect(settings.latitude).toBe(22.45);
+      expect(settings.longitude).toBe(86.98);
+      // googleMapsUrl derived from lat/lng when explicit null
+      expect(settings.googleMapsUrl).toBe('https://www.google.com/maps?q=22.45,86.98');
+      expect(settings.city).toBe('Jhargram');
       expect(supabaseService.get).toHaveBeenCalledWith('shop_settings', 'default');
     });
 

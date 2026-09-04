@@ -204,6 +204,31 @@
   background: rgba(37, 211, 102, 0.12);
   border-color: rgba(37, 211, 102, 0.18);
 }
+#page-contact .contact-item-icon--instagram {
+  background: rgba(225, 48, 108, 0.09);
+  border-color: rgba(225, 48, 108, 0.15);
+}
+#page-contact .contact-item-icon--facebook {
+  background: rgba(24, 119, 242, 0.09);
+  border-color: rgba(24, 119, 242, 0.15);
+}
+#page-contact .contact-item-icon--youtube {
+  background: rgba(255, 0, 0, 0.08);
+  border-color: rgba(255, 0, 0, 0.14);
+}
+/* SVG color hooks — keep premium calm, icon inherits currentColor */
+#page-contact .contact-item-icon--instagram svg {
+  color: #c13584;
+}
+#page-contact .contact-item-icon--facebook svg {
+  color: #1877f2;
+}
+#page-contact .contact-item-icon--youtube svg {
+  color: #ff0000;
+}
+#page-contact .contact-item-icon--whatsapp svg {
+  color: #128c7e;
+}
 /* Legacy inline override cleanup — if any remains, normalize */
 #page-contact .contact-item .contact-item-icon[style*='background'] {
   border-color: rgba(7, 21, 38, 0.08);

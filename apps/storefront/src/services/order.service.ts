@@ -79,7 +79,27 @@ export async function persistOrder(
     }
   }
 
+  // 021: Use live pricing passed from storefront settings (ADMIN → DB → Storefront).
+  // Fallback to STORE_SETTINGS only when _pricing is missing (e.g., legacy caller).
+  // Historical orders retain their snapshot totals.shipping — not recomputed here.
   const authoritativePricing = (() => {
+    if (
+      _pricing &&
+      typeof _pricing.subtotal === 'number' &&
+      typeof _pricing.deliveryCharge === 'number'
+    ) {
+      // Re-validate subtotal against authoritative product prices (tamper check above covers line totals)
+      const recomputedSubtotal = entries.reduce((sum, e) => sum + e.lineTotal, 0);
+      if (Math.abs(recomputedSubtotal - _pricing.subtotal) > 0.01) {
+        throw new Error('Pricing tamper detected — subtotal mismatch');
+      }
+      // Trust deliveryCharge from live settings (already validated via threshold in caller)
+      return {
+        subtotal: _pricing.subtotal,
+        deliveryCharge: _pricing.deliveryCharge,
+        total: _pricing.total,
+      };
+    }
     const subtotal = entries.reduce((sum, e) => sum + e.lineTotal, 0);
     const deliveryCharge =
       subtotal >= STORE_SETTINGS.freeDeliveryAbove ? 0 : STORE_SETTINGS.deliveryFee;
@@ -227,6 +247,7 @@ export const orderService = {
     entries: OrderCartEntry[],
     pricing: OrderPricing,
     location?: LocationData,
+    storeName: string = STORE_SETTINGS.storeName,
   ): string {
     const lines = entries
       .map(
@@ -245,7 +266,7 @@ export const orderService = {
       : '\u{1F4CD} Location: not shared';
 
     return [
-      '\u{1F41F} *New Order \u2014 OceanFresh*',
+      `\u{1F41F} *New Order \u2014 ${storeName}*`,
       '',
       `\u{1F464} *Name:* ${data.name}`,
       `\u{1F4F1} *Phone:* ${data.phone}`,
@@ -261,7 +282,7 @@ export const orderService = {
       '',
       locLine,
       '',
-      '_via OceanFresh_',
+      `_via ${storeName}_`,
     ].join('\n');
   },
 

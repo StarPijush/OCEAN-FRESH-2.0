@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { useSettings } from '../../context/settings-context.js';
 import { useCartStore } from '../../services/cart.service.js';
 import { CartIcon } from '../ui/Icons.js';
 
@@ -13,6 +14,7 @@ export function TopNav({ onMenuToggle, isDrawerOpen }: TopNavProps) {
   const navigate = useNavigate();
   const count = useCartStore((s) => Object.keys(s.items).length);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const { storeName } = useSettings();
 
   useEffect(() => {
     const htmlTheme = document.documentElement.getAttribute('data-theme');
@@ -22,7 +24,7 @@ export function TopNav({ onMenuToggle, isDrawerOpen }: TopNavProps) {
   return (
     <header id="top-nav" className={theme === 'light' ? 'light' : ''}>
       <div className="nav-logo" onClick={() => navigate('/')}>
-        OceanFresh
+        {storeName || 'OceanFresh'}
       </div>
       <div className="nav-right">
         <button className="nav-cart-btn" onClick={() => navigate('/order')} aria-label="Cart">

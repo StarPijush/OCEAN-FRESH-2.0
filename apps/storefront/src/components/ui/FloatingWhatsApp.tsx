@@ -1,12 +1,13 @@
 import { useSettings } from '../../context/settings-context.js';
 
-const WA_MSG = encodeURIComponent("Hi! I'd like to know more about today's fresh catch \u{1F41F}");
-
 export function FloatingWhatsApp() {
   const settings = useSettings();
 
   function openWhatsAppSupport() {
-    window.open(`https://wa.me/${settings.whatsapp}?text=${WA_MSG}`, '_blank');
+    const msg = encodeURIComponent(
+      `Hi ${settings.storeName}! I'd like to know more about today's fresh catch \u{1F41F}`,
+    );
+    window.open(`https://wa.me/${settings.whatsapp}?text=${msg}`, '_blank');
   }
 
   return (

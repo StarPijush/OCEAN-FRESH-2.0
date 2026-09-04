@@ -15,6 +15,19 @@ export interface SettingsUpdate {
   deliveryAreas?: string[];
   deliveryRadius?: number;
   foundedYear?: number;
+  // 021 — Social — active: Instagram, Facebook, YouTube (NULL/empty clears, hides icon)
+  // WhatsApp uses existing whatsapp/orderWhatsApp (whatsapp_number). Legacy x_url/linkedin_url remain in DB but not in contract.
+  instagramUrl?: string | null;
+  facebookUrl?: string | null;
+  youtubeUrl?: string | null;
+  // 021 — Location (Phase 1: lat/lng + Maps URL, no API secret in DB)
+  latitude?: number | null;
+  longitude?: number | null;
+  googleMapsUrl?: string | null;
+  placeId?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
 }
 
 export interface ISettingsRepository {

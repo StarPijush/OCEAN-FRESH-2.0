@@ -517,6 +517,7 @@ textarea {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+  justify-content: flex-start;
   animation: fade-up 1s 0.85s var(--ease-out) both;
 }
 .hero-scroll {
@@ -1555,7 +1556,21 @@ textarea {
   }
   /* Left-align hero View Order button to master gutter */
   .hero-actions {
+    width: 100%;
     justify-content: flex-start;
     align-items: flex-start;
+  }
+  .hero-actions .btn {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+@media (max-width: 360px) {
+  .hero-actions {
+    gap: 10px;
+  }
+  .hero-actions .btn {
+    padding: 13px 20px;
   }
 }

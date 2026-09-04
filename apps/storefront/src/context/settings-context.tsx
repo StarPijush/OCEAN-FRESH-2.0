@@ -1,42 +1,44 @@
 import { STORE_SETTINGS, type StoreSettings } from '@oceanfresh/shared';
-import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { createContext, type ReactNode, useContext } from 'react';
 
 import { settingsService } from '../services/settings.service.js';
 
 interface SettingsContextValue {
   settings: StoreSettings;
   error: string | null;
+  isLoading: boolean;
 }
 
 const SettingsContext = createContext<SettingsContextValue>({
   settings: STORE_SETTINGS,
   error: null,
+  isLoading: false,
 });
 
+/**
+ * Single source of truth for storefront settings.
+ * Uses TanStack Query for caching (staleTime 5m) and refetchOnWindowFocus
+ * so ADMIN SAVE → storefront fetches current value on next focus/mount.
+ * No realtime — simplest reliable solution per spec §10.
+ */
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<StoreSettings>(STORE_SETTINGS);
-  const [error, setError] = useState<string | null>(null);
+  const { data, error, isLoading } = useQuery<StoreSettings>({
+    queryKey: ['store_settings'],
+    queryFn: () => settingsService.getSettings(),
+    staleTime: 1000 * 60 * 5,
+    retry: 2,
+    refetchOnWindowFocus: true,
+    placeholderData: STORE_SETTINGS,
+  });
 
-  useEffect(() => {
-    let mounted = true;
-    settingsService
-      .getSettings()
-      .then((loaded) => {
-        if (mounted) {
-          setSettings(loaded);
-          setError(null);
-        }
-      })
-      .catch((err) => {
-        if (mounted) setError((err as Error).message ?? 'Failed to load store settings');
-      });
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  const settings = data ?? STORE_SETTINGS;
+  const errorMsg = error ? ((error as Error).message ?? 'Failed to load store settings') : null;
 
   return (
-    <SettingsContext.Provider value={{ settings, error }}>{children}</SettingsContext.Provider>
+    <SettingsContext.Provider value={{ settings, error: errorMsg, isLoading }}>
+      {children}
+    </SettingsContext.Provider>
   );
 }
 
@@ -46,4 +48,8 @@ export function useSettings(): StoreSettings {
 
 export function useSettingsError(): string | null {
   return useContext(SettingsContext).error;
+}
+
+export function useSettingsLoading(): boolean {
+  return useContext(SettingsContext).isLoading;
 }

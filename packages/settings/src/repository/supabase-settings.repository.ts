@@ -27,9 +27,47 @@ interface ShopSettingsRow {
   delivery_areas: string[] | null;
   delivery_radius: number | null;
   founded_year: number | null;
+  // 021 — social — active: instagram, facebook, youtube (x_url/linkedin_url legacy, DB remains but not in product)
+  instagram_url: string | null;
+  facebook_url: string | null;
+  /** @deprecated legacy — column remains in DB for non-destructive safety, not read by product */
+  x_url?: string | null;
+  /** @deprecated legacy — column remains in DB for non-destructive safety, not read by product */
+  linkedin_url?: string | null;
+  youtube_url: string | null;
+  // 021 — location
+  latitude: number | string | null;
+  longitude: number | string | null;
+  google_maps_url: string | null;
+  place_id: string | null;
+  city: string | null;
+  state: string | null;
+  postal_code: string | null;
+}
+
+function emptyToNull(v: string | null | undefined): string | null {
+  if (v == null) return null;
+  const t = v.trim();
+  return t.length > 0 ? t : null;
+}
+
+function toNumberOrNull(v: number | string | null | undefined): number | null {
+  if (v == null || v === '') return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
 }
 
 function toStoreSettings(row: ShopSettingsRow): StoreSettings {
+  const lat = toNumberOrNull(row.latitude);
+  const lng = toNumberOrNull(row.longitude);
+  // Derive googleMapsUrl if explicit URL missing but lat/lng present
+  const derivedMapsUrl =
+    row.google_maps_url && row.google_maps_url.trim().length > 0
+      ? row.google_maps_url.trim()
+      : lat != null && lng != null
+        ? `https://www.google.com/maps?q=${lat},${lng}`
+        : null;
+
   return {
     storeName: row.store_name || STORE_SETTINGS.storeName,
     tagline: row.store_tagline || STORE_SETTINGS.tagline,
@@ -56,6 +94,18 @@ function toStoreSettings(row: ShopSettingsRow): StoreSettings {
       row.delivery_radius != null ? Number(row.delivery_radius) : STORE_SETTINGS.deliveryRadius,
     orderWhatsApp: row.whatsapp_number || STORE_SETTINGS.orderWhatsApp,
     foundedYear: row.founded_year ?? STORE_SETTINGS.foundedYear,
+    // 021 — social: Instagram, Facebook, YouTube only (X/LinkedIn legacy columns ignored)
+    instagramUrl: emptyToNull(row.instagram_url),
+    facebookUrl: emptyToNull(row.facebook_url),
+    youtubeUrl: emptyToNull(row.youtube_url),
+    // 021 — location
+    latitude: lat,
+    longitude: lng,
+    googleMapsUrl: derivedMapsUrl,
+    placeId: emptyToNull(row.place_id),
+    city: emptyToNull(row.city),
+    state: emptyToNull(row.state),
+    postalCode: emptyToNull(row.postal_code),
   };
 }
 
@@ -75,6 +125,18 @@ function toRowPayload(update: SettingsUpdate): Record<string, unknown> {
     delivery_charge_amount: update.deliveryFee,
     delivery_radius: update.deliveryRadius,
     founded_year: update.foundedYear,
+    // 021 — social — active only Instagram/Facebook/YouTube (X/LinkedIn legacy columns untouched)
+    instagram_url: update.instagramUrl,
+    facebook_url: update.facebookUrl,
+    youtube_url: update.youtubeUrl,
+    // 021 — location
+    latitude: update.latitude,
+    longitude: update.longitude,
+    google_maps_url: update.googleMapsUrl,
+    place_id: update.placeId,
+    city: update.city,
+    state: update.state,
+    postal_code: update.postalCode,
   };
   return Object.fromEntries(Object.entries(payload).filter(([, value]) => value !== undefined));
 }

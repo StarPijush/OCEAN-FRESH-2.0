@@ -130,6 +130,7 @@ export function OrderPage() {
         currentEntries,
         orderPricing,
         location ?? undefined,
+        settings.storeName,
       );
       orderService.sendViaWhatsApp(msg, settings.orderWhatsApp);
 

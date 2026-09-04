@@ -33,6 +33,20 @@ export interface StoreSettings {
   /** Place order via WhatsApp to this number. */
   orderWhatsApp: string;
   foundedYear: number;
+  // ── 021: Social Media — active platforms: Instagram, Facebook, WhatsApp (via whatsapp/orderWhatsApp), YouTube
+  // X/LinkedIn legacy columns (x_url, linkedin_url) remain in DB for non-destructive safety but are no longer part of the product contract.
+  instagramUrl: string | null;
+  facebookUrl: string | null;
+  youtubeUrl: string | null;
+  // ── 021: Location (Phase 1: lat/lng + Maps URL, no API key in DB) ───
+  latitude: number | null;
+  longitude: number | null;
+  googleMapsUrl: string | null;
+  placeId: string | null;
+  // ── 021: Structured address helpers (address jsonb remains canonical) ─
+  city: string | null;
+  state: string | null;
+  postalCode: string | null;
 }
 
 export const STORE_SETTINGS: StoreSettings = {
@@ -81,4 +95,15 @@ export const STORE_SETTINGS: StoreSettings = {
   deliveryRadius: 15,
   orderWhatsApp: '918509597935',
   foundedYear: 2018,
+  // 021 defaults — NULL hides social/location UI until configured
+  instagramUrl: null,
+  facebookUrl: null,
+  youtubeUrl: null,
+  latitude: null,
+  longitude: null,
+  googleMapsUrl: null,
+  placeId: null,
+  city: null,
+  state: null,
+  postalCode: null,
 };
