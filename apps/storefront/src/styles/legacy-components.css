@@ -596,11 +596,18 @@ textarea {
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 12px;
+  gap: 14px;
   width: 100%;
-  max-width: 320px;
-  margin-top: 12px;
+  max-width: 350px;
+  margin-top: 14px;
   animation: fade-up 1s 0.85s var(--ease-out) both;
+}
+.hero-actions .btn {
+  padding: 16px 35px;
+  font-size: 0.9rem;
+  letter-spacing: 0.14em;
+  font-weight: 600;
+  border-radius: 3px;
 }
 .hero-view-order {
   display: inline-flex;
@@ -1676,11 +1683,14 @@ textarea {
     width: 100%;
     justify-content: flex-start;
     align-items: flex-start;
+    gap: 12px;
   }
   .hero-actions .btn {
     flex: 0 1 auto;
     min-width: 0;
     max-width: 100%;
+    padding: 15px 30px;
+    font-size: 0.85rem;
   }
 }
 @media (max-width: 360px) {
@@ -1688,6 +1698,7 @@ textarea {
     gap: 10px;
   }
   .hero-actions .btn {
-    padding: 13px 20px;
+    padding: 14px 24px;
+    font-size: 0.8rem;
   }
 }
