@@ -49,20 +49,46 @@
   --color-info: #38bdf8;
   --color-info-dim: rgba(56, 189, 248, 0.1);
 
-  /* === SHADOWS (Restrained) === */
-  --shadow-sm: 0 2px 8px rgba(7, 21, 38, 0.12);
-  --shadow-md: 0 8px 24px rgba(7, 21, 38, 0.15);
-  --shadow-lg: 0 18px 50px rgba(7, 21, 38, 0.2);
-  --shadow-teal: 0 0 20px rgba(39, 195, 200, 0.1);
+  /* === SHADOWS (Restrained — tinted navy, never pure black) === */
+  --shadow-sm: 0 2px 8px rgba(7, 21, 38, 0.08);
+  --shadow-md: 0 8px 24px rgba(7, 21, 38, 0.1);
+  --shadow-lg: 0 12px 32px rgba(7, 21, 38, 0.12);
+  --shadow-card: 0 1px 4px rgba(7, 21, 38, 0.06);
+  --shadow-card-hover: 0 4px 16px rgba(7, 21, 38, 0.08);
+  --shadow-teal: 0 0 20px rgba(39, 195, 200, 0.08);
 
   /* === MOTION === */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
   --duration-fast: 150ms;
   --duration-normal: 250ms;
+  --duration-slow: 400ms;
 
-  /* === FIX F1: previously undefined tokens (mobile auth + products badge + depth) === */
+  /* === ADDITIONAL PREMIUM TOKENS (minimal, non-breaking) === */
+  --color-champagne-soft: rgba(216, 199, 166, 0.1);
+  --color-champagne-border: rgba(216, 199, 166, 0.14);
+  --shadow-subtle: 0 1px 4px rgba(7, 21, 38, 0.04);
+  /* Z-index scale — single source, prevents 9999 drift */
+  --z-nav: 200;
+  --z-dock: 180;
+  --z-wa: 170;
+  --z-toast: 300;
+  --z-cookie: 350;
+  --z-modal: 400;
+  /* Unified gutter alias for mobile-first sections (mirrors --gutter-mobile) */
+  --gutter: 16px;
+
+  /* === RADIUS SCALE — one language, page-specific application === */
+  --radius-xs: 2px; /* buttons, dividers, legacy */
+  --radius-sm: 4px; /* legal summary, tables, inline */
+  --radius-md: 8px; /* products cards, search, order summary */
+  --radius-lg: 12px; /* order inputs, location btn, cookie */
+  --radius-premium: 22px; /* contact/order cards — editorial premium only */
+  --radius-premium-lg: 24px; /* desktop contact/order */
   --radius-pill: 9999px;
   --radius-full: 9999px;
+
+  /* === GEOMETRY === */
   --dc-perspective: 1400px;
   --text-eyebrow: 0.64rem;
   --space-2: 8px;
@@ -72,20 +98,28 @@
   --space-8: 32px;
   --space-10: 40px;
   --space-12: 48px;
-  --radius-sm: 4px;
-  --radius-xs: 2px;
-  --shadow-card: 0 2px 8px rgba(7, 21, 38, 0.12);
-  --radius-premium: 22px;
-  --radius-premium-lg: 24px;
   /* gutter mirrors products-premium.css for routes (auth) that load without that file */
   --gutter-mobile: 16px;
   --gutter-tablet: 24px;
   --gutter-desktop: 32px;
   --container-max: 1120px;
+  /* Responsive --gutter alias: 16 mobile, 24 tablet, 32 desktop */
+}
+@media (min-width: 768px) {
+  :root {
+    --gutter: 24px;
+  }
+}
+@media (min-width: 1024px) {
+  :root {
+    --gutter: 32px;
+  }
 }
 
-/* === PAGE ACCENTS (via data-theme on <html>) === */
-/* Default (home): teal. Other pages keep semantic accents. */
+/* === PAGE ACCENTS (via data-theme on <html>) ===
+   Primary action remains teal (#27c3c8) on every page.
+   page-accent is a subtle page-type hint for progress/trackers only,
+   never flooding cards or backgrounds. Homepage = teal benchmark. */
 :root {
   --page-accent: var(--color-teal);
   --page-accent-soft: var(--color-teal-dim);
@@ -93,22 +127,22 @@
   --page-accent-glow: var(--color-teal-glow);
 }
 html[data-theme='products'] {
-  --page-accent: #38bdf8;
-  --page-accent-soft: rgba(56, 189, 248, 0.1);
-  --page-accent-border: rgba(56, 189, 248, 0.25);
-  --page-accent-glow: rgba(56, 189, 248, 0.12);
+  --page-accent: var(--color-teal);
+  --page-accent-soft: rgba(39, 195, 200, 0.08);
+  --page-accent-border: rgba(39, 195, 200, 0.22);
+  --page-accent-glow: rgba(39, 195, 200, 0.1);
 }
 html[data-theme='orders'] {
-  --page-accent: #22c55e;
-  --page-accent-soft: rgba(34, 197, 94, 0.1);
-  --page-accent-border: rgba(34, 197, 94, 0.25);
-  --page-accent-glow: rgba(34, 197, 94, 0.12);
+  --page-accent: var(--color-teal);
+  --page-accent-soft: rgba(39, 195, 200, 0.08);
+  --page-accent-border: rgba(39, 195, 200, 0.22);
+  --page-accent-glow: rgba(39, 195, 200, 0.1);
 }
 html[data-theme='contact'] {
-  --page-accent: #38bdf8;
-  --page-accent-soft: rgba(56, 189, 248, 0.1);
-  --page-accent-border: rgba(56, 189, 248, 0.25);
-  --page-accent-glow: rgba(56, 189, 248, 0.12);
+  --page-accent: var(--color-teal);
+  --page-accent-soft: rgba(39, 195, 200, 0.08);
+  --page-accent-border: rgba(39, 195, 200, 0.22);
+  --page-accent-glow: rgba(39, 195, 200, 0.1);
 }
 
 /* === SUBTLE EDITORIAL GRID (Background texture) === */

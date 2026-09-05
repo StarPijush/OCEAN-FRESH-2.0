@@ -34,6 +34,11 @@ body {
   overflow-x: hidden;
   min-height: 100dvh;
 }
+@supports (overflow: clip) {
+  body {
+    overflow-x: clip;
+  }
+}
 #root {
   min-height: 100dvh;
   display: flex;
@@ -51,6 +56,69 @@ button {
 input,
 textarea {
   font-family: var(--font-body);
+}
+
+/* ── Typography polish — premium hierarchy, mobile-first ── */
+.hero-title,
+.section-title-lg,
+.contact-title,
+.about-mission-text,
+.cta-title {
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+.hero-desc,
+.about-body,
+.why-desc,
+.contact-sub,
+.catch-fish-sub,
+.prod-sub,
+.order-item-meta {
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+}
+.catch-price,
+.prod-price,
+.order-card__price,
+.price-row.total span:last-child,
+.qty-val {
+  font-variant-numeric: tabular-nums;
+}
+/* Eyebrow letter-spacing already 0.24-0.3em — keep, add optical adjustment for small caps */
+.section-eyebrow,
+.hero-eyebrow {
+  text-wrap: nowrap;
+}
+
+/* ── Skip link (a11y) ── */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 999;
+  padding: 12px 16px;
+  background: var(--color-navy-deep);
+  color: var(--color-text-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  border-radius: 2px;
+  border: 1px solid var(--color-teal);
+}
+.skip-link:focus {
+  left: 16px;
+  top: 16px;
+  width: auto;
+  height: auto;
+  overflow: visible;
+}
+.skip-link:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
 }
 
 /* ── Loader ── */
@@ -393,50 +461,59 @@ textarea {
   display: block;
 }
 
-/* ── Toast ── */
+/* ── Toast — above dock, not colliding with WA ── */
 #toast {
   position: fixed;
-  bottom: 82px;
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%) translateY(12px);
   background: var(--color-navy-deepest);
   color: var(--color-text-primary);
-  padding: 11px 22px;
-  border-radius: 2px;
-  font-size: 0.75rem;
+  padding: 10px 18px;
+  border-radius: 4px;
+  font-size: 0.72rem;
   font-weight: 500;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   z-index: 300;
   opacity: 0;
   pointer-events: none;
-  transition: all 0.3s var(--ease-out);
+  transition: all 0.25s var(--ease-out);
   white-space: nowrap;
   border-left: 3px solid var(--color-teal);
+  box-shadow: var(--shadow-md);
+  max-width: calc(100% - 32px);
 }
 #toast.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
 
-/* ── Floating WhatsApp ── */
+/* ── Floating WhatsApp — respects dock + safe-area ── */
 #wa-float {
   position: fixed;
-  bottom: 88px;
+  bottom: calc(84px + env(safe-area-inset-bottom, 0px));
   right: 16px;
   z-index: 170;
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: #25d366;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.35);
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.3);
   cursor: pointer;
+  border: none;
+  padding: 0;
+  font: inherit;
   transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+    transform 0.18s var(--ease-out),
+    box-shadow 0.18s var(--ease-out);
+}
+#wa-float:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
 }
 #wa-float:hover {
   transform: scale(1.08);
@@ -462,7 +539,7 @@ textarea {
   inset: 0;
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  opacity: 0.6;
+  opacity: 0.35;
 }
 .hero-grid {
   position: absolute;
@@ -470,7 +547,7 @@ textarea {
   background-image:
     linear-gradient(var(--grid-dark) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-dark) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-size: 32px 32px;
 }
 .hero-content {
   flex: 1;
@@ -483,22 +560,22 @@ textarea {
   z-index: 2;
 }
 .hero-eyebrow {
-  font-size: 0.82rem;
-  letter-spacing: 0.24em;
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--color-teal);
   font-weight: 600;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   animation: fade-up 1s 0.4s var(--ease-out) both;
 }
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(3.6rem, 14vw, 4.4rem);
+  font-size: clamp(3.4rem, 13vw, 5rem);
   font-weight: 500;
   color: var(--color-text-primary);
-  line-height: 0.92;
-  letter-spacing: -0.02em;
-  margin-bottom: 20px;
+  line-height: 0.88;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
   animation: fade-up 1s 0.55s var(--ease-out) both;
 }
 .hero-title em {
@@ -507,11 +584,11 @@ textarea {
   color: var(--color-teal);
 }
 .hero-desc {
-  font-size: 1.05rem;
+  font-size: 0.92rem;
   color: var(--color-text-secondary);
-  line-height: 1.7;
-  max-width: 320px;
-  margin-bottom: 28px;
+  line-height: 1.6;
+  max-width: 30ch;
+  margin-bottom: 24px;
   animation: fade-up 1s 0.7s var(--ease-out) both;
 }
 .hero-actions {
@@ -570,6 +647,26 @@ textarea {
   gap: 0;
   animation: ticker 22s linear infinite;
   white-space: nowrap;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ticker-inner {
+    animation: none;
+  }
+  .hero-scroll-line {
+    animation: none;
+  }
+  .hero-eyebrow,
+  .hero-title,
+  .hero-desc,
+  .hero-actions {
+    animation: none !important;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }
 .ticker-inner span {
   font-size: 0.65rem;
@@ -584,13 +681,18 @@ textarea {
   margin-right: 32px;
 }
 
-/* Section scaffolding — F4: smooth 768 jump (48px intermediate, 64px only at ≥1024) */
+/* Section scaffolding — homepage editorial rhythm, page-specific density */
 .section {
-  padding: 64px 24px;
+  padding: 56px 24px;
 }
 @media (min-width: 768px) and (max-width: 1023px) {
   .section {
     padding: 48px 24px;
+  }
+}
+@media (min-width: 1024px) {
+  .section {
+    padding: 64px 32px;
   }
 }
 .section-alt {
@@ -601,12 +703,12 @@ textarea {
   background: var(--color-ivory);
 }
 .section-eyebrow {
-  font-size: 0.6rem;
-  letter-spacing: 0.3em;
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--color-teal);
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .section-alt .section-eyebrow {
   color: var(--color-teal);
@@ -615,17 +717,17 @@ textarea {
   font-family: var(--font-display);
   font-size: clamp(2rem, 8vw, 3.2rem);
   font-weight: 300;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
+  line-height: 0.95;
+  letter-spacing: -0.015em;
 }
 .section-alt .section-title-lg {
   color: var(--color-text-heading);
 }
 .section-rule {
-  width: 32px;
+  width: 28px;
   height: 1px;
   background: var(--color-teal);
-  margin: 20px 0;
+  margin: 16px 0;
 }
 .section-action {
   margin-top: 20px;
@@ -1420,22 +1522,38 @@ textarea {
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  transition: all 0.25s var(--ease-out);
+  transition:
+    background 0.25s var(--ease-out),
+    color 0.25s var(--ease-out),
+    border-color 0.25s var(--ease-out),
+    transform 0.15s var(--ease-out),
+    box-shadow 0.25s var(--ease-out);
   cursor: pointer;
 }
 .btn:active {
   transform: scale(0.97);
 }
+.btn:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+}
 
 /* Primary: Navy background, warm ivory text */
-.btn-navy {
+.btn-navy,
+.btn-dark {
   background: var(--color-navy-deep);
   color: var(--color-text-primary);
   border: 1px solid var(--color-navy-deep);
 }
-.btn-navy:hover {
+.btn-navy:hover,
+.btn-dark:hover {
   background: var(--color-navy-surface);
   border-color: var(--color-navy-surface);
+}
+.btn-navy:focus-visible,
+.btn-dark:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
 }
 
 /* Ghost: Transparent, champagne border/text */
@@ -1448,6 +1566,13 @@ textarea {
   background: var(--color-champagne);
   color: var(--color-navy-deep);
   border-color: var(--color-champagne);
+}
+.btn-ghost:focus-visible,
+.btn-teal:focus-visible,
+.btn-outline-navy:focus-visible,
+.btn-wa-full:focus-visible {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
 }
 
 /* Accent: Teal background, navy text */
@@ -1537,6 +1662,10 @@ textarea {
     padding-right: var(--mobile-gutter);
     padding-top: 24px;
     padding-bottom: 24px;
+  }
+  /* Hide hero scroll indicator on mobile to avoid dock collision */
+  .hero-scroll {
+    display: none !important;
   }
   /* Hide Live Availability on mobile */
   .fresh-catch-section {

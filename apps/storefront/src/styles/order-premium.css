@@ -34,7 +34,7 @@
   line-height: 1;
 }
 
-/* ── PREMIUM ORDER ITEM CARD — FINAL COMPACT, single row, 20-22px ──
+/* ── ORDER ITEM CARD — conversion-focused, precise 16px (vs Contact 22px approachable) ──
    DRAGON BALL Z must stay ONE LINE — compress controls/gaps, not info */
 #page-order .order-card {
   display: flex;
@@ -45,8 +45,8 @@
   min-height: 100px;
   background: var(--color-ivory-card);
   border: 1px solid var(--color-ivory-border);
-  border-radius: 22px;
-  box-shadow: 0 2px 10px rgba(7, 21, 38, 0.06);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -374,12 +374,12 @@
   line-height: 1.4;
 }
 
-/* ── Order Summary — promote to 22px premium (override 8px legacy) ── */
+/* ── Order Summary — conversion 12px (precise), Contact 22px remains approachable ── */
 #page-order .order-summary-card {
   background: var(--color-ivory-card);
   border: 1px solid var(--color-ivory-border);
-  border-radius: 22px;
-  box-shadow: 0 2px 10px rgba(7, 21, 38, 0.06);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
   padding: 18px 16px;
   margin: 20px 0;
 }
@@ -392,13 +392,13 @@
   border: none;
 }
 
-/* ── Empty state — keep but ensure it matches cream system ── */
+/* ── Empty state — conversion 12px, not Contact 22px ── */
 #page-order .empty-state {
   background: var(--color-ivory-card);
   border: 1px solid var(--color-ivory-border);
-  border-radius: 22px;
+  border-radius: 12px;
   padding: 36px 20px 32px;
-  box-shadow: 0 2px 10px rgba(7, 21, 38, 0.04);
+  box-shadow: var(--shadow-card);
 }
 
 /* ── Ensure page bottom respects dock + safe-area ── */
@@ -413,7 +413,7 @@
   }
   #page-order .order-card {
     padding: 10px 10px;
-    border-radius: 18px;
+    border-radius: 14px;
     gap: 8px;
     min-height: 92px;
   }
@@ -481,7 +481,7 @@
     padding: 12px 16px;
   }
   #page-order .order-summary-card {
-    border-radius: 20px;
+    border-radius: 10px;
     padding: 16px 14px;
   }
   #page-order .divider {
@@ -514,7 +514,7 @@
   }
   #page-order .order-card {
     padding: 16px 18px;
-    border-radius: 24px;
+    border-radius: 16px;
     gap: 16px;
     min-height: 108px;
   }
@@ -537,7 +537,7 @@
   }
   #page-order .order-summary-card {
     padding: 22px 20px;
-    border-radius: 24px;
+    border-radius: 12px;
   }
   #page-order .divider {
     margin: 0 24px;

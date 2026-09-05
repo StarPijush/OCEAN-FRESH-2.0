@@ -1,18 +1,18 @@
 /* ── OceanFresh Cookie Consent — premium cookie card + preferences ── */
 /* Reference: 300px × 220px, 8px radius, subtle shadow — adapted to OceanFresh tokens */
 
-/* ── Banner card ── */
+/* ── Banner card — ivory-card + navy tinted shadow, not generic black ── */
 .cookie-consent {
   position: fixed;
   left: 50%;
-  bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 12px);
+  bottom: calc(84px + env(safe-area-inset-bottom, 0px) + 12px);
   z-index: 350;
   width: min(calc(100% - 32px), 360px);
   max-width: 300px;
-  background: var(--white);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 8px;
-  box-shadow: 2px 2px 20px rgba(0, 0, 0, 0.062);
+  background: var(--color-ivory-card);
+  border: 1px solid var(--color-ivory-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
   padding: 20px 22px;
   display: flex;
   flex-direction: column;
@@ -43,7 +43,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--muted);
+  color: var(--color-text-muted);
 }
 
 .cookie-consent__icon svg {
@@ -53,14 +53,14 @@
 }
 
 .cookie-consent__icon g path {
-  fill: var(--muted);
+  fill: var(--color-text-muted);
 }
 
 .cookie-consent__heading {
   font-family: var(--font-display);
-  font-size: 1.15rem;
+  font-size: 1.12rem;
   font-weight: 600;
-  color: var(--ink);
+  color: var(--color-text-light-primary);
   letter-spacing: -0.01em;
   line-height: 1.2;
   margin: 0;
@@ -70,25 +70,25 @@
   font-family: var(--font-body);
   font-size: 0.72rem;
   font-weight: 500;
-  color: var(--muted);
+  color: var(--color-text-light-secondary);
   line-height: 1.6;
   margin: 0;
   max-width: 28ch;
 }
 
 .cookie-consent__desc a {
-  color: var(--ocean);
+  color: var(--color-teal);
   text-decoration: underline;
   text-underline-offset: 2px;
   font-weight: 600;
 }
 
 .cookie-consent__desc a:hover {
-  color: var(--aqua);
+  color: var(--color-teal-hover);
 }
 
 .cookie-consent__desc a:focus-visible {
-  outline: 2px solid var(--aqua);
+  outline: 2px solid var(--color-teal);
   outline-offset: 2px;
   border-radius: 2px;
 }
@@ -128,41 +128,37 @@
 }
 
 .cookie-btn:focus-visible {
-  outline: 2px solid var(--aqua);
+  outline: 2px solid var(--color-teal);
   outline-offset: 2px;
 }
 
 .cookie-btn--primary {
-  background: var(--aqua);
-  color: var(--deep);
-  box-shadow:
-    0 4px 6px -1px rgba(74, 184, 193, 0.35),
-    0 2px 4px -1px rgba(74, 184, 193, 0.25);
+  background: var(--color-teal);
+  color: var(--color-navy-deep);
+  box-shadow: 0 2px 8px rgba(39, 195, 200, 0.25);
 }
 
 .cookie-btn--primary:hover {
-  background: #5bc8d1;
-  box-shadow:
-    0 8px 16px -3px rgba(74, 184, 193, 0.4),
-    0 4px 8px -2px rgba(74, 184, 193, 0.3);
+  background: var(--color-teal-hover);
+  box-shadow: 0 4px 12px rgba(39, 195, 200, 0.32);
 }
 
 .cookie-btn--secondary {
-  background: var(--sand);
-  color: var(--ink);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background: var(--color-ivory);
+  color: var(--color-text-light-primary);
+  border: 1px solid var(--color-ivory-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .cookie-btn--secondary:hover {
-  background: var(--white);
-  border-color: rgba(0, 0, 0, 0.18);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: var(--color-ivory-card);
+  border-color: rgba(7, 21, 38, 0.14);
+  box-shadow: var(--shadow-md);
 }
 
 .cookie-btn--ghost {
   background: transparent;
-  color: var(--muted);
+  color: var(--color-text-muted);
   border: 1px solid transparent;
   min-width: auto;
   padding: 8px 14px;
@@ -174,9 +170,9 @@
 }
 
 .cookie-btn--ghost:hover {
-  color: var(--ink);
-  background: rgba(0, 0, 0, 0.04);
-  border-color: rgba(0, 0, 0, 0.08);
+  color: var(--color-text-light-primary);
+  background: var(--color-ivory);
+  border-color: var(--color-ivory-border);
 }
 
 /* ── Preferences overlay ── */
@@ -201,7 +197,7 @@
   pointer-events: auto;
 }
 
-/* ── Preferences panel ── */
+/* ── Preferences panel — ivory-card + 12px, system aligned ── */
 .cookie-prefs {
   position: fixed;
   left: 50%;
@@ -209,10 +205,10 @@
   z-index: 345;
   width: min(calc(100% - 32px), 420px);
   max-height: min(85dvh, 560px);
-  background: var(--white);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 8px;
-  box-shadow: 0 12px 40px rgba(6, 14, 26, 0.18);
+  background: var(--color-ivory-card);
+  border: 1px solid var(--color-ivory-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
   padding: 20px 20px calc(16px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;

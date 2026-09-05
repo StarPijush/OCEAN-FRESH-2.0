@@ -21,7 +21,7 @@
 #page-privacy .legal-shell,
 #page-terms .legal-shell,
 #page-cookie-policy .legal-shell {
-  max-width: var(--container-max);
+  max-width: 760px;
   margin: 0 auto;
   padding: 32px 16px 48px;
   box-sizing: border-box;
@@ -185,10 +185,11 @@
 
 .legal-section p {
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   color: var(--color-text-light-secondary);
-  line-height: 1.75;
-  margin: 0 0 12px;
+  line-height: 1.78;
+  margin: 0 0 14px;
+  max-width: 65ch;
 }
 
 .legal-section p:last-child {
@@ -203,10 +204,11 @@
 
 .legal-section li {
   font-family: var(--font-body);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   color: var(--color-text-light-secondary);
   line-height: 1.7;
   margin-bottom: 6px;
+  max-width: 65ch;
 }
 
 .legal-section strong {

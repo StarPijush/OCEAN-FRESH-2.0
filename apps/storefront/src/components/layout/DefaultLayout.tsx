@@ -49,9 +49,14 @@ export function DefaultLayout() {
 
   return (
     <>
+      <a href="#main-content" className="skip-link">
+        Skip to content
+      </a>
       <CardNav items={NAV_ITEMS} ease="power3.out" />
 
-      <Outlet />
+      <main id="main-content" tabIndex={-1}>
+        <Outlet />
+      </main>
 
       <BottomNav />
       <FloatingWhatsApp />

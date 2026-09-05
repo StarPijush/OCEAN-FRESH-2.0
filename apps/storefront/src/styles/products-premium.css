@@ -608,20 +608,20 @@
   gap: 0;
   height: 100%;
   background: var(--color-ivory-card);
-  border: 1px solid rgba(7, 21, 38, 0.08);
+  border: 1px solid rgba(7, 21, 38, 0.07);
   border-radius: 8px;
   overflow: hidden;
   padding: 0;
-  box-shadow: 0 1px 4px rgba(7, 21, 38, 0.06);
+  box-shadow: var(--shadow-card);
   transition:
-    border-color 0.2s var(--ease-out),
-    box-shadow 0.2s var(--ease-out);
+    border-color 0.18s var(--ease-out),
+    box-shadow 0.18s var(--ease-out);
   will-change: transform;
 }
 
 #page-products .prod-item.prod-premium:hover {
-  border-color: rgba(7, 21, 38, 0.12);
-  box-shadow: 0 4px 12px rgba(7, 21, 38, 0.08);
+  border-color: rgba(7, 21, 38, 0.1);
+  box-shadow: var(--shadow-card-hover);
   transform: none;
 }
 
@@ -718,7 +718,7 @@
   padding: 10px 10px 0;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 2px;
   flex: 1;
   min-width: 0;
   text-align: center;
@@ -798,11 +798,11 @@
 
 #page-products .prod-price {
   font-family: var(--font-body);
-  font-size: 1.32rem;
-  font-weight: 800;
+  font-size: 1.08rem;
+  font-weight: 700;
   color: var(--color-text-light-primary);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
   line-height: 1;
   text-align: center;
 }
